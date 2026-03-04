@@ -2,7 +2,7 @@
 
 ## 📌 Sobre o Projeto
 
-O **IREST** é uma plataforma web desenvolvida como Projeto Integrador (PIT), com o objetivo de auxiliar usuários em momentos delicados de luto, permitindo:
+O **IREST** é uma plataforma web desenvolvida como Projeto de Inovação Tecnológica (PIT), com o objetivo de auxiliar usuários em momentos delicados de luto, permitindo:
 
 * 🔎 Busca por funerárias
 * ⭐ Avaliação de serviços
