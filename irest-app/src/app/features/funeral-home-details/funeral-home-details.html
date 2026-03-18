@@ -11,10 +11,10 @@
     <section class="funeral-home-header">
       <h1>{{ funeraria.nome }}</h1>
       <div class="rating-section">
-        <span class="rating">⭐ {{ getAverageRating() }}</span>
+        <span class="rating">{{ getAverageRating() }}/5</span>
         <span class="reviews">({{ reviews.length }} avaliações)</span>
       </div>
-      <p class="location">📍 {{ funeraria.cidade }} • {{ funeraria.estado }}</p>
+      <p class="location">{{ funeraria.cidade }} - {{ funeraria.estado }}</p>
     </section>
 
     <section class="details-grid">
@@ -29,10 +29,9 @@
       <div class="detail-card">
         <h3>Informações de Contato</h3>
         <p *ngIf="funeraria.telefone"><strong>Telefone:</strong> <a [href]="'tel:' + funeraria.telefone">{{ funeraria.telefone }}</a></p>
-        <p *ngIf="funeraria.email"><strong>Email:</strong> <a [href]="'mailto:' + funeraria.email">{{ funeraria.email }}</a></p>
-        <p *ngIf="funeraria.endereco"><strong>Endereço:</strong> {{ funeraria.endereco }}</p>
-        <p *ngIf="funeraria.horario"><strong>Horário:</strong> {{ funeraria.horario }}</p>
-        <p *ngIf="!funeraria.telefone && !funeraria.email && !funeraria.endereco">Informações de contato não disponíveis</p>
+        <p *ngIf="funeraria.endereco"><strong>Endereco:</strong> {{ funeraria.endereco }}</p>
+        <p *ngIf="funeraria.horario"><strong>Horario:</strong> {{ funeraria.horario }}</p>
+        <p *ngIf="!funeraria.telefone && !funeraria.endereco">Informacoes de contato nao disponiveis</p>
       </div>
 
       <div class="detail-card">
@@ -54,7 +53,7 @@
       <div class="detail-card" *ngIf="reviews.length > 0">
         <h3>Avaliações Recentes</h3>
         <div *ngFor="let review of reviews.slice(0, 3)" class="review-item">
-          <p><strong>{{ review.usuarioNome }}</strong> - ⭐ {{ review.nota }}</p>
+          <p><strong>{{ review.usuarioNome }}</strong> - {{ review.nota }}/5</p>
           <p>{{ review.comentario }}</p>
         </div>
       </div>

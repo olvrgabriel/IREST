@@ -9,6 +9,7 @@ using IREST.API.Data;
 using IREST.API.Models;
 using IREST.API.DTOs;
 using IREST.API.Extensions;
+using BCrypt.Net;
 
 namespace IREST.API.Controllers
 {
@@ -59,7 +60,8 @@ namespace IREST.API.Controllers
 
             existing.Nome = admin.Nome;
             existing.Email = admin.Email;
-            existing.Senha = admin.Senha ?? existing.Senha;
+            if (!string.IsNullOrEmpty(admin.Senha))
+                existing.Senha = BCrypt.Net.BCrypt.HashPassword(admin.Senha);
 
             try
             {
@@ -84,6 +86,9 @@ namespace IREST.API.Controllers
         [HttpPost]
         public async Task<ActionResult<AdminDto>> PostAdmin(Admin admin)
         {
+            if (!string.IsNullOrEmpty(admin.Senha))
+                admin.Senha = BCrypt.Net.BCrypt.HashPassword(admin.Senha);
+
             _context.Admins.Add(admin);
             await _context.SaveChangesAsync();
 

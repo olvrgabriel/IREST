@@ -1,43 +1,42 @@
 <app-header></app-header>
 <main class="home-container">
   <section class="hero-section">
-    <h1>Encontre serviços funerários com calma e transparência</h1>
-    <p>Compare opções, preços e avaliações — tudo em um só lugar, com visual sereno nas cores azul e branco.</p>
+    <h1>Encontre servicos funerarios com calma e transparencia</h1>
+    <p>Compare opcoes, precos e avaliacoes - tudo em um so lugar.</p>
 
     <div class="search-bar">
-      <select class="search-input">
-        <option value="">Belo Horizonte</option>
-      </select>
-      <select class="search-input">
-        <option value="">Tipo de serviço</option>
-      </select>
-      <input type="text" class="search-input" placeholder="Pesquisar (nome/bairro)">
-      <input type="number" class="search-input price" placeholder="Preço min (R$)">
-      <input type="number" class="search-input price" placeholder="Preço máx (R$)">
-      <a routerLink="/busca" class="search-button">Buscar</a>
+      <input type="text" class="search-input" placeholder="Pesquisar (nome/cidade)" [(ngModel)]="searchText">
+      <input type="number" class="search-input price" placeholder="Preco min (R$)" [(ngModel)]="precoMin">
+      <input type="number" class="search-input price" placeholder="Preco max (R$)" [(ngModel)]="precoMax">
+      <button class="search-button" (click)="buscar()">Buscar</button>
     </div>
   </section>
 
   <section class="highlights">
-    <div *ngIf="loading" class="loading-message">
-      Carregando funerárias...
-    </div>
     <div *ngIf="error" class="error-message">
       {{ error }}
+      <br>
+      <button (click)="loadFunerarias()" class="btn-outline" style="margin-top:10px">Tentar novamente</button>
     </div>
+
+    <div *ngIf="!error && funerarias.length === 0" class="no-data-message">
+      Nenhuma funeraria encontrada. Cadastre funerarias no painel admin.
+    </div>
+
     <div *ngFor="let funeraria of funerarias" class="card highlight-card">
       <div class="card-header">
         <div>
           <h3>{{ funeraria.nome }}</h3>
-          <p class="location">{{ funeraria.cidade }} • {{ funeraria.estado }}</p>
+          <p class="location">{{ funeraria.cidade }} {{ funeraria.estado ? '- ' + funeraria.estado : '' }}</p>
         </div>
-        <div class="rating">⭐ {{ getAverageRating(funeraria) }}</div>
+        <div class="rating" *ngIf="getAverageRating(funeraria) > 0">{{ getAverageRating(funeraria) }}/5</div>
       </div>
-      <div class="tags">
-        <span *ngFor="let servico of funeraria.servicos?.slice(0, 2)" class="tag">{{ servico.nome }}</span>
+      <p class="description" *ngIf="funeraria.descricao">{{ funeraria.descricao }}</p>
+      <div class="tags" *ngIf="funeraria.servicos && funeraria.servicos.length > 0">
+        <span *ngFor="let servico of funeraria.servicos.slice(0, 3)" class="tag">{{ servico.nome }}</span>
       </div>
       <div class="card-footer">
-        <span class="price">A partir de R$ {{ getMinPrice(funeraria) }}</span>
+        <span class="price" *ngIf="getMinPrice(funeraria) > 0">A partir de R$ {{ getMinPrice(funeraria) }}</span>
         <a [routerLink]="['/detalhes', funeraria.id]" class="btn-outline">Ver detalhes</a>
       </div>
     </div>

@@ -7,6 +7,7 @@ using IREST.API.Data;
 using IREST.API.Models;
 using IREST.API.DTOs;
 using IREST.API.Extensions;
+using BCrypt.Net;
 
 namespace IREST.API.Controllers
 {
@@ -64,7 +65,8 @@ namespace IREST.API.Controllers
 
             existing.Nome = usuario.Nome;
             existing.Email = usuario.Email;
-            existing.Senha = usuario.Senha ?? existing.Senha;
+            if (!string.IsNullOrEmpty(usuario.Senha))
+                existing.Senha = BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
 
             try
             {
@@ -86,10 +88,12 @@ namespace IREST.API.Controllers
         }
 
         // POST: api/Usuarios
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<UsuarioDto>> PostUsuario(Usuario usuario)
         {
+            if (!string.IsNullOrEmpty(usuario.Senha))
+                usuario.Senha = BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
+
             _context.Usuarios.Add(usuario);
             await _context.SaveChangesAsync();
 

@@ -1,15 +1,14 @@
 export interface Funeraria {
   id: number;
   nome: string;
-  email?: string;
-  descricao: string;
+  descricao?: string | null;
   cidade: string;
-  estado: string;
-  latitude: number;
-  longitude: number;
-  telefone?: string;
-  endereco?: string;
-  horario?: string;
+  estado?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  telefone?: string | null;
+  endereco?: string | null;
+  horario?: string | null;
   reviews: any[];
   servicos: any[];
   favoritos: any[];
