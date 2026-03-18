@@ -54,12 +54,16 @@ namespace IREST.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutServico(int id, Servico servico)
         {
-            if (id != servico.Id)
+            var existing = await _context.Servicos.FindAsync(id);
+            if (existing == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(servico).State = EntityState.Modified;
+            existing.Nome = servico.Nome;
+            existing.Descricao = servico.Descricao;
+            existing.Preco = servico.Preco;
+            existing.FunerariaId = servico.FunerariaId;
 
             try
             {

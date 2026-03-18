@@ -56,12 +56,13 @@ namespace IREST.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutChatbotSession(int id, ChatbotSession session)
         {
-            if (id != session.Id)
+            var existing = await _context.ChatbotSessions.FindAsync(id);
+            if (existing == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(session).State = EntityState.Modified;
+            existing.UsuarioId = session.UsuarioId;
 
             try
             {

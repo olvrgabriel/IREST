@@ -1,0 +1,88 @@
+.search-layout {
+  display: flex;
+  gap: 32px;
+  padding: 32px 48px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.sidebar-filters {
+  width: 250px;
+  flex-shrink: 0;
+  
+  .filter-group {
+    margin-bottom: 24px;
+    
+    h4 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-weight: 500;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    select, input[type="number"] {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      margin-bottom: 8px;
+      background-color: var(--bg-light);
+      box-sizing: border-box;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+
+      input[type="checkbox"] {
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+.results-content {
+  flex-grow: 1;
+
+  .results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 24px;
+
+    h2 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    .results-count {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+  }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    
+    /* Reutiliza o estilo .highlight-card do home, mas garante largura 100% do container do grid */
+    .highlight-card {
+      width: auto; 
+    }
+  }
+}

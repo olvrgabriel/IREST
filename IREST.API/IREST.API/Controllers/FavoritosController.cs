@@ -56,12 +56,14 @@ namespace IREST.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutFavorito(int id, Favorito favorito)
         {
-            if (id != favorito.Id)
+            var existing = await _context.Favoritos.FindAsync(id);
+            if (existing == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(favorito).State = EntityState.Modified;
+            existing.UsuarioId = favorito.UsuarioId;
+            existing.FunerariaId = favorito.FunerariaId;
 
             try
             {

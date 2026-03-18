@@ -1,0 +1,66 @@
+/* Reutiliza a maioria das classes do painel da funerária. 
+   Você pode colocar essas regras base no styles.css global se preferir, 
+   mas aqui está o escopo para este componente */
+
+.dashboard-layout {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 32px 48px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.dashboard-header h1 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.tabs-nav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 32px;
+  background-color: #f1f5f9;
+  padding: 4px;
+  border-radius: 24px;
+  width: fit-content;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background-color: var(--white);
+  color: var(--text-main);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.admin-content-area {
+  /* Área em branco conforme o design da imagem */
+  min-height: 400px;
+}
