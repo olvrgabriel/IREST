@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using IREST.API.Data;
 using IREST.API.Models;
+using IREST.API.DTOs;
+using IREST.API.Extensions;
 
 namespace IREST.API.Controllers
 {
@@ -23,23 +25,33 @@ namespace IREST.API.Controllers
 
         // GET: api/Funerarias
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Funeraria>>> GetFunerarias()
+        public async Task<ActionResult<IEnumerable<FunerariaDto>>> GetFunerarias()
         {
-            return await _context.Funerarias.ToListAsync();
+            var funerarias = await _context.Funerarias
+                .Include(f => f.Reviews)
+                .Include(f => f.Servicos)
+                .Include(f => f.Favoritos)
+                .ToListAsync();
+
+            return funerarias.Select(f => f.ToDto()).ToList();
         }
 
         // GET: api/Funerarias/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Funeraria>> GetFuneraria(int id)
+        public async Task<ActionResult<FunerariaDto>> GetFuneraria(int id)
         {
-            var funeraria = await _context.Funerarias.FindAsync(id);
+            var funeraria = await _context.Funerarias
+                .Include(f => f.Reviews)
+                .Include(f => f.Servicos)
+                .Include(f => f.Favoritos)
+                .FirstOrDefaultAsync(f => f.Id == id);
 
             if (funeraria == null)
             {
                 return NotFound();
             }
 
-            return funeraria;
+            return funeraria.ToDto();
         }
 
         // PUT: api/Funerarias/5
@@ -76,12 +88,18 @@ namespace IREST.API.Controllers
         // POST: api/Funerarias
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Funeraria>> PostFuneraria(Funeraria funeraria)
+        public async Task<ActionResult<FunerariaDto>> PostFuneraria(Funeraria funeraria)
         {
             _context.Funerarias.Add(funeraria);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetFuneraria", new { id = funeraria.Id }, funeraria);
+            var created = await _context.Funerarias
+                .Include(f => f.Reviews)
+                .Include(f => f.Servicos)
+                .Include(f => f.Favoritos)
+                .FirstOrDefaultAsync(f => f.Id == funeraria.Id);
+
+            return CreatedAtAction("GetFuneraria", new { id = funeraria.Id }, created.ToDto());
         }
 
         // DELETE: api/Funerarias/5
