@@ -1,0 +1,68 @@
+<app-header></app-header>
+<main class="details-container">
+  <div *ngIf="loading" class="loading-message">
+    Carregando detalhes...
+  </div>
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <ng-container *ngIf="!loading && funeraria">
+    <section class="funeral-home-header">
+      <h1>{{ funeraria.nome }}</h1>
+      <div class="rating-section">
+        <span class="rating">⭐ {{ getAverageRating() }}</span>
+        <span class="reviews">({{ reviews.length }} avaliações)</span>
+      </div>
+      <p class="location">📍 {{ funeraria.cidade }} • {{ funeraria.estado }}</p>
+    </section>
+
+    <section class="details-grid">
+      <div class="detail-card">
+        <h3>Serviços Oferecidos</h3>
+        <ul>
+          <li *ngFor="let servico of servicos">{{ servico.nome }} - R$ {{ servico.preco }}</li>
+          <li *ngIf="servicos.length === 0">Nenhum serviço cadastrado</li>
+        </ul>
+      </div>
+
+      <div class="detail-card">
+        <h3>Informações de Contato</h3>
+        <p *ngIf="funeraria.telefone"><strong>Telefone:</strong> <a [href]="'tel:' + funeraria.telefone">{{ funeraria.telefone }}</a></p>
+        <p *ngIf="funeraria.email"><strong>Email:</strong> <a [href]="'mailto:' + funeraria.email">{{ funeraria.email }}</a></p>
+        <p *ngIf="funeraria.endereco"><strong>Endereço:</strong> {{ funeraria.endereco }}</p>
+        <p *ngIf="funeraria.horario"><strong>Horário:</strong> {{ funeraria.horario }}</p>
+        <p *ngIf="!funeraria.telefone && !funeraria.email && !funeraria.endereco">Informações de contato não disponíveis</p>
+      </div>
+
+      <div class="detail-card">
+        <h3>Tabela de Preços</h3>
+        <table class="price-table" *ngIf="servicos.length > 0">
+          <tr *ngFor="let servico of servicos">
+            <td>{{ servico.nome }}</td>
+            <td>R$ {{ servico.preco }}</td>
+          </tr>
+        </table>
+        <p *ngIf="servicos.length === 0">Nenhum preço cadastrado</p>
+      </div>
+
+      <div class="detail-card">
+        <h3>Sobre</h3>
+        <p>{{ funeraria.descricao }}</p>
+      </div>
+
+      <div class="detail-card" *ngIf="reviews.length > 0">
+        <h3>Avaliações Recentes</h3>
+        <div *ngFor="let review of reviews.slice(0, 3)" class="review-item">
+          <p><strong>{{ review.usuarioNome }}</strong> - ⭐ {{ review.nota }}</p>
+          <p>{{ review.comentario }}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="action-section">
+      <a [routerLink]="['/avaliar', funeraria.id]" class="btn-primary">Avaliar Funerária</a>
+      <a routerLink="/chat" class="btn-secondary">Falar com Chatbot</a>
+    </section>
+  </ng-container>
+</main>

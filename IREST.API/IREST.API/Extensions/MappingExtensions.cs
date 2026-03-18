@@ -36,6 +36,9 @@ namespace IREST.API.Extensions
                 Estado = f.Estado,
                 Latitude = f.Latitude,
                 Longitude = f.Longitude,
+                Telefone = f.Telefone,
+                Endereco = f.Endereco,
+                Horario = f.Horario,
                 Reviews = f.Reviews?.Select(r => r.ToDto()).ToList(),
                 Servicos = f.Servicos?.Select(s => s.ToDto()).ToList(),
                 Favoritos = f.Favoritos?.Select(fr => fr.ToDto()).ToList()

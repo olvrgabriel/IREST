@@ -52,12 +52,14 @@ namespace IREST.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutChatbotMessage(int id, ChatbotMessage message)
         {
-            if (id != message.Id)
+            var existing = await _context.ChatbotMessages.FindAsync(id);
+            if (existing == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(message).State = EntityState.Modified;
+            existing.Mensagem = message.Mensagem;
+            existing.Remetente = message.Remetente;
 
             try
             {

@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.figma.com)",
+      "Bash(rsync -a --exclude='.git' --exclude='node_modules' --exclude='.angular' irest-app/ \"C:/Users/Gabriel Oliveira/Desktop/IREST/IREST/.claude/worktrees/nice-pare/irest-app/\")",
+      "Bash(xcopy /E /I /Y /EXCLUDE:.gitignore \"irest-app\\\\src\" \"C:\\\\Users\\\\Gabriel Oliveira\\\\Desktop\\\\IREST\\\\IREST\\\\.claude\\\\worktrees\\\\nice-pare\\\\irest-app\\\\src\")",
+      "Bash(cp \"irest-app/package.json\" \"C:\\\\Users\\\\Gabriel Oliveira\\\\Desktop\\\\IREST\\\\IREST\\\\.claude\\\\worktrees\\\\nice-pare\\\\irest-app\\\\package.json\")",
+      "Bash(cp \"irest-app/angular.json\" \"C:\\\\Users\\\\Gabriel Oliveira\\\\Desktop\\\\IREST\\\\IREST\\\\.claude\\\\worktrees\\\\nice-pare\\\\irest-app\\\\angular.json\")",
+      "Bash(cp \"irest-app/tsconfig.json\" \"C:\\\\Users\\\\Gabriel Oliveira\\\\Desktop\\\\IREST\\\\IREST\\\\.claude\\\\worktrees\\\\nice-pare\\\\irest-app\\\\tsconfig.json\")",
+      "Bash(cp \"irest-app/tsconfig.app.json\" \"C:\\\\Users\\\\Gabriel Oliveira\\\\Desktop\\\\IREST\\\\IREST\\\\.claude\\\\worktrees\\\\nice-pare\\\\irest-app\\\\tsconfig.app.json\")",
+      "Bash(cp \"irest-app/tsconfig.spec.json\" \"C:\\\\Users\\\\Gabriel Oliveira\\\\Desktop\\\\IREST\\\\IREST\\\\.claude\\\\worktrees\\\\nice-pare\\\\irest-app\\\\tsconfig.spec.json\")",
+      "Bash(cp -r irest-app/src \"C:/Users/Gabriel Oliveira/Desktop/IREST/IREST/.claude/worktrees/nice-pare/irest-app/src\")",
+      "Bash(for f:*)",
+      "Bash(do cp:*)",
+      "Bash(done)",
+      "Bash(npx ng:*)",
+      "Bash(taskkill //F //IM node.exe)"
+    ]
+  }
+}

@@ -55,16 +55,24 @@ namespace IREST.API.Controllers
         }
 
         // PUT: api/Funerarias/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutFuneraria(int id, Funeraria funeraria)
         {
-            if (id != funeraria.Id)
+            var existing = await _context.Funerarias.FindAsync(id);
+            if (existing == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(funeraria).State = EntityState.Modified;
+            existing.Nome = funeraria.Nome;
+            existing.Descricao = funeraria.Descricao;
+            existing.Cidade = funeraria.Cidade;
+            existing.Estado = funeraria.Estado;
+            existing.Latitude = funeraria.Latitude;
+            existing.Longitude = funeraria.Longitude;
+            existing.Telefone = funeraria.Telefone;
+            existing.Endereco = funeraria.Endereco;
+            existing.Horario = funeraria.Horario;
 
             try
             {

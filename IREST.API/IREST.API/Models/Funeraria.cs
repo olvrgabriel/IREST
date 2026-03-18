@@ -9,6 +9,9 @@
         public string Estado { get; set; }
         public decimal? Latitude { get; set; }
         public decimal? Longitude { get; set; }
+        public string? Telefone { get; set; }
+        public string? Endereco { get; set; }
+        public string? Horario { get; set; }
 
         public ICollection<Review> Reviews { get; set; }
         public ICollection<Servico> Servicos { get; set; }

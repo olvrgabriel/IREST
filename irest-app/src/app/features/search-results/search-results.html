@@ -1,0 +1,63 @@
+<app-header></app-header>
+<main class="search-layout">
+  <aside class="sidebar-filters">
+    <div class="filter-group">
+      <h4>Filtros</h4>
+      <label>Localização</label>
+      <select><option>Belo Horizonte</option></select>
+    </div>
+
+    <div class="filter-group">
+      <label>Faixa de Preço</label>
+      <input type="number" placeholder="Mín. R$">
+      <input type="number" placeholder="Máx. R$">
+    </div>
+
+    <div class="filter-group">
+      <label>Avaliação</label>
+      <div class="checkbox-item"><input type="checkbox"> ⭐⭐⭐⭐⭐ & acima</div>
+      <div class="checkbox-item"><input type="checkbox"> ⭐⭐⭐⭐ & acima</div>
+      <div class="checkbox-item"><input type="checkbox"> ⭐⭐⭐ & acima</div>
+    </div>
+
+    <div class="filter-group">
+      <label>Serviços</label>
+      <div class="checkbox-item"><input type="checkbox"> Caixões</div>
+      <div class="checkbox-item"><input type="checkbox"> Flores</div>
+      <div class="checkbox-item"><input type="checkbox"> Cremação</div>
+    </div>
+  </aside>
+
+  <section class="results-content">
+    <div class="results-header">
+      <h2>Resultados da Busca</h2>
+      <span class="results-count">{{ funerarias.length }} funerárias encontradas</span>
+    </div>
+
+    <div *ngIf="loading" class="loading-message">
+      Carregando funerárias...
+    </div>
+    <div *ngIf="error" class="error-message">
+      {{ error }}
+    </div>
+
+    <div class="results-grid">
+      <div *ngFor="let funeraria of funerarias" class="card highlight-card">
+        <div class="card-header">
+          <div>
+            <h3>{{ funeraria.nome }}</h3>
+            <p class="location">{{ funeraria.cidade }} • {{ funeraria.estado }}</p>
+          </div>
+          <div class="rating">⭐ {{ getAverageRating(funeraria) }}</div>
+        </div>
+        <div class="tags">
+          <span *ngFor="let servico of funeraria.servicos?.slice(0, 3)" class="tag">{{ servico.nome }}</span>
+        </div>
+        <div class="card-footer">
+          <span class="price">A partir de R$ {{ getMinPrice(funeraria) }}</span>
+          <a [routerLink]="['/detalhes', funeraria.id]" class="btn-outline">Ver mais</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

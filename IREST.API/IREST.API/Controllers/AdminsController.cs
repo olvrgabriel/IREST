@@ -49,12 +49,17 @@ namespace IREST.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAdmin(int id, Admin admin)
         {
-            if (id != admin.Id)
+            admin.Id = id;
+
+            var existing = await _context.Admins.FindAsync(id);
+            if (existing == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(admin).State = EntityState.Modified;
+            existing.Nome = admin.Nome;
+            existing.Email = admin.Email;
+            existing.Senha = admin.Senha ?? existing.Senha;
 
             try
             {

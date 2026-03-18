@@ -53,16 +53,18 @@ namespace IREST.API.Controllers
         }
 
         // PUT: api/Usuarios/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUsuario(int id, Usuario usuario)
         {
-            if (id != usuario.Id)
+            var existing = await _context.Usuarios.FindAsync(id);
+            if (existing == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(usuario).State = EntityState.Modified;
+            existing.Nome = usuario.Nome;
+            existing.Email = usuario.Email;
+            existing.Senha = usuario.Senha ?? existing.Senha;
 
             try
             {

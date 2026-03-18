@@ -55,16 +55,20 @@ namespace IREST.API.Controllers
         }
 
         // PUT: api/Reviews/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutReview(int id, Review review)
         {
-            if (id != review.Id)
+            var existing = await _context.Reviews.FindAsync(id);
+            if (existing == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(review).State = EntityState.Modified;
+            existing.Nota = review.Nota;
+            existing.Comentario = review.Comentario;
+            existing.UsuarioId = review.UsuarioId;
+            existing.FunerariaId = review.FunerariaId;
+            existing.AdminId = review.AdminId;
 
             try
             {
