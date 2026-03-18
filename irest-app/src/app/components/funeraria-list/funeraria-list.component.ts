@@ -37,10 +37,10 @@ import { Router } from '@angular/router';
       <div *ngIf="!loading && funerarias.length > 0" class="funerarias-grid">
         <div *ngFor="let funeraria of funerarias" class="funeraria-card" (click)="viewDetails(funeraria.id)">
           <h3>{{ funeraria.nome }}</h3>
-          <p class="location">📍 {{ funeraria.cidade }}, {{ funeraria.estado }}</p>
+          <p class="location">{{ funeraria.cidade }}, {{ funeraria.estado }}</p>
           <p class="description">{{ funeraria.descricao }}</p>
           <div class="rating">
-            <span>⭐ {{ getAverageRating(funeraria) }}</span>
+            <span>{{ getAverageRating(funeraria) }}</span>
             <span class="review-count">({{ funeraria.reviews?.length || 0 }} avaliações)</span>
           </div>
           <p *ngIf="funeraria.servicos && funeraria.servicos.length > 0" class="services">

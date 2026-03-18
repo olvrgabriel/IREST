@@ -1,59 +1,60 @@
 <div class="admin-container">
-  <h1>⚙️ Painel de Administração - CRUD Completo</h1>
+  <h1>Painel de Administracao - CRUD Completo</h1>
 
   <!-- Messages -->
   <div *ngIf="success" class="alert alert-success">
-    ✓ {{ success }}
-    <button (click)="clearMessages()">×</button>
+    {{ success }}
+    <button (click)="dismissSuccess()">X</button>
   </div>
   <div *ngIf="error" class="alert alert-error">
-    ✗ {{ error }}
-    <button (click)="clearMessages()">×</button>
+    {{ error }}
+    <button (click)="dismissError()">X</button>
   </div>
 
   <!-- Tabs Navigation -->
   <div class="tabs-navigation">
-    <button [class.active]="activeTab === 'admins'" (click)="switchTab('admins')">👤 Admins</button>
-    <button [class.active]="activeTab === 'usuarios'" (click)="switchTab('usuarios')">👥 Usuários</button>
-    <button [class.active]="activeTab === 'funerarias'" (click)="switchTab('funerarias')">🏢 Funerárias</button>
-    <button [class.active]="activeTab === 'reviews'" (click)="switchTab('reviews')">⭐ Avaliações</button>
-    <button [class.active]="activeTab === 'servicos'" (click)="switchTab('servicos')">📋 Serviços</button>
-    <button [class.active]="activeTab === 'favoritos'" (click)="switchTab('favoritos')">❤️ Favoritos</button>
-    <button [class.active]="activeTab === 'chatbot'" (click)="switchTab('chatbot')">💬 Chatbot</button>
+    <button [class.active]="activeTab === 'admins'" (click)="switchTab('admins')">Admins</button>
+    <button [class.active]="activeTab === 'usuarios'" (click)="switchTab('usuarios')">Usuarios</button>
+    <button [class.active]="activeTab === 'funerarias'" (click)="switchTab('funerarias')">Funerarias</button>
+    <button [class.active]="activeTab === 'reviews'" (click)="switchTab('reviews')">Avaliacoes</button>
+    <button [class.active]="activeTab === 'servicos'" (click)="switchTab('servicos')">Servicos</button>
+    <button [class.active]="activeTab === 'favoritos'" (click)="switchTab('favoritos')">Favoritos</button>
+    <button [class.active]="activeTab === 'chatbot'" (click)="switchTab('chatbot')">Chatbot</button>
   </div>
-
-  <!-- Loading Indicator -->
-  <div *ngIf="loading" class="loading">⏳ Carregando...</div>
 
   <!-- ADMINS TAB -->
   <div *ngIf="activeTab === 'admins'" class="tab-content">
-    <h2>👤 Gerenciar Admins</h2>
+    <h2>Gerenciar Admins</h2>
 
     <div class="form-section">
-      <h3>{{ editingId ? '✏️ Editar Admin' : '➕ Criar Novo Admin' }}</h3>
+      <h3>{{ editingId ? 'Editar Admin' : 'Criar Novo Admin' }}</h3>
       <form (ngSubmit)="saveAdmin()">
         <div class="form-group">
           <label>Nome:</label>
-          <input [(ngModel)]="adminForm.nome" name="nome" type="text" placeholder="Ex: João Silva" required>
+          <input [(ngModel)]="adminForm.nome" name="nome" type="text" placeholder="Ex: Joao Silva" required>
         </div>
         <div class="form-group">
           <label>Email:</label>
           <input [(ngModel)]="adminForm.email" name="email" type="email" placeholder="Ex: joao@example.com" required>
         </div>
-        <button type="submit" class="btn-primary">{{ editingId ? '💾 Atualizar' : '➕ Criar' }}</button>
-        <button *ngIf="editingId" type="button" class="btn-secondary" (click)="resetAdminForm()">❌ Cancelar</button>
+        <div class="form-group">
+          <label>Senha:</label>
+          <input [(ngModel)]="adminForm.senha" name="senha" type="password" placeholder="Senha">
+        </div>
+        <button type="submit" class="btn-primary">{{ editingId ? 'Atualizar' : 'Criar' }}</button>
+        <button *ngIf="editingId" type="button" class="btn-secondary" (click)="resetAdminForm()">Cancelar</button>
       </form>
     </div>
 
     <div class="table-section">
-      <h3>📊 Lista de Admins</h3>
+      <h3>Lista de Admins</h3>
       <table *ngIf="admins.length > 0; else noAdmins">
         <thead>
           <tr>
             <th>ID</th>
             <th>Nome</th>
             <th>Email</th>
-            <th>Ações</th>
+            <th>Acoes</th>
           </tr>
         </thead>
         <tbody>
@@ -62,8 +63,8 @@
             <td>{{ admin.nome }}</td>
             <td>{{ admin.email }}</td>
             <td>
-              <button class="btn-edit" (click)="editAdmin(admin)">✏️ Editar</button>
-              <button class="btn-delete" (click)="deleteAdmin(admin.id)">🗑️ Deletar</button>
+              <button class="btn-edit" (click)="editAdmin(admin)">Editar</button>
+              <button class="btn-delete" (click)="deleteAdmin(admin.id)">Deletar</button>
             </td>
           </tr>
         </tbody>
@@ -76,10 +77,10 @@
 
   <!-- USUARIOS TAB -->
   <div *ngIf="activeTab === 'usuarios'" class="tab-content">
-    <h2>👥 Gerenciar Usuários</h2>
+    <h2>Gerenciar Usuarios</h2>
 
     <div class="form-section">
-      <h3>{{ editingId ? '✏️ Editar Usuário' : '➕ Criar Novo Usuário' }}</h3>
+      <h3>{{ editingId ? 'Editar Usuario' : 'Criar Novo Usuario' }}</h3>
       <form (ngSubmit)="saveUsuario()">
         <div class="form-group">
           <label>Nome:</label>
@@ -89,13 +90,17 @@
           <label>Email:</label>
           <input [(ngModel)]="usuarioForm.email" name="email" type="email" placeholder="Ex: maria@example.com" required>
         </div>
-        <button type="submit" class="btn-primary">{{ editingId ? '💾 Atualizar' : '➕ Criar' }}</button>
-        <button *ngIf="editingId" type="button" class="btn-secondary" (click)="resetUsuarioForm()">❌ Cancelar</button>
+        <div class="form-group">
+          <label>Senha:</label>
+          <input [(ngModel)]="usuarioForm.senha" name="senha" type="password" placeholder="Senha">
+        </div>
+        <button type="submit" class="btn-primary">{{ editingId ? 'Atualizar' : 'Criar' }}</button>
+        <button *ngIf="editingId" type="button" class="btn-secondary" (click)="resetUsuarioForm()">Cancelar</button>
       </form>
     </div>
 
     <div class="table-section">
-      <h3>📊 Lista de Usuários</h3>
+      <h3>Lista de Usuarios</h3>
       <table *ngIf="usuarios.length > 0; else noUsuarios">
         <thead>
           <tr>
@@ -103,7 +108,7 @@
             <th>Nome</th>
             <th>Email</th>
             <th>Data Cadastro</th>
-            <th>Ações</th>
+            <th>Acoes</th>
           </tr>
         </thead>
         <tbody>
@@ -113,29 +118,29 @@
             <td>{{ usuario.email }}</td>
             <td>{{ usuario.dataCadastro | date: 'short' }}</td>
             <td>
-              <button class="btn-edit" (click)="editUsuario(usuario)">✏️ Editar</button>
-              <button class="btn-delete" (click)="deleteUsuario(usuario.id)">🗑️ Deletar</button>
+              <button class="btn-edit" (click)="editUsuario(usuario)">Editar</button>
+              <button class="btn-delete" (click)="deleteUsuario(usuario.id)">Deletar</button>
             </td>
           </tr>
         </tbody>
       </table>
       <ng-template #noUsuarios>
-        <p class="no-data">Nenhum usuário encontrado</p>
+        <p class="no-data">Nenhum usuario encontrado</p>
       </ng-template>
     </div>
   </div>
 
   <!-- FUNERARIAS TAB -->
   <div *ngIf="activeTab === 'funerarias'" class="tab-content">
-    <h2>🏢 Gerenciar Funerárias</h2>
+    <h2>Gerenciar Funerarias</h2>
 
     <div class="form-section">
-      <h3>{{ editingId ? '✏️ Editar Funerária' : '➕ Criar Nova Funerária' }}</h3>
+      <h3>{{ editingId ? 'Editar Funeraria' : 'Criar Nova Funeraria' }}</h3>
       <form (ngSubmit)="saveFuneraria()">
         <div class="form-row">
           <div class="form-group">
             <label>Nome:</label>
-            <input [(ngModel)]="funerariaForm.nome" name="nome" type="text" placeholder="Ex: Funerária Central" required>
+            <input [(ngModel)]="funerariaForm.nome" name="nome" type="text" placeholder="Ex: Funeraria Central" required>
           </div>
           <div class="form-group">
             <label>Cidade:</label>
@@ -143,12 +148,12 @@
           </div>
           <div class="form-group">
             <label>Estado:</label>
-            <input [(ngModel)]="funerariaForm.estado" name="estado" type="text" placeholder="Ex: MG" required>
+            <input [(ngModel)]="funerariaForm.estado" name="estado" type="text" placeholder="Ex: MG">
           </div>
         </div>
         <div class="form-group">
-          <label>Descrição:</label>
-          <textarea [(ngModel)]="funerariaForm.descricao" name="descricao" placeholder="Descrição da funerária"></textarea>
+          <label>Descricao:</label>
+          <textarea [(ngModel)]="funerariaForm.descricao" name="descricao" placeholder="Descricao da funeraria"></textarea>
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -160,13 +165,13 @@
             <input [(ngModel)]="funerariaForm.longitude" name="longitude" type="number" step="0.0001">
           </div>
         </div>
-        <button type="submit" class="btn-primary">{{ editingId ? '💾 Atualizar' : '➕ Criar' }}</button>
-        <button *ngIf="editingId" type="button" class="btn-secondary" (click)="resetFunerariaForm()">❌ Cancelar</button>
+        <button type="submit" class="btn-primary">{{ editingId ? 'Atualizar' : 'Criar' }}</button>
+        <button *ngIf="editingId" type="button" class="btn-secondary" (click)="resetFunerariaForm()">Cancelar</button>
       </form>
     </div>
 
     <div class="table-section">
-      <h3>📊 Lista de Funerárias</h3>
+      <h3>Lista de Funerarias</h3>
       <table *ngIf="funerarias.length > 0; else noFunerarias">
         <thead>
           <tr>
@@ -174,7 +179,7 @@
             <th>Nome</th>
             <th>Cidade</th>
             <th>Estado</th>
-            <th>Ações</th>
+            <th>Acoes</th>
           </tr>
         </thead>
         <tbody>
@@ -184,33 +189,33 @@
             <td>{{ funeraria.cidade }}</td>
             <td>{{ funeraria.estado }}</td>
             <td>
-              <button class="btn-edit" (click)="editFuneraria(funeraria)">✏️ Editar</button>
-              <button class="btn-delete" (click)="deleteFuneraria(funeraria.id)">🗑️ Deletar</button>
+              <button class="btn-edit" (click)="editFuneraria(funeraria)">Editar</button>
+              <button class="btn-delete" (click)="deleteFuneraria(funeraria.id)">Deletar</button>
             </td>
           </tr>
         </tbody>
       </table>
       <ng-template #noFunerarias>
-        <p class="no-data">Nenhuma funerária encontrada</p>
+        <p class="no-data">Nenhuma funeraria encontrada</p>
       </ng-template>
     </div>
   </div>
 
   <!-- REVIEWS TAB -->
   <div *ngIf="activeTab === 'reviews'" class="tab-content">
-    <h2>⭐ Gerenciar Avaliações</h2>
+    <h2>Gerenciar Avaliacoes</h2>
 
     <div class="form-section">
-      <h3>{{ editingId ? '✏️ Editar Avaliação' : '➕ Criar Nova Avaliação' }}</h3>
+      <h3>{{ editingId ? 'Editar Avaliacao' : 'Criar Nova Avaliacao' }}</h3>
       <form (ngSubmit)="saveReview()">
         <div class="form-row">
           <div class="form-group">
-            <label>Usuário ID:</label>
-            <input [(ngModel)]="reviewForm.usuarioId" name="usuarioId" type="text" placeholder="ID do usuário" required>
+            <label>Usuario ID:</label>
+            <input [(ngModel)]="reviewForm.usuarioId" name="usuarioId" type="number" placeholder="ID do usuario" required>
           </div>
           <div class="form-group">
-            <label>Funerária ID:</label>
-            <input [(ngModel)]="reviewForm.funerariaId" name="funerariaId" type="text" placeholder="ID da funerária" required>
+            <label>Funeraria ID:</label>
+            <input [(ngModel)]="reviewForm.funerariaId" name="funerariaId" type="number" placeholder="ID da funeraria" required>
           </div>
           <div class="form-group">
             <label>Nota (1-5):</label>
@@ -218,25 +223,25 @@
           </div>
         </div>
         <div class="form-group">
-          <label>Comentário:</label>
-          <textarea [(ngModel)]="reviewForm.comentario" name="comentario" placeholder="Avaliação do serviço"></textarea>
+          <label>Comentario:</label>
+          <textarea [(ngModel)]="reviewForm.comentario" name="comentario" placeholder="Avaliacao do servico"></textarea>
         </div>
-        <button type="submit" class="btn-primary">{{ editingId ? '💾 Atualizar' : '➕ Criar' }}</button>
-        <button *ngIf="editingId" type="button" class="btn-secondary" (click)="resetReviewForm()">❌ Cancelar</button>
+        <button type="submit" class="btn-primary">{{ editingId ? 'Atualizar' : 'Criar' }}</button>
+        <button *ngIf="editingId" type="button" class="btn-secondary" (click)="resetReviewForm()">Cancelar</button>
       </form>
     </div>
 
     <div class="table-section">
-      <h3>📊 Lista de Avaliações</h3>
+      <h3>Lista de Avaliacoes</h3>
       <table *ngIf="reviews.length > 0; else noReviews">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Usuário</th>
-            <th>Funerária</th>
+            <th>Usuario</th>
+            <th>Funeraria</th>
             <th>Nota</th>
             <th>Data</th>
-            <th>Ações</th>
+            <th>Acoes</th>
           </tr>
         </thead>
         <tbody>
@@ -244,61 +249,61 @@
             <td>{{ review.id }}</td>
             <td>{{ review.usuarioNome }}</td>
             <td>{{ review.funerariaId }}</td>
-            <td>{{ review.nota }}/5 ⭐</td>
+            <td>{{ review.nota }}/5</td>
             <td>{{ review.dataAvaliacao | date: 'short' }}</td>
             <td>
-              <button class="btn-edit" (click)="editReview(review)">✏️ Editar</button>
-              <button class="btn-delete" (click)="deleteReview(review.id)">🗑️ Deletar</button>
+              <button class="btn-edit" (click)="editReview(review)">Editar</button>
+              <button class="btn-delete" (click)="deleteReview(review.id)">Deletar</button>
             </td>
           </tr>
         </tbody>
       </table>
       <ng-template #noReviews>
-        <p class="no-data">Nenhuma avaliação encontrada</p>
+        <p class="no-data">Nenhuma avaliacao encontrada</p>
       </ng-template>
     </div>
   </div>
 
   <!-- SERVICOS TAB -->
   <div *ngIf="activeTab === 'servicos'" class="tab-content">
-    <h2>📋 Gerenciar Serviços</h2>
+    <h2>Gerenciar Servicos</h2>
 
     <div class="form-section">
-      <h3>{{ editingId ? '✏️ Editar Serviço' : '➕ Criar Novo Serviço' }}</h3>
+      <h3>{{ editingId ? 'Editar Servico' : 'Criar Novo Servico' }}</h3>
       <form (ngSubmit)="saveServico()">
         <div class="form-row">
           <div class="form-group">
             <label>Nome:</label>
-            <input [(ngModel)]="servicoForm.nome" name="nome" type="text" placeholder="Ex: Caixão Premium" required>
+            <input [(ngModel)]="servicoForm.nome" name="nome" type="text" placeholder="Ex: Caixao Premium" required>
           </div>
           <div class="form-group">
-            <label>Preço:</label>
+            <label>Preco:</label>
             <input [(ngModel)]="servicoForm.preco" name="preco" type="number" step="0.01" placeholder="R$ 0.00" required>
           </div>
           <div class="form-group">
-            <label>Funerária ID:</label>
-            <input [(ngModel)]="servicoForm.funerariaId" name="funerariaId" type="text" placeholder="ID da funerária" required>
+            <label>Funeraria ID:</label>
+            <input [(ngModel)]="servicoForm.funerariaId" name="funerariaId" type="number" placeholder="ID da funeraria" required>
           </div>
         </div>
         <div class="form-group">
-          <label>Descrição:</label>
-          <textarea [(ngModel)]="servicoForm.descricao" name="descricao" placeholder="Descrição do serviço"></textarea>
+          <label>Descricao:</label>
+          <textarea [(ngModel)]="servicoForm.descricao" name="descricao" placeholder="Descricao do servico"></textarea>
         </div>
-        <button type="submit" class="btn-primary">{{ editingId ? '💾 Atualizar' : '➕ Criar' }}</button>
-        <button *ngIf="editingId" type="button" class="btn-secondary" (click)="resetServicoForm()">❌ Cancelar</button>
+        <button type="submit" class="btn-primary">{{ editingId ? 'Atualizar' : 'Criar' }}</button>
+        <button *ngIf="editingId" type="button" class="btn-secondary" (click)="resetServicoForm()">Cancelar</button>
       </form>
     </div>
 
     <div class="table-section">
-      <h3>📊 Lista de Serviços</h3>
+      <h3>Lista de Servicos</h3>
       <table *ngIf="servicos.length > 0; else noServicos">
         <thead>
           <tr>
             <th>ID</th>
             <th>Nome</th>
-            <th>Preço</th>
-            <th>Funerária</th>
-            <th>Ações</th>
+            <th>Preco</th>
+            <th>Funeraria</th>
+            <th>Acoes</th>
           </tr>
         </thead>
         <tbody>
@@ -308,49 +313,49 @@
             <td>R$ {{ servico.preco | number: '1.2-2' }}</td>
             <td>{{ servico.funerariaNome }}</td>
             <td>
-              <button class="btn-edit" (click)="editServico(servico)">✏️ Editar</button>
-              <button class="btn-delete" (click)="deleteServico(servico.id)">🗑️ Deletar</button>
+              <button class="btn-edit" (click)="editServico(servico)">Editar</button>
+              <button class="btn-delete" (click)="deleteServico(servico.id)">Deletar</button>
             </td>
           </tr>
         </tbody>
       </table>
       <ng-template #noServicos>
-        <p class="no-data">Nenhum serviço encontrado</p>
+        <p class="no-data">Nenhum servico encontrado</p>
       </ng-template>
     </div>
   </div>
 
   <!-- FAVORITOS TAB -->
   <div *ngIf="activeTab === 'favoritos'" class="tab-content">
-    <h2>❤️ Gerenciar Favoritos</h2>
+    <h2>Gerenciar Favoritos</h2>
 
     <div class="form-section">
-      <h3>{{ editingId ? '✏️ Editar Favorito' : '➕ Criar Novo Favorito' }}</h3>
+      <h3>{{ editingId ? 'Editar Favorito' : 'Criar Novo Favorito' }}</h3>
       <form (ngSubmit)="saveFavorito()">
         <div class="form-row">
           <div class="form-group">
-            <label>Usuário ID:</label>
-            <input [(ngModel)]="favoritoForm.usuarioId" name="usuarioId" type="text" placeholder="ID do usuário" required>
+            <label>Usuario ID:</label>
+            <input [(ngModel)]="favoritoForm.usuarioId" name="usuarioId" type="number" placeholder="ID do usuario" required>
           </div>
           <div class="form-group">
-            <label>Funerária ID:</label>
-            <input [(ngModel)]="favoritoForm.funerariaId" name="funerariaId" type="text" placeholder="ID da funerária" required>
+            <label>Funeraria ID:</label>
+            <input [(ngModel)]="favoritoForm.funerariaId" name="funerariaId" type="number" placeholder="ID da funeraria" required>
           </div>
         </div>
-        <button type="submit" class="btn-primary">{{ editingId ? '💾 Atualizar' : '➕ Criar' }}</button>
-        <button *ngIf="editingId" type="button" class="btn-secondary" (click)="resetFavoritoForm()">❌ Cancelar</button>
+        <button type="submit" class="btn-primary">{{ editingId ? 'Atualizar' : 'Criar' }}</button>
+        <button *ngIf="editingId" type="button" class="btn-secondary" (click)="resetFavoritoForm()">Cancelar</button>
       </form>
     </div>
 
     <div class="table-section">
-      <h3>📊 Lista de Favoritos</h3>
+      <h3>Lista de Favoritos</h3>
       <table *ngIf="favoritos.length > 0; else noFavoritos">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Usuário</th>
-            <th>Funerária</th>
-            <th>Ações</th>
+            <th>Usuario</th>
+            <th>Funeraria</th>
+            <th>Acoes</th>
           </tr>
         </thead>
         <tbody>
@@ -359,8 +364,8 @@
             <td>{{ favorito.usuarioNome }}</td>
             <td>{{ favorito.funerariaNome }}</td>
             <td>
-              <button class="btn-edit" (click)="editFavorito(favorito)">✏️ Editar</button>
-              <button class="btn-delete" (click)="deleteFavorito(favorito.id)">🗑️ Deletar</button>
+              <button class="btn-edit" (click)="editFavorito(favorito)">Editar</button>
+              <button class="btn-delete" (click)="deleteFavorito(favorito.id)">Deletar</button>
             </td>
           </tr>
         </tbody>
@@ -373,18 +378,18 @@
 
   <!-- CHATBOT SESSIONS TAB -->
   <div *ngIf="activeTab === 'chatbot'" class="tab-content">
-    <h2>💬 Gerenciar Sessões de Chatbot</h2>
+    <h2>Gerenciar Sessoes de Chatbot</h2>
 
     <div class="table-section">
-      <h3>📊 Lista de Sessões</h3>
+      <h3>Lista de Sessoes</h3>
       <table *ngIf="chatbotSessions.length > 0; else noSessions">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Usuário ID</th>
-            <th>Data Início</th>
+            <th>Usuario ID</th>
+            <th>Data Inicio</th>
             <th>Mensagens</th>
-            <th>Ações</th>
+            <th>Acoes</th>
           </tr>
         </thead>
         <tbody>
@@ -394,13 +399,13 @@
             <td>{{ session.dataInicio | date: 'short' }}</td>
             <td>{{ session.mensagens?.length || 0 }}</td>
             <td>
-              <button class="btn-delete" (click)="deleteChatbotSession(session.id)">🗑️ Deletar</button>
+              <button class="btn-delete" (click)="deleteChatbotSession(session.id)">Deletar</button>
             </td>
           </tr>
         </tbody>
       </table>
       <ng-template #noSessions>
-        <p class="no-data">Nenhuma sessão encontrada</p>
+        <p class="no-data">Nenhuma sessao encontrada</p>
       </ng-template>
     </div>
   </div>

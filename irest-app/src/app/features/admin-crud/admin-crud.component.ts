@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../services/admin.service';
@@ -26,34 +26,26 @@ import { ChatbotSession } from '../../models/chatbot-session.model';
 export class AdminCrudComponent implements OnInit {
   activeTab: string = 'admins';
 
-  // Admins
   admins: Admin[] = [];
-  adminForm: any = { nome: '', email: '' };
+  adminForm: any = { nome: '', email: '', senha: '' };
 
-  // Usuarios
   usuarios: Usuario[] = [];
   usuarioForm: any = { nome: '', email: '', senha: '' };
 
-  // Funerarias
   funerarias: Funeraria[] = [];
-  funerariaForm: any = { nome: '', descricao: '', cidade: '', estado: '', latitude: 0, longitude: 0 };
+  funerariaForm: any = { nome: '', descricao: '', cidade: '', estado: '', latitude: null, longitude: null };
 
-  // Reviews
   reviews: Review[] = [];
-  reviewForm: any = { nota: 5, comentario: '', usuarioId: 0, funerariaId: 0 };
+  reviewForm: any = { nota: 5, comentario: '', usuarioId: null, funerariaId: null };
 
-  // Servicos
   servicos: Servico[] = [];
-  servicoForm: any = { nome: '', descricao: '', preco: 0, funerariaId: 0 };
+  servicoForm: any = { nome: '', descricao: '', preco: 0, funerariaId: null };
 
-  // Favoritos
   favoritos: Favorito[] = [];
-  favoritoForm: any = { usuarioId: 0, funerariaId: 0 };
+  favoritoForm: any = { usuarioId: null, funerariaId: null };
 
-  // Chatbot Sessions
   chatbotSessions: ChatbotSession[] = [];
 
-  loading: boolean = false;
   error: string = '';
   success: string = '';
   editingId: number = 0;
@@ -65,134 +57,113 @@ export class AdminCrudComponent implements OnInit {
     private reviewService: ReviewService,
     private servicoService: ServicoService,
     private favoritoService: FavoritoService,
-    private chatbotSessionService: ChatbotSessionService
+    private chatbotSessionService: ChatbotSessionService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.loadAdmins();
   }
 
+  private clearMessages() {
+    this.error = '';
+    this.success = '';
+  }
+
+  dismissSuccess() { this.success = ''; }
+  dismissError() { this.error = ''; }
+
   // ==== ADMINS ====
   loadAdmins() {
-    this.loading = true;
     this.adminService.getAll().subscribe({
-      next: (data) => {
-        this.admins = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = 'Erro ao carregar admins';
-        this.loading = false;
-      }
+      next: (data) => { this.admins = data; this.cdr.detectChanges(); },
+      error: () => { this.admins = []; this.cdr.detectChanges(); }
     });
   }
 
   saveAdmin() {
+    this.clearMessages();
     if (!this.adminForm.nome || !this.adminForm.email) {
-      this.error = 'Preencha todos os campos';
+      this.error = 'Preencha nome e email';
       return;
     }
+    const action = this.editingId
+      ? this.adminService.update(this.editingId, this.adminForm)
+      : this.adminService.create(this.adminForm);
 
-    if (this.editingId) {
-      this.adminService.update(this.editingId, this.adminForm).subscribe({
-        next: () => {
-          this.success = 'Admin atualizado com sucesso!';
-          this.loadAdmins();
-          this.resetAdminForm();
-        },
-        error: () => this.error = 'Erro ao atualizar admin'
-      });
-    } else {
-      this.adminService.create(this.adminForm).subscribe({
-        next: () => {
-          this.success = 'Admin criado com sucesso!';
-          this.loadAdmins();
-          this.resetAdminForm();
-        },
-        error: () => this.error = 'Erro ao criar admin'
-      });
-    }
+    action.subscribe({
+      next: () => {
+        this.success = this.editingId ? 'Admin atualizado!' : 'Admin criado!';
+        this.resetAdminForm();
+        this.loadAdmins();
+        this.cdr.detectChanges();
+      },
+      error: () => { this.error = 'Erro ao salvar admin'; this.cdr.detectChanges(); }
+    });
   }
 
   editAdmin(admin: Admin) {
-    this.adminForm = { nome: admin.nome, email: admin.email };
+    this.clearMessages();
+    this.adminForm = { nome: admin.nome, email: admin.email, senha: '' };
     this.editingId = admin.id;
   }
 
   deleteAdmin(id: number) {
-    if (confirm('Tem certeza que deseja deletar?')) {
-      this.adminService.deleteAdmin(id).subscribe({
-        next: () => {
-          this.success = 'Admin deletado com sucesso!';
-          this.loadAdmins();
-        },
-        error: () => this.error = 'Erro ao deletar admin'
-      });
-    }
+    if (!confirm('Tem certeza que deseja deletar?')) return;
+    this.clearMessages();
+    this.adminService.deleteAdmin(id).subscribe({
+      next: () => { this.success = 'Admin deletado!'; this.loadAdmins(); this.cdr.detectChanges(); },
+      error: () => { this.error = 'Erro ao deletar admin'; this.cdr.detectChanges(); }
+    });
   }
 
   resetAdminForm() {
-    this.adminForm = { nome: '', email: '' };
+    this.adminForm = { nome: '', email: '', senha: '' };
     this.editingId = 0;
   }
 
   // ==== USUARIOS ====
   loadUsuarios() {
-    this.loading = true;
     this.usuarioService.getAll().subscribe({
-      next: (data) => {
-        this.usuarios = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = 'Erro ao carregar usuarios';
-        this.loading = false;
-      }
+      next: (data) => { this.usuarios = data; this.cdr.detectChanges(); },
+      error: () => { this.usuarios = []; this.cdr.detectChanges(); }
     });
   }
 
   saveUsuario() {
+    this.clearMessages();
     if (!this.usuarioForm.nome || !this.usuarioForm.email) {
-      this.error = 'Preencha todos os campos';
+      this.error = 'Preencha nome e email';
       return;
     }
+    const action = this.editingId
+      ? this.usuarioService.update(this.editingId, this.usuarioForm)
+      : this.usuarioService.create(this.usuarioForm);
 
-    if (this.editingId) {
-      this.usuarioService.update(this.editingId, this.usuarioForm).subscribe({
-        next: () => {
-          this.success = 'Usuario atualizado com sucesso!';
-          this.loadUsuarios();
-          this.resetUsuarioForm();
-        },
-        error: () => this.error = 'Erro ao atualizar usuario'
-      });
-    } else {
-      this.usuarioService.create(this.usuarioForm).subscribe({
-        next: () => {
-          this.success = 'Usuario criado com sucesso!';
-          this.loadUsuarios();
-          this.resetUsuarioForm();
-        },
-        error: () => this.error = 'Erro ao criar usuario'
-      });
-    }
+    action.subscribe({
+      next: () => {
+        this.success = this.editingId ? 'Usuario atualizado!' : 'Usuario criado!';
+        this.resetUsuarioForm();
+        this.loadUsuarios();
+        this.cdr.detectChanges();
+      },
+      error: () => { this.error = 'Erro ao salvar usuario'; this.cdr.detectChanges(); }
+    });
   }
 
   editUsuario(usuario: Usuario) {
-    this.usuarioForm = { nome: usuario.nome, email: usuario.email };
+    this.clearMessages();
+    this.usuarioForm = { nome: usuario.nome, email: usuario.email, senha: '' };
     this.editingId = usuario.id;
   }
 
   deleteUsuario(id: number) {
-    if (confirm('Tem certeza que deseja deletar?')) {
-      this.usuarioService.deleteUsuario(id).subscribe({
-        next: () => {
-          this.success = 'Usuario deletado com sucesso!';
-          this.loadUsuarios();
-        },
-        error: () => this.error = 'Erro ao deletar usuario'
-      });
-    }
+    if (!confirm('Tem certeza que deseja deletar?')) return;
+    this.clearMessages();
+    this.usuarioService.deleteUsuario(id).subscribe({
+      next: () => { this.success = 'Usuario deletado!'; this.loadUsuarios(); this.cdr.detectChanges(); },
+      error: () => { this.error = 'Erro ao deletar usuario'; this.cdr.detectChanges(); }
+    });
   }
 
   resetUsuarioForm() {
@@ -202,47 +173,43 @@ export class AdminCrudComponent implements OnInit {
 
   // ==== FUNERARIAS ====
   loadFunerarias() {
-    this.loading = true;
     this.funerariaService.getAll().subscribe({
-      next: (data) => {
-        this.funerarias = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = 'Erro ao carregar funerarias';
-        this.loading = false;
-      }
+      next: (data) => { this.funerarias = data; this.cdr.detectChanges(); },
+      error: () => { this.funerarias = []; this.cdr.detectChanges(); }
     });
   }
 
   saveFuneraria() {
+    this.clearMessages();
     if (!this.funerariaForm.nome || !this.funerariaForm.cidade) {
-      this.error = 'Preencha todos os campos obrigatorios';
+      this.error = 'Preencha nome e cidade';
       return;
     }
+    const payload = {
+      nome: this.funerariaForm.nome,
+      descricao: this.funerariaForm.descricao || null,
+      cidade: this.funerariaForm.cidade,
+      estado: this.funerariaForm.estado || null,
+      latitude: this.funerariaForm.latitude ? Number(this.funerariaForm.latitude) : null,
+      longitude: this.funerariaForm.longitude ? Number(this.funerariaForm.longitude) : null
+    };
+    const action = this.editingId
+      ? this.funerariaService.update(this.editingId, payload)
+      : this.funerariaService.create(payload);
 
-    if (this.editingId) {
-      this.funerariaService.update(this.editingId, this.funerariaForm).subscribe({
-        next: () => {
-          this.success = 'Funeraria atualizada com sucesso!';
-          this.loadFunerarias();
-          this.resetFunerariaForm();
-        },
-        error: () => this.error = 'Erro ao atualizar funeraria'
-      });
-    } else {
-      this.funerariaService.create(this.funerariaForm).subscribe({
-        next: () => {
-          this.success = 'Funeraria criada com sucesso!';
-          this.loadFunerarias();
-          this.resetFunerariaForm();
-        },
-        error: () => this.error = 'Erro ao criar funeraria'
-      });
-    }
+    action.subscribe({
+      next: () => {
+        this.success = this.editingId ? 'Funeraria atualizada!' : 'Funeraria criada!';
+        this.resetFunerariaForm();
+        this.loadFunerarias();
+        this.cdr.detectChanges();
+      },
+      error: () => { this.error = 'Erro ao salvar funeraria'; this.cdr.detectChanges(); }
+    });
   }
 
   editFuneraria(funeraria: Funeraria) {
+    this.clearMessages();
     this.funerariaForm = {
       nome: funeraria.nome, descricao: funeraria.descricao,
       cidade: funeraria.cidade, estado: funeraria.estado,
@@ -252,72 +219,56 @@ export class AdminCrudComponent implements OnInit {
   }
 
   deleteFuneraria(id: number) {
-    if (confirm('Tem certeza que deseja deletar?')) {
-      this.funerariaService.deleteFuneraria(id).subscribe({
-        next: () => {
-          this.success = 'Funeraria deletada com sucesso!';
-          this.loadFunerarias();
-        },
-        error: () => this.error = 'Erro ao deletar funeraria'
-      });
-    }
+    if (!confirm('Tem certeza que deseja deletar?')) return;
+    this.clearMessages();
+    this.funerariaService.deleteFuneraria(id).subscribe({
+      next: () => { this.success = 'Funeraria deletada!'; this.loadFunerarias(); this.cdr.detectChanges(); },
+      error: () => { this.error = 'Erro ao deletar funeraria'; this.cdr.detectChanges(); }
+    });
   }
 
   resetFunerariaForm() {
-    this.funerariaForm = { nome: '', descricao: '', cidade: '', estado: '', latitude: 0, longitude: 0 };
+    this.funerariaForm = { nome: '', descricao: '', cidade: '', estado: '', latitude: null, longitude: null };
     this.editingId = 0;
   }
 
   // ==== REVIEWS ====
   loadReviews() {
-    this.loading = true;
     this.reviewService.getAll().subscribe({
-      next: (data) => {
-        this.reviews = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = 'Erro ao carregar avaliacoes';
-        this.loading = false;
-      }
+      next: (data) => { this.reviews = data; this.cdr.detectChanges(); },
+      error: () => { this.reviews = []; this.cdr.detectChanges(); }
     });
   }
 
   saveReview() {
+    this.clearMessages();
     if (!this.reviewForm.funerariaId || !this.reviewForm.usuarioId) {
-      this.error = 'Preencha todos os campos obrigatorios';
+      this.error = 'Preencha usuario ID e funeraria ID';
       return;
     }
-
     const payload = {
-      nota: this.reviewForm.nota,
+      nota: Number(this.reviewForm.nota),
       comentario: this.reviewForm.comentario,
       usuarioId: Number(this.reviewForm.usuarioId),
       funerariaId: Number(this.reviewForm.funerariaId)
     };
+    const action = this.editingId
+      ? this.reviewService.update(this.editingId, payload)
+      : this.reviewService.create(payload);
 
-    if (this.editingId) {
-      this.reviewService.update(this.editingId, payload).subscribe({
-        next: () => {
-          this.success = 'Avaliacao atualizada com sucesso!';
-          this.loadReviews();
-          this.resetReviewForm();
-        },
-        error: () => this.error = 'Erro ao atualizar avaliacao'
-      });
-    } else {
-      this.reviewService.create(payload).subscribe({
-        next: () => {
-          this.success = 'Avaliacao criada com sucesso!';
-          this.loadReviews();
-          this.resetReviewForm();
-        },
-        error: () => this.error = 'Erro ao criar avaliacao'
-      });
-    }
+    action.subscribe({
+      next: () => {
+        this.success = this.editingId ? 'Avaliacao atualizada!' : 'Avaliacao criada!';
+        this.resetReviewForm();
+        this.loadReviews();
+        this.cdr.detectChanges();
+      },
+      error: () => { this.error = 'Erro ao salvar avaliacao'; this.cdr.detectChanges(); }
+    });
   }
 
   editReview(review: Review) {
+    this.clearMessages();
     this.reviewForm = {
       nota: review.nota, comentario: review.comentario,
       usuarioId: review.usuarioId, funerariaId: review.funerariaId
@@ -326,72 +277,56 @@ export class AdminCrudComponent implements OnInit {
   }
 
   deleteReview(id: number) {
-    if (confirm('Tem certeza que deseja deletar?')) {
-      this.reviewService.deleteReview(id).subscribe({
-        next: () => {
-          this.success = 'Avaliacao deletada com sucesso!';
-          this.loadReviews();
-        },
-        error: () => this.error = 'Erro ao deletar avaliacao'
-      });
-    }
+    if (!confirm('Tem certeza que deseja deletar?')) return;
+    this.clearMessages();
+    this.reviewService.deleteReview(id).subscribe({
+      next: () => { this.success = 'Avaliacao deletada!'; this.loadReviews(); this.cdr.detectChanges(); },
+      error: () => { this.error = 'Erro ao deletar avaliacao'; this.cdr.detectChanges(); }
+    });
   }
 
   resetReviewForm() {
-    this.reviewForm = { nota: 5, comentario: '', usuarioId: 0, funerariaId: 0 };
+    this.reviewForm = { nota: 5, comentario: '', usuarioId: null, funerariaId: null };
     this.editingId = 0;
   }
 
   // ==== SERVICOS ====
   loadServicos() {
-    this.loading = true;
     this.servicoService.getAll().subscribe({
-      next: (data) => {
-        this.servicos = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = 'Erro ao carregar servicos';
-        this.loading = false;
-      }
+      next: (data) => { this.servicos = data; this.cdr.detectChanges(); },
+      error: () => { this.servicos = []; this.cdr.detectChanges(); }
     });
   }
 
   saveServico() {
+    this.clearMessages();
     if (!this.servicoForm.nome || !this.servicoForm.funerariaId) {
-      this.error = 'Preencha todos os campos obrigatorios';
+      this.error = 'Preencha nome e funeraria ID';
       return;
     }
-
     const payload = {
       nome: this.servicoForm.nome,
       descricao: this.servicoForm.descricao,
       preco: Number(this.servicoForm.preco),
       funerariaId: Number(this.servicoForm.funerariaId)
     };
+    const action = this.editingId
+      ? this.servicoService.update(this.editingId, payload)
+      : this.servicoService.create(payload);
 
-    if (this.editingId) {
-      this.servicoService.update(this.editingId, payload).subscribe({
-        next: () => {
-          this.success = 'Servico atualizado com sucesso!';
-          this.loadServicos();
-          this.resetServicoForm();
-        },
-        error: () => this.error = 'Erro ao atualizar servico'
-      });
-    } else {
-      this.servicoService.create(payload).subscribe({
-        next: () => {
-          this.success = 'Servico criado com sucesso!';
-          this.loadServicos();
-          this.resetServicoForm();
-        },
-        error: () => this.error = 'Erro ao criar servico'
-      });
-    }
+    action.subscribe({
+      next: () => {
+        this.success = this.editingId ? 'Servico atualizado!' : 'Servico criado!';
+        this.resetServicoForm();
+        this.loadServicos();
+        this.cdr.detectChanges();
+      },
+      error: () => { this.error = 'Erro ao salvar servico'; this.cdr.detectChanges(); }
+    });
   }
 
   editServico(servico: Servico) {
+    this.clearMessages();
     this.servicoForm = {
       nome: servico.nome, descricao: servico.descricao,
       preco: servico.preco, funerariaId: servico.funerariaId
@@ -400,123 +335,93 @@ export class AdminCrudComponent implements OnInit {
   }
 
   deleteServico(id: number) {
-    if (confirm('Tem certeza que deseja deletar?')) {
-      this.servicoService.deleteServico(id).subscribe({
-        next: () => {
-          this.success = 'Servico deletado com sucesso!';
-          this.loadServicos();
-        },
-        error: () => this.error = 'Erro ao deletar servico'
-      });
-    }
+    if (!confirm('Tem certeza que deseja deletar?')) return;
+    this.clearMessages();
+    this.servicoService.deleteServico(id).subscribe({
+      next: () => { this.success = 'Servico deletado!'; this.loadServicos(); this.cdr.detectChanges(); },
+      error: () => { this.error = 'Erro ao deletar servico'; this.cdr.detectChanges(); }
+    });
   }
 
   resetServicoForm() {
-    this.servicoForm = { nome: '', descricao: '', preco: 0, funerariaId: 0 };
+    this.servicoForm = { nome: '', descricao: '', preco: 0, funerariaId: null };
     this.editingId = 0;
   }
 
   // ==== FAVORITOS ====
   loadFavoritos() {
-    this.loading = true;
     this.favoritoService.getAll().subscribe({
-      next: (data) => {
-        this.favoritos = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = 'Erro ao carregar favoritos';
-        this.loading = false;
-      }
+      next: (data) => { this.favoritos = data; this.cdr.detectChanges(); },
+      error: () => { this.favoritos = []; this.cdr.detectChanges(); }
     });
   }
 
   saveFavorito() {
+    this.clearMessages();
     if (!this.favoritoForm.usuarioId || !this.favoritoForm.funerariaId) {
-      this.error = 'Preencha todos os campos obrigatorios';
+      this.error = 'Preencha usuario ID e funeraria ID';
       return;
     }
-
     const payload = {
       usuarioId: Number(this.favoritoForm.usuarioId),
       funerariaId: Number(this.favoritoForm.funerariaId)
     };
+    const action = this.editingId
+      ? this.favoritoService.update(this.editingId, payload)
+      : this.favoritoService.create(payload);
 
-    if (this.editingId) {
-      this.favoritoService.update(this.editingId, payload).subscribe({
-        next: () => {
-          this.success = 'Favorito atualizado com sucesso!';
-          this.loadFavoritos();
-          this.resetFavoritoForm();
-        },
-        error: () => this.error = 'Erro ao atualizar favorito'
-      });
-    } else {
-      this.favoritoService.create(payload).subscribe({
-        next: () => {
-          this.success = 'Favorito criado com sucesso!';
-          this.loadFavoritos();
-          this.resetFavoritoForm();
-        },
-        error: () => this.error = 'Erro ao criar favorito'
-      });
-    }
+    action.subscribe({
+      next: () => {
+        this.success = this.editingId ? 'Favorito atualizado!' : 'Favorito criado!';
+        this.resetFavoritoForm();
+        this.loadFavoritos();
+        this.cdr.detectChanges();
+      },
+      error: () => { this.error = 'Erro ao salvar favorito'; this.cdr.detectChanges(); }
+    });
   }
 
   editFavorito(favorito: Favorito) {
+    this.clearMessages();
     this.favoritoForm = { usuarioId: favorito.usuarioId, funerariaId: favorito.funerariaId };
     this.editingId = favorito.id;
   }
 
   deleteFavorito(id: number) {
-    if (confirm('Tem certeza que deseja deletar?')) {
-      this.favoritoService.deleteFavorito(id).subscribe({
-        next: () => {
-          this.success = 'Favorito deletado com sucesso!';
-          this.loadFavoritos();
-        },
-        error: () => this.error = 'Erro ao deletar favorito'
-      });
-    }
+    if (!confirm('Tem certeza que deseja deletar?')) return;
+    this.clearMessages();
+    this.favoritoService.deleteFavorito(id).subscribe({
+      next: () => { this.success = 'Favorito deletado!'; this.loadFavoritos(); this.cdr.detectChanges(); },
+      error: () => { this.error = 'Erro ao deletar favorito'; this.cdr.detectChanges(); }
+    });
   }
 
   resetFavoritoForm() {
-    this.favoritoForm = { usuarioId: 0, funerariaId: 0 };
+    this.favoritoForm = { usuarioId: null, funerariaId: null };
     this.editingId = 0;
   }
 
   // ==== CHATBOT SESSIONS ====
   loadChatbotSessions() {
-    this.loading = true;
     this.chatbotSessionService.getAll().subscribe({
-      next: (data) => {
-        this.chatbotSessions = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = 'Erro ao carregar sessoes de chat';
-        this.loading = false;
-      }
+      next: (data) => { this.chatbotSessions = data; this.cdr.detectChanges(); },
+      error: () => { this.chatbotSessions = []; this.cdr.detectChanges(); }
     });
   }
 
   deleteChatbotSession(id: number) {
-    if (confirm('Tem certeza que deseja deletar?')) {
-      this.chatbotSessionService.deleteSession(id).subscribe({
-        next: () => {
-          this.success = 'Sessao de chat deletada com sucesso!';
-          this.loadChatbotSessions();
-        },
-        error: () => this.error = 'Erro ao deletar sessao de chat'
-      });
-    }
+    if (!confirm('Tem certeza que deseja deletar?')) return;
+    this.clearMessages();
+    this.chatbotSessionService.deleteSession(id).subscribe({
+      next: () => { this.success = 'Sessao deletada!'; this.loadChatbotSessions(); this.cdr.detectChanges(); },
+      error: () => { this.error = 'Erro ao deletar sessao'; this.cdr.detectChanges(); }
+    });
   }
 
   // ===== UTILS =====
   switchTab(tab: string) {
     this.activeTab = tab;
-    this.error = '';
-    this.success = '';
+    this.clearMessages();
     this.editingId = 0;
 
     switch (tab) {
@@ -528,10 +433,5 @@ export class AdminCrudComponent implements OnInit {
       case 'favoritos': this.loadFavoritos(); break;
       case 'chatbot': this.loadChatbotSessions(); break;
     }
-  }
-
-  clearMessages() {
-    this.error = '';
-    this.success = '';
   }
 }

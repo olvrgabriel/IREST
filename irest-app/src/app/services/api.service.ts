@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -15,15 +15,17 @@ export class ApiService {
   protected handleError(error: HttpErrorResponse) {
     let errorMessage = 'Ocorreu um erro ao processar sua requisicao';
 
-    if (error.error instanceof ErrorEvent) {
+    if (error.status === 0) {
+      errorMessage = 'Nao foi possivel conectar ao servidor. Verifique se o backend esta rodando em ' + this.baseUrl;
+    } else if (error.error instanceof ErrorEvent) {
       errorMessage = `Erro: ${error.error.message}`;
     } else {
       errorMessage = error.error?.message ||
-                     error.error?.error ||
+                     error.error?.title ||
                      `Erro do servidor: ${error.status} - ${error.statusText}`;
     }
 
-    console.error('API Error:', errorMessage);
+    console.error('API Error:', errorMessage, error);
     return throwError(() => new Error(errorMessage));
   }
 
@@ -46,13 +48,15 @@ export class ApiService {
   }
 
   protected put<T>(endpoint: string, id: number | string, payload: any): Observable<T> {
-    return this.http.put<T>(`${this.baseUrl}${endpoint}/${id}`, payload).pipe(
+    return this.http.put(`${this.baseUrl}${endpoint}/${id}`, payload, { responseType: 'text' }).pipe(
+      map(body => (body ? JSON.parse(body) : null) as T),
       catchError(error => this.handleError(error))
     );
   }
 
   protected remove<T>(endpoint: string, id: number | string): Observable<T> {
-    return this.http.delete<T>(`${this.baseUrl}${endpoint}/${id}`).pipe(
+    return this.http.delete(`${this.baseUrl}${endpoint}/${id}`, { responseType: 'text' }).pipe(
+      map(body => (body ? JSON.parse(body) : null) as T),
       catchError(error => this.handleError(error))
     );
   }
