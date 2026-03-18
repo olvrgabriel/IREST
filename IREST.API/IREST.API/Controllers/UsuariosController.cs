@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using IREST.API.Data;
 using IREST.API.Models;
+using IREST.API.DTOs;
+using IREST.API.Extensions;
 
 namespace IREST.API.Controllers
 {
@@ -23,23 +23,33 @@ namespace IREST.API.Controllers
 
         // GET: api/Usuarios
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
+        public async Task<ActionResult<IEnumerable<UsuarioDto>>> GetUsuarios()
         {
-            return await _context.Usuarios.ToListAsync();
+            var usuarios = await _context.Usuarios
+                .Include(u => u.Reviews)
+                .Include(u => u.Favoritos)
+                .Include(u => u.Sessoes)
+                .ToListAsync();
+
+            return usuarios.Select(u => u.ToDto()).ToList();
         }
 
         // GET: api/Usuarios/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Usuario>> GetUsuario(int id)
+        public async Task<ActionResult<UsuarioDto>> GetUsuario(int id)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
+            var usuario = await _context.Usuarios
+                .Include(u => u.Reviews)
+                .Include(u => u.Favoritos)
+                .Include(u => u.Sessoes)
+                .FirstOrDefaultAsync(u => u.Id == id);
 
             if (usuario == null)
             {
                 return NotFound();
             }
 
-            return usuario;
+            return usuario.ToDto();
         }
 
         // PUT: api/Usuarios/5
@@ -76,12 +86,18 @@ namespace IREST.API.Controllers
         // POST: api/Usuarios
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Usuario>> PostUsuario(Usuario usuario)
+        public async Task<ActionResult<UsuarioDto>> PostUsuario(Usuario usuario)
         {
             _context.Usuarios.Add(usuario);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUsuario", new { id = usuario.Id }, usuario);
+            var created = await _context.Usuarios
+                .Include(u => u.Reviews)
+                .Include(u => u.Favoritos)
+                .Include(u => u.Sessoes)
+                .FirstOrDefaultAsync(u => u.Id == usuario.Id);
+
+            return CreatedAtAction("GetUsuario", new { id = usuario.Id }, created.ToDto());
         }
 
         // DELETE: api/Usuarios/5

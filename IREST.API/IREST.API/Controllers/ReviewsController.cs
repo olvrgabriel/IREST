@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using IREST.API.Data;
 using IREST.API.Models;
+using IREST.API.DTOs;
+using IREST.API.Extensions;
 
 namespace IREST.API.Controllers
 {
@@ -23,23 +25,33 @@ namespace IREST.API.Controllers
 
         // GET: api/Reviews
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Review>>> GetReviews()
+        public async Task<ActionResult<IEnumerable<ReviewDto>>> GetReviews()
         {
-            return await _context.Reviews.ToListAsync();
+            var reviews = await _context.Reviews
+                .Include(r => r.Usuario)
+                .Include(r => r.Funeraria)
+                .Include(r => r.Admin)
+                .ToListAsync();
+
+            return reviews.Select(r => r.ToDto()).ToList();
         }
 
         // GET: api/Reviews/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Review>> GetReview(int id)
+        public async Task<ActionResult<ReviewDto>> GetReview(int id)
         {
-            var review = await _context.Reviews.FindAsync(id);
+            var review = await _context.Reviews
+                .Include(r => r.Usuario)
+                .Include(r => r.Funeraria)
+                .Include(r => r.Admin)
+                .FirstOrDefaultAsync(r => r.Id == id);
 
             if (review == null)
             {
                 return NotFound();
             }
 
-            return review;
+            return review.ToDto();
         }
 
         // PUT: api/Reviews/5
@@ -76,12 +88,18 @@ namespace IREST.API.Controllers
         // POST: api/Reviews
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Review>> PostReview(Review review)
+        public async Task<ActionResult<ReviewDto>> PostReview(Review review)
         {
             _context.Reviews.Add(review);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetReview", new { id = review.Id }, review);
+            var created = await _context.Reviews
+                .Include(r => r.Usuario)
+                .Include(r => r.Funeraria)
+                .Include(r => r.Admin)
+                .FirstOrDefaultAsync(r => r.Id == review.Id);
+
+            return CreatedAtAction("GetReview", new { id = review.Id }, created.ToDto());
         }
 
         // DELETE: api/Reviews/5
