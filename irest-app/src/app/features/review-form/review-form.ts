@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReviewService } from '../../services/review.service';
 import { FunerariaService } from '../../services/funeraria.service';
+import { AuthService } from '../../services/auth.service';
 import { Funeraria } from '../../models/funeraria.model';
 
 @Component({
@@ -31,6 +32,7 @@ export class ReviewForm implements OnInit {
   constructor(
     private reviewService: ReviewService,
     private funerariaService: FunerariaService,
+    private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
@@ -70,7 +72,7 @@ export class ReviewForm implements OnInit {
       nota: this.review.nota,
       comentario: this.review.comentario,
       funerariaId: this.funerariaId,
-      usuarioId: 1
+      usuarioId: this.authService.userId || 0
     };
 
     this.reviewService.create(payload).subscribe({
