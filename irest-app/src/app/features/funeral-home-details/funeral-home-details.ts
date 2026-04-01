@@ -3,6 +3,8 @@ import { HeaderComponent } from '../../core/components/header/header';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FunerariaService } from '../../services/funeraria.service';
+import { FavoritoService } from '../../services/favorito.service';
+import { AuthService } from '../../services/auth.service';
 import { Funeraria } from '../../models/funeraria.model';
 import { Review } from '../../models/review.model';
 import { Servico } from '../../models/servico.model';
@@ -21,9 +23,14 @@ export class FuneralHomeDetails implements OnInit {
   loading = true;
   error: string | null = null;
   funerariaId: number = 0;
+  isFavorited = false;
+  favoritoId: number | null = null;
+  favMessage = '';
 
   constructor(
     private funerariaService: FunerariaService,
+    private favoritoService: FavoritoService,
+    public authService: AuthService,
     private route: ActivatedRoute
   ) {}
 
@@ -32,6 +39,9 @@ export class FuneralHomeDetails implements OnInit {
     this.funerariaId = idParam ? Number(idParam) : 0;
     if (this.funerariaId) {
       this.loadFuneraria();
+      if (this.authService.isLoggedIn) {
+        this.checkFavorite();
+      }
     }
   }
 
@@ -49,6 +59,47 @@ export class FuneralHomeDetails implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  checkFavorite(): void {
+    this.favoritoService.getAll().subscribe({
+      next: (data) => {
+        const userId = this.authService.userId;
+        const fav = data.find(f => f.usuarioId === userId && f.funerariaId === this.funerariaId);
+        if (fav) {
+          this.isFavorited = true;
+          this.favoritoId = fav.id;
+        }
+      }
+    });
+  }
+
+  toggleFavorite(): void {
+    if (!this.authService.isLoggedIn) return;
+
+    if (this.isFavorited && this.favoritoId) {
+      this.favoritoService.deleteFavorito(this.favoritoId).subscribe({
+        next: () => {
+          this.isFavorited = false;
+          this.favoritoId = null;
+          this.favMessage = 'Removido dos favoritos';
+          setTimeout(() => this.favMessage = '', 2000);
+        }
+      });
+    } else {
+      const payload = {
+        usuarioId: this.authService.userId!,
+        funerariaId: this.funerariaId
+      };
+      this.favoritoService.create(payload).subscribe({
+        next: (fav) => {
+          this.isFavorited = true;
+          this.favoritoId = fav.id;
+          this.favMessage = 'Adicionado aos favoritos!';
+          setTimeout(() => this.favMessage = '', 2000);
+        }
+      });
+    }
   }
 
   getAverageRating(): number {

@@ -12,22 +12,27 @@
       <h1>{{ funeraria.nome }}</h1>
       <div class="rating-section">
         <span class="rating">{{ getAverageRating() }}/5</span>
-        <span class="reviews">({{ reviews.length }} avaliações)</span>
+        <span class="reviews">({{ reviews.length }} avaliacoes)</span>
       </div>
       <p class="location">{{ funeraria.cidade }} - {{ funeraria.estado }}</p>
+
+      <button *ngIf="authService.isLoggedIn" class="btn-favorite" [class.favorited]="isFavorited" (click)="toggleFavorite()">
+        {{ isFavorited ? 'Remover Favorito' : 'Adicionar Favorito' }}
+      </button>
+      <span *ngIf="favMessage" class="fav-message">{{ favMessage }}</span>
     </section>
 
     <section class="details-grid">
       <div class="detail-card">
-        <h3>Serviços Oferecidos</h3>
+        <h3>Servicos Oferecidos</h3>
         <ul>
           <li *ngFor="let servico of servicos">{{ servico.nome }} - R$ {{ servico.preco }}</li>
-          <li *ngIf="servicos.length === 0">Nenhum serviço cadastrado</li>
+          <li *ngIf="servicos.length === 0">Nenhum servico cadastrado</li>
         </ul>
       </div>
 
       <div class="detail-card">
-        <h3>Informações de Contato</h3>
+        <h3>Informacoes de Contato</h3>
         <p *ngIf="funeraria.telefone"><strong>Telefone:</strong> <a [href]="'tel:' + funeraria.telefone">{{ funeraria.telefone }}</a></p>
         <p *ngIf="funeraria.endereco"><strong>Endereco:</strong> {{ funeraria.endereco }}</p>
         <p *ngIf="funeraria.horario"><strong>Horario:</strong> {{ funeraria.horario }}</p>
@@ -35,14 +40,14 @@
       </div>
 
       <div class="detail-card">
-        <h3>Tabela de Preços</h3>
+        <h3>Tabela de Precos</h3>
         <table class="price-table" *ngIf="servicos.length > 0">
           <tr *ngFor="let servico of servicos">
             <td>{{ servico.nome }}</td>
             <td>R$ {{ servico.preco }}</td>
           </tr>
         </table>
-        <p *ngIf="servicos.length === 0">Nenhum preço cadastrado</p>
+        <p *ngIf="servicos.length === 0">Nenhum preco cadastrado</p>
       </div>
 
       <div class="detail-card">
@@ -51,8 +56,8 @@
       </div>
 
       <div class="detail-card" *ngIf="reviews.length > 0">
-        <h3>Avaliações Recentes</h3>
-        <div *ngFor="let review of reviews.slice(0, 3)" class="review-item">
+        <h3>Avaliacoes Recentes</h3>
+        <div *ngFor="let review of reviews.slice(0, 5)" class="review-item">
           <p><strong>{{ review.usuarioNome }}</strong> - {{ review.nota }}/5</p>
           <p>{{ review.comentario }}</p>
         </div>
@@ -60,7 +65,8 @@
     </section>
 
     <section class="action-section">
-      <a [routerLink]="['/avaliar', funeraria.id]" class="btn-primary">Avaliar Funerária</a>
+      <a *ngIf="authService.isLoggedIn" [routerLink]="['/avaliar', funeraria.id]" class="btn-primary">Avaliar Funeraria</a>
+      <a *ngIf="!authService.isLoggedIn" routerLink="/login" class="btn-primary">Entrar para Avaliar</a>
       <a routerLink="/chat" class="btn-secondary">Falar com Chatbot</a>
     </section>
   </ng-container>
