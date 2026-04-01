@@ -27,6 +27,14 @@ export class HeaderComponent {
     return this.authService.isAdmin;
   }
 
+  get isFuneraria(): boolean {
+    return this.authService.isFuneraria;
+  }
+
+  get isUsuario(): boolean {
+    return this.authService.isUsuario;
+  }
+
   toggleMenu(): void {
     this.menuOpen = !this.menuOpen;
   }
