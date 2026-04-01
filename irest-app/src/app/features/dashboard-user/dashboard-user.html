@@ -1,0 +1,73 @@
+<app-header></app-header>
+<main class="dashboard-container">
+  <section class="dashboard-header">
+    <h1>Meu Painel</h1>
+    <p>Bem-vindo, {{ authService.currentUser?.nome }}!</p>
+  </section>
+
+  <div *ngIf="success" class="alert alert-success">{{ success }} <button (click)="dismissSuccess()">X</button></div>
+  <div *ngIf="error" class="alert alert-error">{{ error }} <button (click)="dismissError()">X</button></div>
+
+  <div class="tabs-navigation">
+    <button [class.active]="activeTab === 'overview'" (click)="switchTab('overview')">Visao Geral</button>
+    <button [class.active]="activeTab === 'favoritos'" (click)="switchTab('favoritos')">Favoritos</button>
+    <button [class.active]="activeTab === 'reviews'" (click)="switchTab('reviews')">Minhas Avaliacoes</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div *ngIf="activeTab === 'overview'" class="tab-content">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-number">{{ favoritos.length }}</span>
+        <span class="stat-label">Favoritos</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">{{ userReviews.length }}</span>
+        <span class="stat-label">Avaliacoes Feitas</span>
+      </div>
+    </div>
+    <div class="info-card">
+      <h3>Minha Conta</h3>
+      <div class="info-row"><span class="info-label">Nome:</span><span class="info-value">{{ authService.currentUser?.nome }}</span></div>
+      <div class="info-row"><span class="info-label">Email:</span><span class="info-value">{{ authService.currentUser?.email }}</span></div>
+    </div>
+  </div>
+
+  <!-- FAVORITOS -->
+  <div *ngIf="activeTab === 'favoritos'" class="tab-content">
+    <h2>Meus Favoritos</h2>
+    <p class="tab-description">Funerarias que voce salvou.</p>
+    <div *ngIf="favoritos.length > 0; else noFav" class="favorites-grid">
+      <div *ngFor="let fav of favoritos" class="favorite-card">
+        <h4>{{ fav.funerariaNome }}</h4>
+        <div class="favorite-actions">
+          <a [routerLink]="['/detalhes', fav.funerariaId]" class="btn-view">Ver Detalhes</a>
+          <button class="btn-remove" (click)="removeFavorito(fav.id)">Remover</button>
+        </div>
+      </div>
+    </div>
+    <ng-template #noFav>
+      <div class="empty-state"><p>Nenhum favorito ainda.</p><a routerLink="/busca" class="btn-primary">Buscar Funerarias</a></div>
+    </ng-template>
+  </div>
+
+  <!-- REVIEWS -->
+  <div *ngIf="activeTab === 'reviews'" class="tab-content">
+    <h2>Minhas Avaliacoes</h2>
+    <div class="table-section">
+      <table *ngIf="userReviews.length > 0; else noRev">
+        <thead><tr><th>Funeraria</th><th>Nota</th><th>Comentario</th><th>Data</th><th>Acoes</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let r of userReviews">
+            <td>{{ r.funerariaId }}</td>
+            <td>{{ r.nota }}/5</td>
+            <td class="comment-cell">{{ r.comentario }}</td>
+            <td>{{ r.dataAvaliacao | date: 'dd/MM/yyyy' }}</td>
+            <td><button class="btn-delete" (click)="deleteReview(r.id)">Excluir</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noRev><div class="empty-state"><p>Nenhuma avaliacao feita.</p><a routerLink="/busca" class="btn-primary">Buscar Funerarias</a></div></ng-template>
+    </div>
+  </div>
+</main>
