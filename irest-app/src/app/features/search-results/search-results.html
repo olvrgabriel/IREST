@@ -8,24 +8,24 @@
     </div>
 
     <div class="filter-group">
-      <label>Faixa de Preco</label>
+      <label>Faixa de Preço</label>
       <input type="number" placeholder="Min. R$" [(ngModel)]="precoMin" (input)="aplicarFiltros()">
       <input type="number" placeholder="Max. R$" [(ngModel)]="precoMax" (input)="aplicarFiltros()">
     </div>
 
     <div class="filter-group">
-      <label>Avaliacao minima</label>
+      <label>Avaliação mínima</label>
       <div class="checkbox-item">
         <input type="radio" name="rating" [checked]="minRating === 0" (change)="setMinRating(0)"> Todas
       </div>
       <div class="checkbox-item">
-        <input type="radio" name="rating" [checked]="minRating === 3" (change)="setMinRating(3)"> 3+ estrelas
+        <input type="radio" name="rating" [checked]="minRating === 3" (change)="setMinRating(3)"> 3+ ⭐
       </div>
       <div class="checkbox-item">
-        <input type="radio" name="rating" [checked]="minRating === 4" (change)="setMinRating(4)"> 4+ estrelas
+        <input type="radio" name="rating" [checked]="minRating === 4" (change)="setMinRating(4)"> 4+ ⭐
       </div>
       <div class="checkbox-item">
-        <input type="radio" name="rating" [checked]="minRating === 5" (change)="setMinRating(5)"> 5 estrelas
+        <input type="radio" name="rating" [checked]="minRating === 5" (change)="setMinRating(5)"> 5 ⭐
       </div>
     </div>
   </aside>
@@ -33,7 +33,7 @@
   <section class="results-content">
     <div class="results-header">
       <h2>Resultados da Busca</h2>
-      <span class="results-count">{{ funerarias.length }} funeraria(s) encontrada(s)</span>
+      <span class="results-count">{{ funerarias.length }} funerária(s) encontrada(s)</span>
     </div>
 
     <div *ngIf="error" class="error-message">
@@ -43,7 +43,7 @@
     </div>
 
     <div *ngIf="!error && funerarias.length === 0" class="no-data-message">
-      Nenhuma funeraria encontrada com os filtros atuais.
+      Nenhuma funerária encontrada com os filtros atuais.
     </div>
 
     <div class="results-grid">

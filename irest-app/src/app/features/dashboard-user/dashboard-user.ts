@@ -76,11 +76,11 @@ export class DashboardUser implements OnInit {
   }
 
   deleteReview(id: number): void {
-    if (!confirm('Excluir esta avaliacao?')) return;
+    if (!confirm('Excluir esta avaliação?')) return;
     this.clearMessages();
     this.reviewService.deleteReview(id).subscribe({
-      next: () => { this.success = 'Avaliacao excluida!'; this.loadUserReviews(); this.cdr.detectChanges(); },
-      error: () => { this.error = 'Erro ao excluir avaliacao'; this.cdr.detectChanges(); }
+      next: () => { this.success = 'Avaliação excluída!'; this.loadUserReviews(); this.cdr.detectChanges(); },
+      error: () => { this.error = 'Erro ao excluir avaliação'; this.cdr.detectChanges(); }
     });
   }
 }

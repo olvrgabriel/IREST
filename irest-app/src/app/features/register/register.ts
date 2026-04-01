@@ -33,7 +33,7 @@ export class RegisterComponent {
     }
 
     if (this.senha !== this.confirmarSenha) {
-      this.error = 'As senhas nao coincidem';
+      this.error = 'As senhas não coincidem';
       return;
     }
 

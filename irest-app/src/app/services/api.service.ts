@@ -13,10 +13,10 @@ export class ApiService {
   constructor(protected http: HttpClient) {}
 
   protected handleError(error: HttpErrorResponse) {
-    let errorMessage = 'Ocorreu um erro ao processar sua requisicao';
+    let errorMessage = 'Ocorreu um erro ao processar sua requisição';
 
     if (error.status === 0) {
-      errorMessage = 'Nao foi possivel conectar ao servidor. Verifique se o backend esta rodando em ' + this.baseUrl;
+      errorMessage = 'Não foi possível conectar ao servidor. Verifique se o backend está rodando em ' + this.baseUrl;
     } else if (error.error instanceof ErrorEvent) {
       errorMessage = `Erro: ${error.error.message}`;
     } else {

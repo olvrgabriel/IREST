@@ -1,17 +1,17 @@
 <app-header></app-header>
 <main class="auth-container">
   <div class="auth-card auth-card-wide">
-    <h1>Cadastrar Funeraria</h1>
-    <p class="auth-subtitle">Cadastre sua funeraria na plataforma IREST</p>
+    <h1>Cadastrar Funerária</h1>
+    <p class="auth-subtitle">Cadastre sua funerária na plataforma IREST</p>
 
     <div *ngIf="error" class="auth-error">{{ error }}</div>
 
     <form (ngSubmit)="register()" class="auth-form">
       <div class="form-row">
         <div class="form-group">
-          <label for="nome">Nome da Funeraria *</label>
+          <label for="nome">Nome da Funerária *</label>
           <input type="text" id="nome" [(ngModel)]="nome" name="nome"
-                 placeholder="Nome da funeraria" required>
+                 placeholder="Nome da funerária" required>
         </div>
         <div class="form-group">
           <label for="email">Email *</label>
@@ -40,9 +40,9 @@
                  placeholder="(00) 00000-0000">
         </div>
         <div class="form-group">
-          <label for="endereco">Endereco</label>
+          <label for="endereco">Endereço</label>
           <input type="text" id="endereco" [(ngModel)]="endereco" name="endereco"
-                 placeholder="Endereco completo">
+                 placeholder="Endereço completo">
         </div>
       </div>
 
@@ -50,7 +50,7 @@
         <div class="form-group">
           <label for="senha">Senha *</label>
           <input type="password" id="senha" [(ngModel)]="senha" name="senha"
-                 placeholder="Minimo 6 caracteres" required>
+                 placeholder="Mínimo 6 caracteres" required>
         </div>
         <div class="form-group">
           <label for="confirmarSenha">Confirmar Senha *</label>
@@ -60,12 +60,12 @@
       </div>
 
       <button type="submit" class="btn-auth" [disabled]="loading">
-        {{ loading ? 'Cadastrando...' : 'Cadastrar Funeraria' }}
+        {{ loading ? 'Cadastrando...' : 'Cadastrar Funerária' }}
       </button>
     </form>
 
     <p class="auth-link">
-      Ja tem conta? <a routerLink="/login">Entrar</a> | <a routerLink="/cadastro">Cadastrar como usuario</a>
+      Já tem conta? <a routerLink="/login">Entrar</a> | <a routerLink="/cadastro">Cadastrar como usuário</a>
     </p>
   </div>
 </main>

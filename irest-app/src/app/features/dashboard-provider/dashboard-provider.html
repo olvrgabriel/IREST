@@ -1,8 +1,8 @@
 <app-header></app-header>
 <main class="dashboard-container">
   <section class="dashboard-header">
-    <h1>Painel da Funeraria</h1>
-    <p>Gerencie sua funeraria, {{ authService.currentUser?.nome }}</p>
+    <h1>Painel da Funerária</h1>
+    <p>Gerencie sua funerária, {{ authService.currentUser?.nome }}</p>
   </section>
 
   <!-- Messages -->
@@ -15,10 +15,10 @@
 
   <!-- Tabs -->
   <div class="tabs-navigation">
-    <button [class.active]="activeTab === 'overview'" (click)="switchTab('overview')">Visao Geral</button>
-    <button [class.active]="activeTab === 'info'" (click)="switchTab('info')">Informacoes</button>
-    <button [class.active]="activeTab === 'servicos'" (click)="switchTab('servicos')">Servicos</button>
-    <button [class.active]="activeTab === 'reviews'" (click)="switchTab('reviews')">Avaliacoes</button>
+    <button [class.active]="activeTab === 'overview'" (click)="switchTab('overview')">Visão Geral</button>
+    <button [class.active]="activeTab === 'info'" (click)="switchTab('info')">Informações</button>
+    <button [class.active]="activeTab === 'servicos'" (click)="switchTab('servicos')">Serviços</button>
+    <button [class.active]="activeTab === 'reviews'" (click)="switchTab('reviews')">Avaliações</button>
   </div>
 
   <!-- OVERVIEW -->
@@ -26,15 +26,15 @@
     <div class="stats-grid">
       <div class="stat-card">
         <span class="stat-number">{{ servicos.length }}</span>
-        <span class="stat-label">Servicos Cadastrados</span>
+        <span class="stat-label">Serviços Cadastrados</span>
       </div>
       <div class="stat-card">
         <span class="stat-number">{{ reviews.length }}</span>
-        <span class="stat-label">Avaliacoes Recebidas</span>
+        <span class="stat-label">Avaliações Recebidas</span>
       </div>
       <div class="stat-card">
         <span class="stat-number">{{ getAverageRating() }}</span>
-        <span class="stat-label">Nota Media</span>
+        <span class="stat-label">Nota Média</span>
       </div>
     </div>
 
@@ -42,14 +42,14 @@
       <h3>{{ funeraria.nome }}</h3>
       <div class="info-row"><span class="info-label">Cidade:</span><span class="info-value">{{ funeraria.cidade }} - {{ funeraria.estado }}</span></div>
       <div class="info-row" *ngIf="funeraria.telefone"><span class="info-label">Telefone:</span><span class="info-value">{{ funeraria.telefone }}</span></div>
-      <div class="info-row" *ngIf="funeraria.endereco"><span class="info-label">Endereco:</span><span class="info-value">{{ funeraria.endereco }}</span></div>
-      <div class="info-row" *ngIf="funeraria.horario"><span class="info-label">Horario:</span><span class="info-value">{{ funeraria.horario }}</span></div>
+      <div class="info-row" *ngIf="funeraria.endereco"><span class="info-label">Endereço:</span><span class="info-value">{{ funeraria.endereco }}</span></div>
+      <div class="info-row" *ngIf="funeraria.horario"><span class="info-label">Horário:</span><span class="info-value">{{ funeraria.horario }}</span></div>
     </div>
   </div>
 
   <!-- INFO (EDIT) -->
   <div *ngIf="activeTab === 'info'" class="tab-content">
-    <h2>Informacoes da Funeraria</h2>
+    <h2>Informações da Funerária</h2>
 
     <ng-container *ngIf="!editingInfo && funeraria">
       <div class="info-card">
@@ -57,15 +57,15 @@
         <div class="info-row"><span class="info-label">Cidade:</span><span class="info-value">{{ funeraria.cidade }}</span></div>
         <div class="info-row"><span class="info-label">Estado:</span><span class="info-value">{{ funeraria.estado || '-' }}</span></div>
         <div class="info-row"><span class="info-label">Telefone:</span><span class="info-value">{{ funeraria.telefone || '-' }}</span></div>
-        <div class="info-row"><span class="info-label">Endereco:</span><span class="info-value">{{ funeraria.endereco || '-' }}</span></div>
-        <div class="info-row"><span class="info-label">Horario:</span><span class="info-value">{{ funeraria.horario || '-' }}</span></div>
-        <div class="info-row"><span class="info-label">Descricao:</span><span class="info-value">{{ funeraria.descricao || '-' }}</span></div>
+        <div class="info-row"><span class="info-label">Endereço:</span><span class="info-value">{{ funeraria.endereco || '-' }}</span></div>
+        <div class="info-row"><span class="info-label">Horário:</span><span class="info-value">{{ funeraria.horario || '-' }}</span></div>
+        <div class="info-row"><span class="info-label">Descrição:</span><span class="info-value">{{ funeraria.descricao || '-' }}</span></div>
       </div>
-      <button class="btn-primary" style="margin-top: 16px;" (click)="startEditInfo()">Editar Informacoes</button>
+      <button class="btn-primary" style="margin-top: 16px;" (click)="startEditInfo()">Editar Informações</button>
     </ng-container>
 
     <div *ngIf="editingInfo" class="form-section">
-      <h3>Editar Informacoes</h3>
+      <h3>Editar Informações</h3>
       <form (ngSubmit)="saveInfo()">
         <div class="form-row">
           <div class="form-group"><label>Nome: *</label><input [(ngModel)]="infoForm.nome" name="nome" type="text" required></div>
@@ -74,10 +74,10 @@
         </div>
         <div class="form-row">
           <div class="form-group"><label>Telefone:</label><input [(ngModel)]="infoForm.telefone" name="telefone" type="text"></div>
-          <div class="form-group"><label>Endereco:</label><input [(ngModel)]="infoForm.endereco" name="endereco" type="text"></div>
-          <div class="form-group"><label>Horario:</label><input [(ngModel)]="infoForm.horario" name="horario" type="text"></div>
+          <div class="form-group"><label>Endereço:</label><input [(ngModel)]="infoForm.endereco" name="endereco" type="text"></div>
+          <div class="form-group"><label>Horário:</label><input [(ngModel)]="infoForm.horario" name="horario" type="text"></div>
         </div>
-        <div class="form-group"><label>Descricao:</label><textarea [(ngModel)]="infoForm.descricao" name="descricao"></textarea></div>
+        <div class="form-group"><label>Descrição:</label><textarea [(ngModel)]="infoForm.descricao" name="descricao"></textarea></div>
         <button type="submit" class="btn-primary">Salvar</button>
         <button type="button" class="btn-secondary" (click)="cancelEditInfo()">Cancelar</button>
       </form>
@@ -86,16 +86,16 @@
 
   <!-- SERVICOS -->
   <div *ngIf="activeTab === 'servicos'" class="tab-content">
-    <h2>Meus Servicos</h2>
+    <h2>Meus Serviços</h2>
 
     <div class="form-section">
-      <h3>{{ editingServicoId ? 'Editar Servico' : 'Adicionar Servico' }}</h3>
+      <h3>{{ editingServicoId ? 'Editar Serviço' : 'Adicionar Serviço' }}</h3>
       <form (ngSubmit)="saveServico()">
         <div class="form-row">
-          <div class="form-group"><label>Nome: *</label><input [(ngModel)]="servicoForm.nome" name="nome" type="text" placeholder="Ex: Caixao Premium" required></div>
-          <div class="form-group"><label>Preco (R$): *</label><input [(ngModel)]="servicoForm.preco" name="preco" type="number" step="0.01" required></div>
+          <div class="form-group"><label>Nome: *</label><input [(ngModel)]="servicoForm.nome" name="nome" type="text" placeholder="Ex: Caixão Premium" required></div>
+          <div class="form-group"><label>Preço (R$): *</label><input [(ngModel)]="servicoForm.preco" name="preco" type="number" step="0.01" required></div>
         </div>
-        <div class="form-group"><label>Descricao:</label><textarea [(ngModel)]="servicoForm.descricao" name="descricao" placeholder="Descricao do servico"></textarea></div>
+        <div class="form-group"><label>Descrição:</label><textarea [(ngModel)]="servicoForm.descricao" name="descricao" placeholder="Descrição do serviço"></textarea></div>
         <button type="submit" class="btn-primary">{{ editingServicoId ? 'Atualizar' : 'Adicionar' }}</button>
         <button *ngIf="editingServicoId" type="button" class="btn-secondary" (click)="resetServicoForm()">Cancelar</button>
       </form>
@@ -104,7 +104,7 @@
     <div class="table-section">
       <table *ngIf="servicos.length > 0; else noServicos">
         <thead>
-          <tr><th>Nome</th><th>Descricao</th><th>Preco</th><th>Acoes</th></tr>
+          <tr><th>Nome</th><th>Descrição</th><th>Preço</th><th>Ações</th></tr>
         </thead>
         <tbody>
           <tr *ngFor="let s of servicos">
@@ -118,14 +118,14 @@
           </tr>
         </tbody>
       </table>
-      <ng-template #noServicos><p class="no-data">Nenhum servico cadastrado. Adicione seu primeiro servico acima.</p></ng-template>
+      <ng-template #noServicos><p class="no-data">Nenhum serviço cadastrado. Adicione seu primeiro serviço acima.</p></ng-template>
     </div>
   </div>
 
   <!-- REVIEWS -->
   <div *ngIf="activeTab === 'reviews'" class="tab-content">
-    <h2>Avaliacoes Recebidas</h2>
-    <p class="tab-description">Veja o que os usuarios dizem sobre sua funeraria.</p>
+    <h2>Avaliações Recebidas</h2>
+    <p class="tab-description">Veja o que os usuários dizem sobre sua funerária.</p>
 
     <div *ngIf="reviews.length > 0; else noReviews" class="reviews-list">
       <div *ngFor="let r of reviews" class="review-card">
@@ -137,6 +137,6 @@
         <span class="review-date">{{ r.dataAvaliacao | date: 'dd/MM/yyyy' }}</span>
       </div>
     </div>
-    <ng-template #noReviews><p class="no-data">Nenhuma avaliacao recebida ainda.</p></ng-template>
+    <ng-template #noReviews><p class="no-data">Nenhuma avaliação recebida ainda.</p></ng-template>
   </div>
 </main>
