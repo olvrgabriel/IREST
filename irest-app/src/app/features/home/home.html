@@ -1,13 +1,13 @@
 <app-header></app-header>
 <main class="home-container">
   <section class="hero-section">
-    <h1>Encontre servicos funerarios com calma e transparencia</h1>
-    <p>Compare opcoes, precos e avaliacoes - tudo em um so lugar.</p>
+    <h1>Encontre serviços funerários com calma e transparência</h1>
+    <p>Compare opções, preços e avaliações - tudo em um só lugar.</p>
 
     <div class="search-bar">
       <input type="text" class="search-input" placeholder="Pesquisar (nome/cidade)" [(ngModel)]="searchText">
-      <input type="number" class="search-input price" placeholder="Preco min (R$)" [(ngModel)]="precoMin">
-      <input type="number" class="search-input price" placeholder="Preco max (R$)" [(ngModel)]="precoMax">
+      <input type="number" class="search-input price" placeholder="Preço mín (R$)" [(ngModel)]="precoMin">
+      <input type="number" class="search-input price" placeholder="Preço máx (R$)" [(ngModel)]="precoMax">
       <button class="search-button" (click)="buscar()">Buscar</button>
     </div>
   </section>
@@ -20,7 +20,7 @@
     </div>
 
     <div *ngIf="!error && funerarias.length === 0" class="no-data-message">
-      Nenhuma funeraria encontrada. Cadastre funerarias no painel admin.
+      Nenhuma funerária encontrada. Cadastre funerárias no painel admin.
     </div>
 
     <div *ngFor="let funeraria of funerarias" class="card highlight-card">

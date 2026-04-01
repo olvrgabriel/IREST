@@ -82,7 +82,7 @@ export class DashboardProvider implements OnInit {
   saveInfo(): void {
     this.clearMessages();
     if (!this.infoForm.nome || !this.infoForm.cidade) {
-      this.error = 'Nome e cidade sao obrigatorios';
+      this.error = 'Nome e cidade são obrigatórios';
       return;
     }
     this.minhaFunerariaService.updateMyFuneraria({
@@ -97,12 +97,12 @@ export class DashboardProvider implements OnInit {
       longitude: this.infoForm.longitude ? Number(this.infoForm.longitude) : null
     }).subscribe({
       next: () => {
-        this.success = 'Informacoes atualizadas!';
+        this.success = 'Informações atualizadas!';
         this.editingInfo = false;
         this.loadFuneraria();
         this.cdr.detectChanges();
       },
-      error: () => { this.error = 'Erro ao atualizar informacoes'; this.cdr.detectChanges(); }
+      error: () => { this.error = 'Erro ao atualizar informações'; this.cdr.detectChanges(); }
     });
   }
 
@@ -117,7 +117,7 @@ export class DashboardProvider implements OnInit {
   saveServico(): void {
     this.clearMessages();
     if (!this.servicoForm.nome || !this.servicoForm.preco) {
-      this.error = 'Preencha nome e preco do servico';
+      this.error = 'Preencha nome e preço do serviço';
       return;
     }
     const payload = {
@@ -132,12 +132,12 @@ export class DashboardProvider implements OnInit {
 
     action.subscribe({
       next: () => {
-        this.success = this.editingServicoId ? 'Servico atualizado!' : 'Servico criado!';
+        this.success = this.editingServicoId ? 'Serviço atualizado!' : 'Serviço criado!';
         this.resetServicoForm();
         this.loadServicos();
         this.cdr.detectChanges();
       },
-      error: () => { this.error = 'Erro ao salvar servico'; this.cdr.detectChanges(); }
+      error: () => { this.error = 'Erro ao salvar serviço'; this.cdr.detectChanges(); }
     });
   }
 
@@ -148,11 +148,11 @@ export class DashboardProvider implements OnInit {
   }
 
   deleteServico(id: number): void {
-    if (!confirm('Tem certeza que deseja excluir este servico?')) return;
+    if (!confirm('Tem certeza que deseja excluir este serviço?')) return;
     this.clearMessages();
     this.minhaFunerariaService.deleteServico(id).subscribe({
-      next: () => { this.success = 'Servico excluido!'; this.loadServicos(); this.cdr.detectChanges(); },
-      error: () => { this.error = 'Erro ao excluir servico'; this.cdr.detectChanges(); }
+      next: () => { this.success = 'Serviço excluído!'; this.loadServicos(); this.cdr.detectChanges(); },
+      error: () => { this.error = 'Erro ao excluir serviço'; this.cdr.detectChanges(); }
     });
   }
 

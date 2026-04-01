@@ -49,7 +49,7 @@ export class LoginComponent {
         } else if (typeof err.error === 'string') {
           this.error = err.error;
         } else {
-          this.error = 'Email ou senha invalidos';
+          this.error = 'Email ou senha inválidos';
         }
       }
     });

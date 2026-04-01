@@ -1,7 +1,7 @@
 <app-header></app-header>
 <main class="dashboard-container">
   <section class="dashboard-header">
-    <h1>Painel de Administracao</h1>
+    <h1>Painel de Administração</h1>
     <p>Bem-vindo, {{ authService.currentUser?.nome }}!</p>
   </section>
 
@@ -17,10 +17,10 @@
 
   <!-- Tabs -->
   <div class="tabs-navigation">
-    <button [class.active]="activeTab === 'overview'" (click)="switchTab('overview')">Visao Geral</button>
-    <button [class.active]="activeTab === 'funerarias'" (click)="switchTab('funerarias')">Funerarias</button>
-    <button [class.active]="activeTab === 'usuarios'" (click)="switchTab('usuarios')">Usuarios</button>
-    <button [class.active]="activeTab === 'reviews'" (click)="switchTab('reviews')">Moderacao</button>
+    <button [class.active]="activeTab === 'overview'" (click)="switchTab('overview')">Visão Geral</button>
+    <button [class.active]="activeTab === 'funerarias'" (click)="switchTab('funerarias')">Funerárias</button>
+    <button [class.active]="activeTab === 'usuarios'" (click)="switchTab('usuarios')">Usuários</button>
+    <button [class.active]="activeTab === 'reviews'" (click)="switchTab('reviews')">Moderação</button>
   </div>
 
   <!-- OVERVIEW TAB -->
@@ -28,24 +28,24 @@
     <div class="stats-grid">
       <div class="stat-card">
         <span class="stat-number">{{ totalFunerarias }}</span>
-        <span class="stat-label">Funerarias</span>
+        <span class="stat-label">Funerárias</span>
       </div>
       <div class="stat-card">
         <span class="stat-number">{{ totalUsuarios }}</span>
-        <span class="stat-label">Usuarios</span>
+        <span class="stat-label">Usuários</span>
       </div>
       <div class="stat-card">
         <span class="stat-number">{{ totalReviews }}</span>
-        <span class="stat-label">Avaliacoes</span>
+        <span class="stat-label">Avaliações</span>
       </div>
     </div>
 
     <div class="quick-actions">
-      <h3>Acoes Rapidas</h3>
+      <h3>Ações Rápidas</h3>
       <div class="actions-grid">
-        <button class="action-btn" (click)="switchTab('funerarias')">Gerenciar Funerarias</button>
-        <button class="action-btn" (click)="switchTab('usuarios')">Gerenciar Usuarios</button>
-        <button class="action-btn" (click)="switchTab('reviews')">Moderar Avaliacoes</button>
+        <button class="action-btn" (click)="switchTab('funerarias')">Gerenciar Funerárias</button>
+        <button class="action-btn" (click)="switchTab('usuarios')">Gerenciar Usuários</button>
+        <button class="action-btn" (click)="switchTab('reviews')">Moderar Avaliações</button>
         <a routerLink="/admin/crud" class="action-btn">CRUD Completo</a>
       </div>
     </div>
@@ -53,15 +53,15 @@
 
   <!-- FUNERARIAS TAB -->
   <div *ngIf="activeTab === 'funerarias'" class="tab-content">
-    <h2>Gerenciar Funerarias</h2>
+    <h2>Gerenciar Funerárias</h2>
 
     <div class="form-section">
-      <h3>{{ editingFunerariaId ? 'Editar Funeraria' : 'Criar Nova Funeraria' }}</h3>
+      <h3>{{ editingFunerariaId ? 'Editar Funerária' : 'Criar Nova Funerária' }}</h3>
       <form (ngSubmit)="saveFuneraria()">
         <div class="form-row">
           <div class="form-group">
             <label>Nome:</label>
-            <input [(ngModel)]="funerariaForm.nome" name="nome" type="text" placeholder="Nome da funeraria" required>
+            <input [(ngModel)]="funerariaForm.nome" name="nome" type="text" placeholder="Nome da funerária" required>
           </div>
           <div class="form-group">
             <label>Cidade:</label>
@@ -78,17 +78,17 @@
             <input [(ngModel)]="funerariaForm.telefone" name="telefone" type="text" placeholder="(00) 00000-0000">
           </div>
           <div class="form-group">
-            <label>Endereco:</label>
-            <input [(ngModel)]="funerariaForm.endereco" name="endereco" type="text" placeholder="Endereco completo">
+            <label>Endereço:</label>
+            <input [(ngModel)]="funerariaForm.endereco" name="endereco" type="text" placeholder="Endereço completo">
           </div>
           <div class="form-group">
-            <label>Horario:</label>
+            <label>Horário:</label>
             <input [(ngModel)]="funerariaForm.horario" name="horario" type="text" placeholder="Ex: 08:00 - 18:00">
           </div>
         </div>
         <div class="form-group">
-          <label>Descricao:</label>
-          <textarea [(ngModel)]="funerariaForm.descricao" name="descricao" placeholder="Descricao da funeraria"></textarea>
+          <label>Descrição:</label>
+          <textarea [(ngModel)]="funerariaForm.descricao" name="descricao" placeholder="Descrição da funerária"></textarea>
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -114,7 +114,7 @@
             <th>Cidade</th>
             <th>Estado</th>
             <th>Telefone</th>
-            <th>Acoes</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -132,17 +132,17 @@
         </tbody>
       </table>
       <ng-template #noFunerarias>
-        <p class="no-data">Nenhuma funeraria encontrada</p>
+        <p class="no-data">Nenhuma funerária encontrada</p>
       </ng-template>
     </div>
   </div>
 
   <!-- USUARIOS TAB -->
   <div *ngIf="activeTab === 'usuarios'" class="tab-content">
-    <h2>Gerenciar Usuarios</h2>
+    <h2>Gerenciar Usuários</h2>
 
     <div class="form-section">
-      <h3>{{ editingUsuarioId ? 'Editar Usuario' : 'Criar Novo Usuario' }}</h3>
+      <h3>{{ editingUsuarioId ? 'Editar Usuário' : 'Criar Novo Usuário' }}</h3>
       <form (ngSubmit)="saveUsuario()">
         <div class="form-row">
           <div class="form-group">
@@ -171,7 +171,7 @@
             <th>Nome</th>
             <th>Email</th>
             <th>Data Cadastro</th>
-            <th>Acoes</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -188,27 +188,27 @@
         </tbody>
       </table>
       <ng-template #noUsuarios>
-        <p class="no-data">Nenhum usuario encontrado</p>
+        <p class="no-data">Nenhum usuário encontrado</p>
       </ng-template>
     </div>
   </div>
 
   <!-- REVIEWS/MODERACAO TAB -->
   <div *ngIf="activeTab === 'reviews'" class="tab-content">
-    <h2>Moderacao de Avaliacoes</h2>
-    <p class="tab-description">Gerencie e modere as avaliacoes dos usuarios.</p>
+    <h2>Moderação de Avaliações</h2>
+    <p class="tab-description">Gerencie e modere as avaliações dos usuários.</p>
 
     <div class="table-section">
       <table *ngIf="reviews.length > 0; else noReviews">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Usuario</th>
-            <th>Funeraria</th>
+            <th>Usuário</th>
+            <th>Funerária</th>
             <th>Nota</th>
-            <th>Comentario</th>
+            <th>Comentário</th>
             <th>Data</th>
-            <th>Acoes</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -226,7 +226,7 @@
         </tbody>
       </table>
       <ng-template #noReviews>
-        <p class="no-data">Nenhuma avaliacao encontrada</p>
+        <p class="no-data">Nenhuma avaliação encontrada</p>
       </ng-template>
     </div>
   </div>

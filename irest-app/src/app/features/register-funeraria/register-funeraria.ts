@@ -32,12 +32,12 @@ export class RegisterFunerariaComponent {
 
   register(): void {
     if (!this.nome || !this.email || !this.senha || !this.cidade) {
-      this.error = 'Preencha todos os campos obrigatorios';
+      this.error = 'Preencha todos os campos obrigatórios';
       return;
     }
 
     if (this.senha !== this.confirmarSenha) {
-      this.error = 'As senhas nao coincidem';
+      this.error = 'As senhas não coincidem';
       return;
     }
 
@@ -69,7 +69,7 @@ export class RegisterFunerariaComponent {
         } else if (typeof err.error === 'string') {
           this.error = err.error;
         } else {
-          this.error = 'Erro ao cadastrar funeraria. Verifique os dados.';
+          this.error = 'Erro ao cadastrar funerária. Verifique os dados.';
         }
       }
     });

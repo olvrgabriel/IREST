@@ -12,7 +12,7 @@
       <h1>{{ funeraria.nome }}</h1>
       <div class="rating-section">
         <span class="rating">{{ getAverageRating() }}/5</span>
-        <span class="reviews-count">({{ reviews.length }} avaliacoes)</span>
+        <span class="reviews-count">({{ reviews.length }} avaliações)</span>
       </div>
       <p class="location">{{ funeraria.cidade }}<span *ngIf="funeraria.estado"> - {{ funeraria.estado }}</span></p>
 
@@ -26,11 +26,11 @@
 
     <section class="details-grid">
       <div class="detail-card">
-        <h3>Informacoes de Contato</h3>
+        <h3>Informações de Contato</h3>
         <p *ngIf="funeraria.telefone"><strong>Telefone:</strong> <a [href]="'tel:' + funeraria.telefone">{{ funeraria.telefone }}</a></p>
-        <p *ngIf="funeraria.endereco"><strong>Endereco:</strong> {{ funeraria.endereco }}</p>
-        <p *ngIf="funeraria.horario"><strong>Horario:</strong> {{ funeraria.horario }}</p>
-        <p *ngIf="!funeraria.telefone && !funeraria.endereco && !funeraria.horario">Informacoes de contato nao disponiveis</p>
+        <p *ngIf="funeraria.endereco"><strong>Endereço:</strong> {{ funeraria.endereco }}</p>
+        <p *ngIf="funeraria.horario"><strong>Horário:</strong> {{ funeraria.horario }}</p>
+        <p *ngIf="!funeraria.telefone && !funeraria.endereco && !funeraria.horario">Informações de contato não disponíveis</p>
       </div>
 
       <div class="detail-card" *ngIf="funeraria.descricao">
@@ -39,40 +39,40 @@
       </div>
 
       <div class="detail-card">
-        <h3>Servicos Oferecidos</h3>
+        <h3>Serviços Oferecidos</h3>
         <table class="price-table" *ngIf="servicos.length > 0">
           <tr *ngFor="let servico of servicos">
             <td>{{ servico.nome }}</td>
             <td>R$ {{ servico.preco }}</td>
           </tr>
         </table>
-        <p *ngIf="servicos.length === 0">Nenhum servico cadastrado</p>
+        <p *ngIf="servicos.length === 0">Nenhum serviço cadastrado</p>
       </div>
     </section>
 
     <section class="reviews-section">
-      <h2>Avaliacoes</h2>
+      <h2>Avaliações</h2>
       <div *ngIf="reviews.length > 0" class="reviews-list">
         <div *ngFor="let review of reviews" class="review-item">
           <div class="review-header">
-            <strong>{{ review.usuarioNome || 'Usuario' }}</strong>
+            <strong>{{ review.usuarioNome || 'Usuário' }}</strong>
             <span class="review-rating">{{ review.nota }}/5</span>
           </div>
           <p class="review-comment">{{ review.comentario }}</p>
           <span class="review-date" *ngIf="review.dataAvaliacao">{{ review.dataAvaliacao | date:'dd/MM/yyyy' }}</span>
         </div>
       </div>
-      <p *ngIf="reviews.length === 0" class="no-reviews">Nenhuma avaliacao ainda. Seja o primeiro a avaliar!</p>
+      <p *ngIf="reviews.length === 0" class="no-reviews">Nenhuma avaliação ainda. Seja o primeiro a avaliar!</p>
     </section>
 
     <section class="action-section">
       <ng-container *ngIf="authService.isLoggedIn">
-        <a [routerLink]="['/avaliar', funeraria.id]" class="btn-primary">Avaliar Funeraria</a>
+        <a [routerLink]="['/avaliar', funeraria.id]" class="btn-primary">Avaliar Funerária</a>
       </ng-container>
       <ng-container *ngIf="!authService.isLoggedIn">
         <a routerLink="/login" class="btn-primary">Entrar para Avaliar</a>
       </ng-container>
-      <a routerLink="/busca" class="btn-secondary">Voltar a Busca</a>
+      <a routerLink="/busca" class="btn-secondary">Voltar à Busca</a>
     </section>
   </ng-container>
 </main>

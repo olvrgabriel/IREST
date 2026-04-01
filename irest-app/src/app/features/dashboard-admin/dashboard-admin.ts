@@ -105,13 +105,13 @@ export class DashboardAdmin implements OnInit {
 
     action.subscribe({
       next: () => {
-        this.success = this.editingFunerariaId ? 'Funeraria atualizada!' : 'Funeraria criada!';
+        this.success = this.editingFunerariaId ? 'Funerária atualizada!' : 'Funerária criada!';
         this.resetFunerariaForm();
         this.loadFunerarias();
         this.loadStats();
         this.cdr.detectChanges();
       },
-      error: () => { this.error = 'Erro ao salvar funeraria'; this.cdr.detectChanges(); }
+      error: () => { this.error = 'Erro ao salvar funerária'; this.cdr.detectChanges(); }
     });
   }
 
@@ -126,11 +126,11 @@ export class DashboardAdmin implements OnInit {
   }
 
   deleteFuneraria(id: number): void {
-    if (!confirm('Tem certeza que deseja deletar esta funeraria?')) return;
+    if (!confirm('Tem certeza que deseja deletar esta funerária?')) return;
     this.clearMessages();
     this.funerariaService.deleteFuneraria(id).subscribe({
-      next: () => { this.success = 'Funeraria deletada!'; this.loadFunerarias(); this.loadStats(); this.cdr.detectChanges(); },
-      error: () => { this.error = 'Erro ao deletar funeraria'; this.cdr.detectChanges(); }
+      next: () => { this.success = 'Funerária deletada!'; this.loadFunerarias(); this.loadStats(); this.cdr.detectChanges(); },
+      error: () => { this.error = 'Erro ao deletar funerária'; this.cdr.detectChanges(); }
     });
   }
 
@@ -159,13 +159,13 @@ export class DashboardAdmin implements OnInit {
 
     action.subscribe({
       next: () => {
-        this.success = this.editingUsuarioId ? 'Usuario atualizado!' : 'Usuario criado!';
+        this.success = this.editingUsuarioId ? 'Usuário atualizado!' : 'Usuário criado!';
         this.resetUsuarioForm();
         this.loadUsuarios();
         this.loadStats();
         this.cdr.detectChanges();
       },
-      error: () => { this.error = 'Erro ao salvar usuario'; this.cdr.detectChanges(); }
+      error: () => { this.error = 'Erro ao salvar usuário'; this.cdr.detectChanges(); }
     });
   }
 
@@ -176,11 +176,11 @@ export class DashboardAdmin implements OnInit {
   }
 
   deleteUsuario(id: number): void {
-    if (!confirm('Tem certeza que deseja deletar este usuario?')) return;
+    if (!confirm('Tem certeza que deseja deletar este usuário?')) return;
     this.clearMessages();
     this.usuarioService.deleteUsuario(id).subscribe({
-      next: () => { this.success = 'Usuario deletado!'; this.loadUsuarios(); this.loadStats(); this.cdr.detectChanges(); },
-      error: () => { this.error = 'Erro ao deletar usuario'; this.cdr.detectChanges(); }
+      next: () => { this.success = 'Usuário deletado!'; this.loadUsuarios(); this.loadStats(); this.cdr.detectChanges(); },
+      error: () => { this.error = 'Erro ao deletar usuário'; this.cdr.detectChanges(); }
     });
   }
 
@@ -198,11 +198,11 @@ export class DashboardAdmin implements OnInit {
   }
 
   deleteReview(id: number): void {
-    if (!confirm('Tem certeza que deseja excluir esta avaliacao?')) return;
+    if (!confirm('Tem certeza que deseja excluir esta avaliação?')) return;
     this.clearMessages();
     this.reviewService.deleteReview(id).subscribe({
-      next: () => { this.success = 'Avaliacao excluida!'; this.loadReviews(); this.loadStats(); this.cdr.detectChanges(); },
-      error: () => { this.error = 'Erro ao excluir avaliacao'; this.cdr.detectChanges(); }
+      next: () => { this.success = 'Avaliação excluída!'; this.loadReviews(); this.loadStats(); this.cdr.detectChanges(); },
+      error: () => { this.error = 'Erro ao excluir avaliação'; this.cdr.detectChanges(); }
     });
   }
 
