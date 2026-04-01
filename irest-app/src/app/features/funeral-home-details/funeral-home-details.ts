@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HeaderComponent } from '../../core/components/header/header';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -31,7 +31,8 @@ export class FuneralHomeDetails implements OnInit {
     private funerariaService: FunerariaService,
     private favoritoService: FavoritoService,
     public authService: AuthService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -52,11 +53,13 @@ export class FuneralHomeDetails implements OnInit {
         this.servicos = data.servicos || [];
         this.reviews = data.reviews || [];
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Erro ao carregar funeraria:', err);
+        console.error('Erro ao carregar funerária:', err);
         this.error = err.message || 'Erro ao carregar dados';
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -70,6 +73,7 @@ export class FuneralHomeDetails implements OnInit {
           this.isFavorited = true;
           this.favoritoId = fav.id;
         }
+        this.cdr.detectChanges();
       }
     });
   }
@@ -83,7 +87,8 @@ export class FuneralHomeDetails implements OnInit {
           this.isFavorited = false;
           this.favoritoId = null;
           this.favMessage = 'Removido dos favoritos';
-          setTimeout(() => this.favMessage = '', 2000);
+          this.cdr.detectChanges();
+          setTimeout(() => { this.favMessage = ''; this.cdr.detectChanges(); }, 2000);
         }
       });
     } else {
@@ -96,7 +101,8 @@ export class FuneralHomeDetails implements OnInit {
           this.isFavorited = true;
           this.favoritoId = fav.id;
           this.favMessage = 'Adicionado aos favoritos!';
-          setTimeout(() => this.favMessage = '', 2000);
+          this.cdr.detectChanges();
+          setTimeout(() => { this.favMessage = ''; this.cdr.detectChanges(); }, 2000);
         }
       });
     }
