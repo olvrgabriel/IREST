@@ -5,7 +5,28 @@
   </a>
   <nav class="main-nav">
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Inicio</a>
+    <a routerLink="/busca" routerLinkActive="active">Buscar</a>
     <a routerLink="/como-funciona" routerLinkActive="active">Como funciona</a>
     <a routerLink="/ajuda" routerLinkActive="active">Ajuda</a>
+
+    <ng-container *ngIf="isLoggedIn; else loginLinks">
+      <div class="user-menu-container">
+        <button class="user-menu-btn" (click)="toggleMenu()">
+          <span class="user-avatar">{{ currentUser?.nome?.charAt(0)?.toUpperCase() }}</span>
+          <span class="user-name">{{ currentUser?.nome }}</span>
+        </button>
+        <div class="user-dropdown" *ngIf="menuOpen">
+          <a routerLink="/painel-admin" *ngIf="isAdmin" (click)="menuOpen = false">Painel Admin</a>
+          <a routerLink="/admin/crud" *ngIf="isAdmin" (click)="menuOpen = false">Gerenciar Dados</a>
+          <a routerLink="/painel-funeraria" *ngIf="!isAdmin" (click)="menuOpen = false">Meu Painel</a>
+          <a routerLink="/chat" (click)="menuOpen = false">Chat</a>
+          <button class="logout-btn" (click)="logout()">Sair</button>
+        </div>
+      </div>
+    </ng-container>
+    <ng-template #loginLinks>
+      <a routerLink="/login" class="btn-header-login">Entrar</a>
+      <a routerLink="/cadastro" class="btn-header-register">Cadastrar</a>
+    </ng-template>
   </nav>
 </header>
