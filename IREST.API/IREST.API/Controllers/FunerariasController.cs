@@ -28,7 +28,7 @@ namespace IREST.API.Controllers
         public async Task<ActionResult<IEnumerable<FunerariaDto>>> GetFunerarias()
         {
             var funerarias = await _context.Funerarias
-                .Include(f => f.Reviews)
+                .Include(f => f.Reviews).ThenInclude(r => r.Usuario)
                 .Include(f => f.Servicos)
                 .Include(f => f.Favoritos)
                 .ToListAsync();
@@ -41,7 +41,7 @@ namespace IREST.API.Controllers
         public async Task<ActionResult<FunerariaDto>> GetFuneraria(int id)
         {
             var funeraria = await _context.Funerarias
-                .Include(f => f.Reviews)
+                .Include(f => f.Reviews).ThenInclude(r => r.Usuario)
                 .Include(f => f.Servicos)
                 .Include(f => f.Favoritos)
                 .FirstOrDefaultAsync(f => f.Id == id);
