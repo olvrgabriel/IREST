@@ -1,66 +1,142 @@
 <app-header></app-header>
 <main class="dashboard-container">
   <section class="dashboard-header">
-    <h1>Painel da Funerária</h1>
-    <p>Gerencie sua funerária aqui</p>
+    <h1>Painel da Funeraria</h1>
+    <p>Gerencie sua funeraria, {{ authService.currentUser?.nome }}</p>
   </section>
 
-  <div class="dashboard-grid">
-    <div class="dashboard-card">
-      <h3>Informações da Empresa</h3>
-      <div class="card-content">
-        <p><strong>Nome:</strong> Funerária São João</p>
-        <p><strong>Email:</strong> contato@saojao.com</p>
-        <p><strong>Telefone:</strong> (31) 98765-4321</p>
-        <p><strong>Endereço:</strong> Rua das Flores, 123</p>
-        <button class="btn-edit">Editar</button>
+  <!-- Messages -->
+  <div *ngIf="success" class="alert alert-success">
+    {{ success }} <button (click)="dismissSuccess()">X</button>
+  </div>
+  <div *ngIf="error" class="alert alert-error">
+    {{ error }} <button (click)="dismissError()">X</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-navigation">
+    <button [class.active]="activeTab === 'overview'" (click)="switchTab('overview')">Visao Geral</button>
+    <button [class.active]="activeTab === 'info'" (click)="switchTab('info')">Informacoes</button>
+    <button [class.active]="activeTab === 'servicos'" (click)="switchTab('servicos')">Servicos</button>
+    <button [class.active]="activeTab === 'reviews'" (click)="switchTab('reviews')">Avaliacoes</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div *ngIf="activeTab === 'overview'" class="tab-content">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-number">{{ servicos.length }}</span>
+        <span class="stat-label">Servicos Cadastrados</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">{{ reviews.length }}</span>
+        <span class="stat-label">Avaliacoes Recebidas</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">{{ getAverageRating() }}</span>
+        <span class="stat-label">Nota Media</span>
       </div>
     </div>
 
-    <div class="dashboard-card">
-      <h3>Estatísticas</h3>
-      <div class="card-content">
-        <p><strong>Total de Avaliações:</strong> 156</p>
-        <p><strong>Classificação Média:</strong> ⭐ 4.6</p>
-        <p><strong>Visualizações (mês):</strong> 1,234</p>
-        <p><strong>Cliques em Contato:</strong> 89</p>
-      </div>
+    <div *ngIf="funeraria" class="info-card">
+      <h3>{{ funeraria.nome }}</h3>
+      <div class="info-row"><span class="info-label">Cidade:</span><span class="info-value">{{ funeraria.cidade }} - {{ funeraria.estado }}</span></div>
+      <div class="info-row" *ngIf="funeraria.telefone"><span class="info-label">Telefone:</span><span class="info-value">{{ funeraria.telefone }}</span></div>
+      <div class="info-row" *ngIf="funeraria.endereco"><span class="info-label">Endereco:</span><span class="info-value">{{ funeraria.endereco }}</span></div>
+      <div class="info-row" *ngIf="funeraria.horario"><span class="info-label">Horario:</span><span class="info-value">{{ funeraria.horario }}</span></div>
     </div>
+  </div>
 
-    <div class="dashboard-card">
-      <h3>Tabela de Preços</h3>
-      <div class="card-content">
-        <table class="price-table">
-          <tr>
-            <td>Caixão simples</td>
-            <td>R$ 800</td>
-          </tr>
-          <tr>
-            <td>Caixão premium</td>
-            <td>R$ 2.000</td>
-          </tr>
-          <tr>
-            <td>Cremação</td>
-            <td>R$ 1.500</td>
-          </tr>
-        </table>
-        <button class="btn-edit">Editar Preços</button>
+  <!-- INFO (EDIT) -->
+  <div *ngIf="activeTab === 'info'" class="tab-content">
+    <h2>Informacoes da Funeraria</h2>
+
+    <ng-container *ngIf="!editingInfo && funeraria">
+      <div class="info-card">
+        <div class="info-row"><span class="info-label">Nome:</span><span class="info-value">{{ funeraria.nome }}</span></div>
+        <div class="info-row"><span class="info-label">Cidade:</span><span class="info-value">{{ funeraria.cidade }}</span></div>
+        <div class="info-row"><span class="info-label">Estado:</span><span class="info-value">{{ funeraria.estado || '-' }}</span></div>
+        <div class="info-row"><span class="info-label">Telefone:</span><span class="info-value">{{ funeraria.telefone || '-' }}</span></div>
+        <div class="info-row"><span class="info-label">Endereco:</span><span class="info-value">{{ funeraria.endereco || '-' }}</span></div>
+        <div class="info-row"><span class="info-label">Horario:</span><span class="info-value">{{ funeraria.horario || '-' }}</span></div>
+        <div class="info-row"><span class="info-label">Descricao:</span><span class="info-value">{{ funeraria.descricao || '-' }}</span></div>
       </div>
-    </div>
+      <button class="btn-primary" style="margin-top: 16px;" (click)="startEditInfo()">Editar Informacoes</button>
+    </ng-container>
 
-    <div class="dashboard-card">
-      <h3>Avaliações Recentes</h3>
-      <div class="card-content">
-        <div class="review-item">
-          <p><strong>João Silva</strong> - ⭐⭐⭐⭐⭐</p>
-          <p>"Excelente atendimento, recomendo!"</p>
+    <div *ngIf="editingInfo" class="form-section">
+      <h3>Editar Informacoes</h3>
+      <form (ngSubmit)="saveInfo()">
+        <div class="form-row">
+          <div class="form-group"><label>Nome: *</label><input [(ngModel)]="infoForm.nome" name="nome" type="text" required></div>
+          <div class="form-group"><label>Cidade: *</label><input [(ngModel)]="infoForm.cidade" name="cidade" type="text" required></div>
+          <div class="form-group"><label>Estado:</label><input [(ngModel)]="infoForm.estado" name="estado" type="text"></div>
         </div>
-        <div class="review-item">
-          <p><strong>Maria Santos</strong> - ⭐⭐⭐⭐</p>
-          <p>"Bom serviço, pontual"</p>
+        <div class="form-row">
+          <div class="form-group"><label>Telefone:</label><input [(ngModel)]="infoForm.telefone" name="telefone" type="text"></div>
+          <div class="form-group"><label>Endereco:</label><input [(ngModel)]="infoForm.endereco" name="endereco" type="text"></div>
+          <div class="form-group"><label>Horario:</label><input [(ngModel)]="infoForm.horario" name="horario" type="text"></div>
         </div>
-        <button class="btn-edit">Ver todas</button>
+        <div class="form-group"><label>Descricao:</label><textarea [(ngModel)]="infoForm.descricao" name="descricao"></textarea></div>
+        <button type="submit" class="btn-primary">Salvar</button>
+        <button type="button" class="btn-secondary" (click)="cancelEditInfo()">Cancelar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- SERVICOS -->
+  <div *ngIf="activeTab === 'servicos'" class="tab-content">
+    <h2>Meus Servicos</h2>
+
+    <div class="form-section">
+      <h3>{{ editingServicoId ? 'Editar Servico' : 'Adicionar Servico' }}</h3>
+      <form (ngSubmit)="saveServico()">
+        <div class="form-row">
+          <div class="form-group"><label>Nome: *</label><input [(ngModel)]="servicoForm.nome" name="nome" type="text" placeholder="Ex: Caixao Premium" required></div>
+          <div class="form-group"><label>Preco (R$): *</label><input [(ngModel)]="servicoForm.preco" name="preco" type="number" step="0.01" required></div>
+        </div>
+        <div class="form-group"><label>Descricao:</label><textarea [(ngModel)]="servicoForm.descricao" name="descricao" placeholder="Descricao do servico"></textarea></div>
+        <button type="submit" class="btn-primary">{{ editingServicoId ? 'Atualizar' : 'Adicionar' }}</button>
+        <button *ngIf="editingServicoId" type="button" class="btn-secondary" (click)="resetServicoForm()">Cancelar</button>
+      </form>
+    </div>
+
+    <div class="table-section">
+      <table *ngIf="servicos.length > 0; else noServicos">
+        <thead>
+          <tr><th>Nome</th><th>Descricao</th><th>Preco</th><th>Acoes</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of servicos">
+            <td>{{ s.nome }}</td>
+            <td>{{ s.descricao || '-' }}</td>
+            <td>R$ {{ s.preco | number: '1.2-2' }}</td>
+            <td>
+              <button class="btn-edit" (click)="editServico(s)">Editar</button>
+              <button class="btn-delete" (click)="deleteServico(s.id)">Excluir</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noServicos><p class="no-data">Nenhum servico cadastrado. Adicione seu primeiro servico acima.</p></ng-template>
+    </div>
+  </div>
+
+  <!-- REVIEWS -->
+  <div *ngIf="activeTab === 'reviews'" class="tab-content">
+    <h2>Avaliacoes Recebidas</h2>
+    <p class="tab-description">Veja o que os usuarios dizem sobre sua funeraria.</p>
+
+    <div *ngIf="reviews.length > 0; else noReviews" class="reviews-list">
+      <div *ngFor="let r of reviews" class="review-card">
+        <div class="review-header-row">
+          <strong>{{ r.usuarioNome }}</strong>
+          <span class="review-rating">{{ r.nota }}/5</span>
+        </div>
+        <p class="review-comment">{{ r.comentario }}</p>
+        <span class="review-date">{{ r.dataAvaliacao | date: 'dd/MM/yyyy' }}</span>
       </div>
     </div>
+    <ng-template #noReviews><p class="no-data">Nenhuma avaliacao recebida ainda.</p></ng-template>
   </div>
 </main>

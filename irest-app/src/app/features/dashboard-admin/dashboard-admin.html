@@ -1,76 +1,233 @@
 <app-header></app-header>
 <main class="dashboard-container">
   <section class="dashboard-header">
-    <h1>Painel de Administração</h1>
-    <p>Gerencie a plataforma IREST</p>
+    <h1>Painel de Administracao</h1>
+    <p>Bem-vindo, {{ authService.currentUser?.nome }}!</p>
   </section>
 
-  <div class="dashboard-grid">
-    <div class="dashboard-card">
-      <h3>Estatísticas Gerais</h3>
-      <div class="card-content">
-        <p><strong>Total de Funerárias:</strong> 1,250</p>
-        <p><strong>Total de Usuários:</strong> 5,432</p>
-        <p><strong>Total de Avaliações:</strong> 12,891</p>
-        <p><strong>Visitas (mês):</strong> 45,230</p>
+  <!-- Messages -->
+  <div *ngIf="success" class="alert alert-success">
+    {{ success }}
+    <button (click)="dismissSuccess()">X</button>
+  </div>
+  <div *ngIf="error" class="alert alert-error">
+    {{ error }}
+    <button (click)="dismissError()">X</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-navigation">
+    <button [class.active]="activeTab === 'overview'" (click)="switchTab('overview')">Visao Geral</button>
+    <button [class.active]="activeTab === 'funerarias'" (click)="switchTab('funerarias')">Funerarias</button>
+    <button [class.active]="activeTab === 'usuarios'" (click)="switchTab('usuarios')">Usuarios</button>
+    <button [class.active]="activeTab === 'reviews'" (click)="switchTab('reviews')">Moderacao</button>
+  </div>
+
+  <!-- OVERVIEW TAB -->
+  <div *ngIf="activeTab === 'overview'" class="tab-content">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-number">{{ totalFunerarias }}</span>
+        <span class="stat-label">Funerarias</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">{{ totalUsuarios }}</span>
+        <span class="stat-label">Usuarios</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">{{ totalReviews }}</span>
+        <span class="stat-label">Avaliacoes</span>
       </div>
     </div>
 
-    <div class="dashboard-card">
-      <h3>Moderação</h3>
-      <div class="card-content">
-        <p><strong>Avaliações Pendentes:</strong> 23</p>
-        <p><strong>Denúncias Ativas:</strong> 5</p>
-        <p><strong>Usuários Bloqueados:</strong> 12</p>
-        <button class="btn-edit">Gerenciar</button>
+    <div class="quick-actions">
+      <h3>Acoes Rapidas</h3>
+      <div class="actions-grid">
+        <button class="action-btn" (click)="switchTab('funerarias')">Gerenciar Funerarias</button>
+        <button class="action-btn" (click)="switchTab('usuarios')">Gerenciar Usuarios</button>
+        <button class="action-btn" (click)="switchTab('reviews')">Moderar Avaliacoes</button>
+        <a routerLink="/admin/crud" class="action-btn">CRUD Completo</a>
       </div>
     </div>
+  </div>
 
-    <div class="dashboard-card">
-      <h3>Funerárias Destacadas</h3>
-      <div class="card-content">
-        <ul>
-          <li>Funerária São João</li>
-          <li>Repouso Eterno</li>
-          <li>Cemitério Paz e Luz</li>
-        </ul>
-        <button class="btn-edit">Gerenciar</button>
-      </div>
-    </div>
+  <!-- FUNERARIAS TAB -->
+  <div *ngIf="activeTab === 'funerarias'" class="tab-content">
+    <h2>Gerenciar Funerarias</h2>
 
-    <div class="dashboard-card">
-      <h3>Notificações Recentes</h3>
-      <div class="card-content">
-        <div class="notification-item">
-          <p>Nova denúncia em avaliação de João Silva</p>
+    <div class="form-section">
+      <h3>{{ editingFunerariaId ? 'Editar Funeraria' : 'Criar Nova Funeraria' }}</h3>
+      <form (ngSubmit)="saveFuneraria()">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nome:</label>
+            <input [(ngModel)]="funerariaForm.nome" name="nome" type="text" placeholder="Nome da funeraria" required>
+          </div>
+          <div class="form-group">
+            <label>Cidade:</label>
+            <input [(ngModel)]="funerariaForm.cidade" name="cidade" type="text" placeholder="Cidade" required>
+          </div>
+          <div class="form-group">
+            <label>Estado:</label>
+            <input [(ngModel)]="funerariaForm.estado" name="estado" type="text" placeholder="UF">
+          </div>
         </div>
-        <div class="notification-item">
-          <p>Funerária nova registrada: Repouso Sereno</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Telefone:</label>
+            <input [(ngModel)]="funerariaForm.telefone" name="telefone" type="text" placeholder="(00) 00000-0000">
+          </div>
+          <div class="form-group">
+            <label>Endereco:</label>
+            <input [(ngModel)]="funerariaForm.endereco" name="endereco" type="text" placeholder="Endereco completo">
+          </div>
+          <div class="form-group">
+            <label>Horario:</label>
+            <input [(ngModel)]="funerariaForm.horario" name="horario" type="text" placeholder="Ex: 08:00 - 18:00">
+          </div>
         </div>
-        <button class="btn-edit">Ver todas</button>
-      </div>
+        <div class="form-group">
+          <label>Descricao:</label>
+          <textarea [(ngModel)]="funerariaForm.descricao" name="descricao" placeholder="Descricao da funeraria"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Latitude:</label>
+            <input [(ngModel)]="funerariaForm.latitude" name="latitude" type="number" step="0.0001">
+          </div>
+          <div class="form-group">
+            <label>Longitude:</label>
+            <input [(ngModel)]="funerariaForm.longitude" name="longitude" type="number" step="0.0001">
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">{{ editingFunerariaId ? 'Atualizar' : 'Criar' }}</button>
+        <button *ngIf="editingFunerariaId" type="button" class="btn-secondary" (click)="resetFunerariaForm()">Cancelar</button>
+      </form>
     </div>
 
-    <div class="dashboard-card">
-      <h3>Análises</h3>
-      <div class="card-content">
-        <p><strong>Avaliação Média:</strong> ⭐ 4.3</p>
-        <p><strong>Taxa de Resposta:</strong> 78%</p>
-        <p><strong>Tempo Médio de Resposta:</strong> 2h</p>
-        <button class="btn-edit">Ver relatórios</button>
-      </div>
+    <div class="table-section">
+      <table *ngIf="funerarias.length > 0; else noFunerarias">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Cidade</th>
+            <th>Estado</th>
+            <th>Telefone</th>
+            <th>Acoes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let f of funerarias">
+            <td>{{ f.id }}</td>
+            <td>{{ f.nome }}</td>
+            <td>{{ f.cidade }}</td>
+            <td>{{ f.estado }}</td>
+            <td>{{ f.telefone || '-' }}</td>
+            <td>
+              <button class="btn-edit" (click)="editFuneraria(f)">Editar</button>
+              <button class="btn-delete" (click)="deleteFuneraria(f.id)">Deletar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noFunerarias>
+        <p class="no-data">Nenhuma funeraria encontrada</p>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- USUARIOS TAB -->
+  <div *ngIf="activeTab === 'usuarios'" class="tab-content">
+    <h2>Gerenciar Usuarios</h2>
+
+    <div class="form-section">
+      <h3>{{ editingUsuarioId ? 'Editar Usuario' : 'Criar Novo Usuario' }}</h3>
+      <form (ngSubmit)="saveUsuario()">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nome:</label>
+            <input [(ngModel)]="usuarioForm.nome" name="nome" type="text" placeholder="Nome completo" required>
+          </div>
+          <div class="form-group">
+            <label>Email:</label>
+            <input [(ngModel)]="usuarioForm.email" name="email" type="email" placeholder="email@exemplo.com" required>
+          </div>
+          <div class="form-group">
+            <label>Senha:</label>
+            <input [(ngModel)]="usuarioForm.senha" name="senha" type="password" placeholder="Senha">
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">{{ editingUsuarioId ? 'Atualizar' : 'Criar' }}</button>
+        <button *ngIf="editingUsuarioId" type="button" class="btn-secondary" (click)="resetUsuarioForm()">Cancelar</button>
+      </form>
     </div>
 
-    <div class="dashboard-card">
-      <h3>Configurações</h3>
-      <div class="card-content">
-        <ul>
-          <li><a href="#">Configurações Gerais</a></li>
-          <li><a href="#">Gerenciar Usuários</a></li>
-          <li><a href="#">Logs de Atividade</a></li>
-          <li><a href="#">Backup de Dados</a></li>
-        </ul>
-      </div>
+    <div class="table-section">
+      <table *ngIf="usuarios.length > 0; else noUsuarios">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Data Cadastro</th>
+            <th>Acoes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of usuarios">
+            <td>{{ u.id }}</td>
+            <td>{{ u.nome }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.dataCadastro | date: 'dd/MM/yyyy' }}</td>
+            <td>
+              <button class="btn-edit" (click)="editUsuario(u)">Editar</button>
+              <button class="btn-delete" (click)="deleteUsuario(u.id)">Deletar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noUsuarios>
+        <p class="no-data">Nenhum usuario encontrado</p>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- REVIEWS/MODERACAO TAB -->
+  <div *ngIf="activeTab === 'reviews'" class="tab-content">
+    <h2>Moderacao de Avaliacoes</h2>
+    <p class="tab-description">Gerencie e modere as avaliacoes dos usuarios.</p>
+
+    <div class="table-section">
+      <table *ngIf="reviews.length > 0; else noReviews">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Funeraria</th>
+            <th>Nota</th>
+            <th>Comentario</th>
+            <th>Data</th>
+            <th>Acoes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of reviews">
+            <td>{{ r.id }}</td>
+            <td>{{ r.usuarioNome }}</td>
+            <td>{{ r.funerariaId }}</td>
+            <td>{{ r.nota }}/5</td>
+            <td class="comment-cell">{{ r.comentario }}</td>
+            <td>{{ r.dataAvaliacao | date: 'dd/MM/yyyy' }}</td>
+            <td>
+              <button class="btn-delete" (click)="deleteReview(r.id)">Excluir</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noReviews>
+        <p class="no-data">Nenhuma avaliacao encontrada</p>
+      </ng-template>
     </div>
   </div>
 </main>
