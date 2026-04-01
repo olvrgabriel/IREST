@@ -18,7 +18,8 @@
         <div class="user-dropdown" *ngIf="menuOpen">
           <a routerLink="/painel-admin" *ngIf="isAdmin" (click)="menuOpen = false">Painel Admin</a>
           <a routerLink="/admin/crud" *ngIf="isAdmin" (click)="menuOpen = false">Gerenciar Dados</a>
-          <a routerLink="/painel-funeraria" *ngIf="!isAdmin" (click)="menuOpen = false">Meu Painel</a>
+          <a routerLink="/painel-funeraria" *ngIf="isFuneraria" (click)="menuOpen = false">Painel Funerária</a>
+          <a routerLink="/meu-painel" *ngIf="isUsuario" (click)="menuOpen = false">Meu Painel</a>
           <a routerLink="/chat" (click)="menuOpen = false">Chat</a>
           <button class="logout-btn" (click)="logout()">Sair</button>
         </div>
