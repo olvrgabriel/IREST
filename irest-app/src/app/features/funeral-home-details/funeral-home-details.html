@@ -12,62 +12,67 @@
       <h1>{{ funeraria.nome }}</h1>
       <div class="rating-section">
         <span class="rating">{{ getAverageRating() }}/5</span>
-        <span class="reviews">({{ reviews.length }} avaliacoes)</span>
+        <span class="reviews-count">({{ reviews.length }} avaliacoes)</span>
       </div>
-      <p class="location">{{ funeraria.cidade }} - {{ funeraria.estado }}</p>
+      <p class="location">{{ funeraria.cidade }}<span *ngIf="funeraria.estado"> - {{ funeraria.estado }}</span></p>
 
-      <button *ngIf="authService.isLoggedIn" class="btn-favorite" [class.favorited]="isFavorited" (click)="toggleFavorite()">
-        {{ isFavorited ? 'Remover Favorito' : 'Adicionar Favorito' }}
-      </button>
-      <span *ngIf="favMessage" class="fav-message">{{ favMessage }}</span>
+      <div *ngIf="authService.isLoggedIn && authService.isUsuario" class="favorite-section">
+        <button class="btn-favorite" [class.favorited]="isFavorited" (click)="toggleFavorite()">
+          {{ isFavorited ? 'Remover Favorito' : 'Adicionar Favorito' }}
+        </button>
+        <span *ngIf="favMessage" class="fav-message">{{ favMessage }}</span>
+      </div>
     </section>
 
     <section class="details-grid">
-      <div class="detail-card">
-        <h3>Servicos Oferecidos</h3>
-        <ul>
-          <li *ngFor="let servico of servicos">{{ servico.nome }} - R$ {{ servico.preco }}</li>
-          <li *ngIf="servicos.length === 0">Nenhum servico cadastrado</li>
-        </ul>
-      </div>
-
       <div class="detail-card">
         <h3>Informacoes de Contato</h3>
         <p *ngIf="funeraria.telefone"><strong>Telefone:</strong> <a [href]="'tel:' + funeraria.telefone">{{ funeraria.telefone }}</a></p>
         <p *ngIf="funeraria.endereco"><strong>Endereco:</strong> {{ funeraria.endereco }}</p>
         <p *ngIf="funeraria.horario"><strong>Horario:</strong> {{ funeraria.horario }}</p>
-        <p *ngIf="!funeraria.telefone && !funeraria.endereco">Informacoes de contato nao disponiveis</p>
+        <p *ngIf="!funeraria.telefone && !funeraria.endereco && !funeraria.horario">Informacoes de contato nao disponiveis</p>
+      </div>
+
+      <div class="detail-card" *ngIf="funeraria.descricao">
+        <h3>Sobre</h3>
+        <p>{{ funeraria.descricao }}</p>
       </div>
 
       <div class="detail-card">
-        <h3>Tabela de Precos</h3>
+        <h3>Servicos Oferecidos</h3>
         <table class="price-table" *ngIf="servicos.length > 0">
           <tr *ngFor="let servico of servicos">
             <td>{{ servico.nome }}</td>
             <td>R$ {{ servico.preco }}</td>
           </tr>
         </table>
-        <p *ngIf="servicos.length === 0">Nenhum preco cadastrado</p>
-      </div>
-
-      <div class="detail-card">
-        <h3>Sobre</h3>
-        <p>{{ funeraria.descricao }}</p>
-      </div>
-
-      <div class="detail-card" *ngIf="reviews.length > 0">
-        <h3>Avaliacoes Recentes</h3>
-        <div *ngFor="let review of reviews.slice(0, 5)" class="review-item">
-          <p><strong>{{ review.usuarioNome }}</strong> - {{ review.nota }}/5</p>
-          <p>{{ review.comentario }}</p>
-        </div>
+        <p *ngIf="servicos.length === 0">Nenhum servico cadastrado</p>
       </div>
     </section>
 
+    <section class="reviews-section">
+      <h2>Avaliacoes</h2>
+      <div *ngIf="reviews.length > 0" class="reviews-list">
+        <div *ngFor="let review of reviews" class="review-item">
+          <div class="review-header">
+            <strong>{{ review.usuarioNome || 'Usuario' }}</strong>
+            <span class="review-rating">{{ review.nota }}/5</span>
+          </div>
+          <p class="review-comment">{{ review.comentario }}</p>
+          <span class="review-date" *ngIf="review.dataAvaliacao">{{ review.dataAvaliacao | date:'dd/MM/yyyy' }}</span>
+        </div>
+      </div>
+      <p *ngIf="reviews.length === 0" class="no-reviews">Nenhuma avaliacao ainda. Seja o primeiro a avaliar!</p>
+    </section>
+
     <section class="action-section">
-      <a *ngIf="authService.isLoggedIn" [routerLink]="['/avaliar', funeraria.id]" class="btn-primary">Avaliar Funeraria</a>
-      <a *ngIf="!authService.isLoggedIn" routerLink="/login" class="btn-primary">Entrar para Avaliar</a>
-      <a routerLink="/chat" class="btn-secondary">Falar com Chatbot</a>
+      <ng-container *ngIf="authService.isLoggedIn">
+        <a [routerLink]="['/avaliar', funeraria.id]" class="btn-primary">Avaliar Funeraria</a>
+      </ng-container>
+      <ng-container *ngIf="!authService.isLoggedIn">
+        <a routerLink="/login" class="btn-primary">Entrar para Avaliar</a>
+      </ng-container>
+      <a routerLink="/busca" class="btn-secondary">Voltar a Busca</a>
     </section>
   </ng-container>
 </main>
