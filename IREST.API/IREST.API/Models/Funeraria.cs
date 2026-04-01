@@ -1,4 +1,4 @@
-﻿namespace IREST.API.Models
+namespace IREST.API.Models
 {
     public class Funeraria
     {
@@ -12,6 +12,10 @@
         public string? Telefone { get; set; }
         public string? Endereco { get; set; }
         public string? Horario { get; set; }
+
+        // Credenciais de login da funeraria
+        public string? Email { get; set; }
+        public string? Senha { get; set; }
 
         public ICollection<Review>? Reviews { get; set; }
         public ICollection<Servico>? Servicos { get; set; }
