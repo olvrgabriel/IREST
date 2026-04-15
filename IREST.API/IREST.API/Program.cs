@@ -64,6 +64,22 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Seed: cria admin padrao se nenhum existir
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    if (!db.Admins.Any())
+    {
+        db.Admins.Add(new IREST.API.Models.Admin
+        {
+            Nome = "Administrador",
+            Email = "admin@irest.com",
+            Senha = BCrypt.Net.BCrypt.HashPassword("admin123")
+        });
+        db.SaveChanges();
+    }
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
