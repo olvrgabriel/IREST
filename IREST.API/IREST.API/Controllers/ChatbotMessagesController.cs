@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ namespace IREST.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ChatbotMessagesController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -30,7 +32,7 @@ namespace IREST.API.Controllers
             var messages = await _context.ChatbotMessages
                 .ToListAsync();
 
-            return messages.Select(m => m.ToDto()).ToList();
+            return messages.Select(m => m.ToDto()!).ToList();
         }
 
         // GET: api/ChatbotMessages/5
@@ -45,7 +47,7 @@ namespace IREST.API.Controllers
                 return NotFound();
             }
 
-            return message.ToDto();
+            return message.ToDto()!;
         }
 
         // PUT: api/ChatbotMessages/5
@@ -90,7 +92,7 @@ namespace IREST.API.Controllers
             var created = await _context.ChatbotMessages
                 .FirstOrDefaultAsync(m => m.Id == message.Id);
 
-            return CreatedAtAction("GetChatbotMessage", new { id = message.Id }, created.ToDto());
+            return CreatedAtAction("GetChatbotMessage", new { id = message.Id }, created!.ToDto()!);
         }
 
         // DELETE: api/ChatbotMessages/5

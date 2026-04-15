@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,7 @@ namespace IREST.API.Controllers
             _context = context;
         }
 
-        // GET: api/Reviews
+        // GET: api/Reviews - Publico
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ReviewDto>>> GetReviews()
         {
@@ -33,10 +34,10 @@ namespace IREST.API.Controllers
                 .Include(r => r.Admin)
                 .ToListAsync();
 
-            return reviews.Select(r => r.ToDto()).ToList();
+            return reviews.Select(r => r.ToDto()!).ToList();
         }
 
-        // GET: api/Reviews/5
+        // GET: api/Reviews/5 - Publico
         [HttpGet("{id}")]
         public async Task<ActionResult<ReviewDto>> GetReview(int id)
         {
@@ -51,11 +52,12 @@ namespace IREST.API.Controllers
                 return NotFound();
             }
 
-            return review.ToDto();
+            return review.ToDto()!;
         }
 
-        // PUT: api/Reviews/5
+        // PUT: api/Reviews/5 - Somente admin (moderacao)
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> PutReview(int id, Review review)
         {
             var existing = await _context.Reviews.FindAsync(id);
@@ -89,9 +91,9 @@ namespace IREST.API.Controllers
             return NoContent();
         }
 
-        // POST: api/Reviews
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // POST: api/Reviews - Somente usuario autenticado
         [HttpPost]
+        [Authorize(Roles = "usuario")]
         public async Task<ActionResult<ReviewDto>> PostReview(Review review)
         {
             _context.Reviews.Add(review);
@@ -103,11 +105,12 @@ namespace IREST.API.Controllers
                 .Include(r => r.Admin)
                 .FirstOrDefaultAsync(r => r.Id == review.Id);
 
-            return CreatedAtAction("GetReview", new { id = review.Id }, created.ToDto());
+            return CreatedAtAction("GetReview", new { id = review.Id }, created!.ToDto());
         }
 
-        // DELETE: api/Reviews/5
+        // DELETE: api/Reviews/5 - Admin ou usuario
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin,usuario")]
         public async Task<IActionResult> DeleteReview(int id)
         {
             var review = await _context.Reviews.FindAsync(id);

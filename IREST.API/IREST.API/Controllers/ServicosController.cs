@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,7 @@ namespace IREST.API.Controllers
             _context = context;
         }
 
-        // GET: api/Servicos
+        // GET: api/Servicos - Publico
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ServicoDto>>> GetServicos()
         {
@@ -31,10 +32,10 @@ namespace IREST.API.Controllers
                 .Include(s => s.Funeraria)
                 .ToListAsync();
 
-            return servicos.Select(s => s.ToDto()).ToList();
+            return servicos.Select(s => s.ToDto()!).ToList();
         }
 
-        // GET: api/Servicos/5
+        // GET: api/Servicos/5 - Publico
         [HttpGet("{id}")]
         public async Task<ActionResult<ServicoDto>> GetServico(int id)
         {
@@ -47,11 +48,12 @@ namespace IREST.API.Controllers
                 return NotFound();
             }
 
-            return servico.ToDto();
+            return servico.ToDto()!;
         }
 
-        // PUT: api/Servicos/5
+        // PUT: api/Servicos/5 - Admin ou funeraria
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin,funeraria")]
         public async Task<IActionResult> PutServico(int id, Servico servico)
         {
             var existing = await _context.Servicos.FindAsync(id);
@@ -84,8 +86,9 @@ namespace IREST.API.Controllers
             return NoContent();
         }
 
-        // POST: api/Servicos
+        // POST: api/Servicos - Admin ou funeraria
         [HttpPost]
+        [Authorize(Roles = "admin,funeraria")]
         public async Task<ActionResult<ServicoDto>> PostServico(Servico servico)
         {
             _context.Servicos.Add(servico);
@@ -95,11 +98,12 @@ namespace IREST.API.Controllers
                 .Include(s => s.Funeraria)
                 .FirstOrDefaultAsync(s => s.Id == servico.Id);
 
-            return CreatedAtAction("GetServico", new { id = servico.Id }, created.ToDto());
+            return CreatedAtAction("GetServico", new { id = servico.Id }, created!.ToDto());
         }
 
-        // DELETE: api/Servicos/5
+        // DELETE: api/Servicos/5 - Admin ou funeraria
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin,funeraria")]
         public async Task<IActionResult> DeleteServico(int id)
         {
             var servico = await _context.Servicos.FindAsync(id);
