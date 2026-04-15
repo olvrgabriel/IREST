@@ -5,6 +5,7 @@ obj/
 # Angular
 node_modules/
 dist/
+.angular/
 
 # VS
 .vs/
