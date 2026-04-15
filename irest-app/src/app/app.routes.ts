@@ -27,7 +27,7 @@ export const routes: Routes = [
   { path: 'cadastro-funeraria', component: RegisterFunerariaComponent },
 
   // Protected routes (logged in)
-  { path: 'avaliar/:id', component: ReviewForm, canActivate: [authGuard] },
+  { path: 'avaliar/:id', component: ReviewForm, canActivate: [usuarioGuard] },
   { path: 'chat', component: HelpChat, canActivate: [authGuard] },
 
   // Role-specific routes
