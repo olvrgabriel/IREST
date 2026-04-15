@@ -1,22 +1,53 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HeaderComponent } from './header';
 
-import { Header } from './header';
-
-describe('Header', () => {
-  let component: Header;
-  let fixture: ComponentFixture<Header>;
-
+describe('HeaderComponent', () => {
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [Header],
-    }).compileComponents();
+    localStorage.clear();
 
-    fixture = TestBed.createComponent(Header);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
+    await TestBed.configureTestingModule({
+      imports: [HeaderComponent],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting()
+      ]
+    }).compileComponents();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  afterEach(() => localStorage.clear());
+
+  it('deve ser criado', () => {
+    const fixture = TestBed.createComponent(HeaderComponent);
+    expect(fixture.componentInstance).toBeTruthy();
+  });
+
+  it('deve mostrar menu fechado por padrão', () => {
+    const fixture = TestBed.createComponent(HeaderComponent);
+    expect(fixture.componentInstance.menuOpen).toBe(false);
+  });
+
+  it('deve alternar menu ao chamar toggleMenu', () => {
+    const fixture = TestBed.createComponent(HeaderComponent);
+    const comp = fixture.componentInstance;
+
+    comp.toggleMenu();
+    expect(comp.menuOpen).toBe(true);
+
+    comp.toggleMenu();
+    expect(comp.menuOpen).toBe(false);
+  });
+
+  it('deve estar deslogado quando não há usuário', () => {
+    const fixture = TestBed.createComponent(HeaderComponent);
+    expect(fixture.componentInstance.isLoggedIn).toBe(false);
+  });
+
+  it('deve retornar isAdmin false quando deslogado', () => {
+    const fixture = TestBed.createComponent(HeaderComponent);
+    expect(fixture.componentInstance.isAdmin).toBe(false);
   });
 });
