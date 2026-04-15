@@ -34,7 +34,7 @@ export const routes: Routes = [
   { path: 'meu-painel', component: DashboardUser, canActivate: [usuarioGuard] },
   { path: 'painel-funeraria', component: DashboardProvider, canActivate: [funerariaGuard] },
   { path: 'painel-admin', component: DashboardAdmin, canActivate: [adminGuard] },
-  { path: 'admin/crud', component: AdminCrudComponent, canActivate: [adminGuard] },
+  { path: 'admin/crud', redirectTo: 'painel-admin' },
 
   { path: '**', redirectTo: '' }
 ];
