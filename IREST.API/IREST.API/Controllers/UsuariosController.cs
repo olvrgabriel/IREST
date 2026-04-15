@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using IREST.API.Data;
@@ -22,8 +23,9 @@ namespace IREST.API.Controllers
             _context = context;
         }
 
-        // GET: api/Usuarios
+        // GET: api/Usuarios - Somente admin
         [HttpGet]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult<IEnumerable<UsuarioDto>>> GetUsuarios()
         {
             var usuarios = await _context.Usuarios
@@ -32,11 +34,12 @@ namespace IREST.API.Controllers
                 .Include(u => u.Sessoes)
                 .ToListAsync();
 
-            return usuarios.Select(u => u.ToDto()).ToList();
+            return usuarios.Select(u => u.ToDto()!).ToList();
         }
 
-        // GET: api/Usuarios/5
+        // GET: api/Usuarios/5 - Autenticado
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<UsuarioDto>> GetUsuario(int id)
         {
             var usuario = await _context.Usuarios
@@ -50,11 +53,12 @@ namespace IREST.API.Controllers
                 return NotFound();
             }
 
-            return usuario.ToDto();
+            return usuario.ToDto()!;
         }
 
-        // PUT: api/Usuarios/5
+        // PUT: api/Usuarios/5 - Somente admin
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> PutUsuario(int id, Usuario usuario)
         {
             var existing = await _context.Usuarios.FindAsync(id);
@@ -87,7 +91,7 @@ namespace IREST.API.Controllers
             return NoContent();
         }
 
-        // POST: api/Usuarios
+        // POST: api/Usuarios - Publico (registro via API)
         [HttpPost]
         public async Task<ActionResult<UsuarioDto>> PostUsuario(Usuario usuario)
         {
@@ -103,11 +107,12 @@ namespace IREST.API.Controllers
                 .Include(u => u.Sessoes)
                 .FirstOrDefaultAsync(u => u.Id == usuario.Id);
 
-            return CreatedAtAction("GetUsuario", new { id = usuario.Id }, created.ToDto());
+            return CreatedAtAction("GetUsuario", new { id = usuario.Id }, created!.ToDto()!);
         }
 
-        // DELETE: api/Usuarios/5
+        // DELETE: api/Usuarios/5 - Somente admin
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteUsuario(int id)
         {
             var usuario = await _context.Usuarios.FindAsync(id);

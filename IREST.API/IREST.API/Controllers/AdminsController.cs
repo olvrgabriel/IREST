@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,7 @@ namespace IREST.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "admin")]
     public class AdminsController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -29,7 +31,7 @@ namespace IREST.API.Controllers
         public async Task<ActionResult<IEnumerable<AdminDto>>> GetAdmins()
         {
             var admins = await _context.Admins.ToListAsync();
-            return admins.Select(a => a.ToDto()).ToList();
+            return admins.Select(a => a.ToDto()!).ToList();
         }
 
         // GET: api/Admins/5
@@ -43,7 +45,7 @@ namespace IREST.API.Controllers
                 return NotFound();
             }
 
-            return admin.ToDto();
+            return admin.ToDto()!;
         }
 
         // PUT: api/Admins/5
@@ -92,7 +94,7 @@ namespace IREST.API.Controllers
             _context.Admins.Add(admin);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetAdmin", new { id = admin.Id }, admin.ToDto());
+            return CreatedAtAction("GetAdmin", new { id = admin.Id }, admin.ToDto()!);
         }
 
         // DELETE: api/Admins/5

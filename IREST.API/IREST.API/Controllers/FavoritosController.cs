@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ namespace IREST.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "usuario")]
     public class FavoritosController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -32,7 +34,7 @@ namespace IREST.API.Controllers
                 .Include(f => f.Funeraria)
                 .ToListAsync();
 
-            return favoritos.Select(f => f.ToDto()).ToList();
+            return favoritos.Select(f => f.ToDto()!).ToList();
         }
 
         // GET: api/Favoritos/5
@@ -49,7 +51,7 @@ namespace IREST.API.Controllers
                 return NotFound();
             }
 
-            return favorito.ToDto();
+            return favorito.ToDto()!;
         }
 
         // PUT: api/Favoritos/5
@@ -96,7 +98,7 @@ namespace IREST.API.Controllers
                 .Include(f => f.Funeraria)
                 .FirstOrDefaultAsync(f => f.Id == favorito.Id);
 
-            return CreatedAtAction("GetFavorito", new { id = favorito.Id }, created.ToDto());
+            return CreatedAtAction("GetFavorito", new { id = favorito.Id }, created!.ToDto()!);
         }
 
         // DELETE: api/Favoritos/5

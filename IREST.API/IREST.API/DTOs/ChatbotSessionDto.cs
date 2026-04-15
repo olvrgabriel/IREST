@@ -10,6 +10,6 @@ namespace IREST.API.DTOs
 
         public int UsuarioId { get; set; }
 
-        public List<ChatbotMessageDto> Mensagens { get; set; }
+        public List<ChatbotMessageDto>? Mensagens { get; set; }
     }
 }
