@@ -11,70 +11,53 @@
   </div>
 
   <ng-container *ngIf="!loading && funeraria">
-    <section class="review-header">
-      <h1>Avaliar {{ funeraria.nome }}</h1>
-      <p>Compartilhe sua experiência para ajudar outras pessoas</p>
-    </section>
+    <div class="review-card" *ngIf="!success">
+      <h1 class="review-title">Avaliar {{ funeraria.nome }}</h1>
+      <p class="review-subtitle">Sua opinião é importante para ajudar outras famílias</p>
 
-    <form class="review-form" (ngSubmit)="submitReview()" *ngIf="!success">
-      <div class="form-group">
-        <label>Classificação Geral ⭐</label>
-        <div class="rating-input">
-          <input type="radio" name="rating" value="1" id="star1" [(ngModel)]="review.nota" [value]="1">
-          <label for="star1">⭐</label>
-          <input type="radio" name="rating" value="2" id="star2" [(ngModel)]="review.nota" [value]="2">
-          <label for="star2">⭐⭐</label>
-          <input type="radio" name="rating" value="3" id="star3" [(ngModel)]="review.nota" [value]="3">
-          <label for="star3">⭐⭐⭐</label>
-          <input type="radio" name="rating" value="4" id="star4" [(ngModel)]="review.nota" [value]="4">
-          <label for="star4">⭐⭐⭐⭐</label>
-          <input type="radio" name="rating" value="5" id="star5" [(ngModel)]="review.nota" [value]="5" checked>
-          <label for="star5">⭐⭐⭐⭐⭐</label>
+      <form (ngSubmit)="submitReview()">
+        <div class="form-section">
+          <label class="form-label">Como foi sua experiência?</label>
+          <div class="stars-row main-stars">
+            <span
+              *ngFor="let s of [1,2,3,4,5]"
+              class="star"
+              [class.filled]="s <= review.nota"
+              (click)="review.nota = s">&#9733;</span>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="title">Título da Avaliação *</label>
-        <input type="text" id="title" name="title" [(ngModel)]="review.titulo" placeholder="Ex: Excelente atendimento" required>
-      </div>
-
-      <div class="form-group">
-        <label for="comment">Sua Avaliação *</label>
-        <textarea id="comment" name="comment" [(ngModel)]="review.comentario" rows="6" placeholder="Descreva sua experiência..." required></textarea>
-      </div>
-
-      <div class="form-group">
-        <label>Aspectos da Experiência</label>
-        <div class="checkboxes">
-          <label class="checkbox-label">
-            <input type="checkbox" name="aspect" value="atendimento">
-            <span>Atendimento atencioso</span>
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" name="aspect" value="preco">
-            <span>Preço justo</span>
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" name="aspect" value="pontualidade">
-            <span>Pontualidade</span>
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" name="aspect" value="qualidade">
-            <span>Qualidade dos serviços</span>
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" name="aspect" value="local">
-            <span>Limpeza e organização</span>
-          </label>
+        <div class="form-section">
+          <label class="form-label">Aspectos avaliados</label>
+          <div class="aspect-row" *ngFor="let aspect of aspects">
+            <span class="aspect-label">{{ aspect.label }}</span>
+            <div class="stars-row">
+              <span
+                *ngFor="let s of [1,2,3,4,5]"
+                class="star aspect-star"
+                [class.filled]="s <= aspect.rating"
+                (click)="aspect.rating = s">&#9733;</span>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div class="form-actions">
-        <button type="submit" class="btn-submit" [disabled]="submitting">
-          {{ submitting ? 'Enviando...' : 'Enviar Avaliação' }}
-        </button>
-        <a [routerLink]="['/detalhes', funerariaId]" class="btn-cancel">Cancelar</a>
-      </div>
-    </form>
+        <div class="form-section">
+          <label class="form-label">Comentário (opcional)</label>
+          <textarea
+            name="comentario"
+            [(ngModel)]="review.comentario"
+            placeholder="Compartilhe sua experiência para ajudar outras famílias..."
+            class="comment-textarea"
+          ></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-submit" [disabled]="submitting">
+            {{ submitting ? 'Enviando...' : 'Enviar Avaliação' }}
+          </button>
+          <a [routerLink]="['/detalhes', funerariaId]" class="btn-cancel">Cancelar</a>
+        </div>
+      </form>
+    </div>
   </ng-container>
 </main>

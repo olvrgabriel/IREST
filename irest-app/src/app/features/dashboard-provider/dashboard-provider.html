@@ -1,142 +1,158 @@
 <app-header></app-header>
 <main class="dashboard-container">
-  <section class="dashboard-header">
-    <h1>Painel da Funerária</h1>
-    <p>Gerencie sua funerária, {{ authService.currentUser?.nome }}</p>
-  </section>
-
   <!-- Messages -->
   <div *ngIf="success" class="alert alert-success">
-    {{ success }} <button (click)="dismissSuccess()">X</button>
+    {{ success }} <button (click)="dismissSuccess()">&times;</button>
   </div>
   <div *ngIf="error" class="alert alert-error">
-    {{ error }} <button (click)="dismissError()">X</button>
+    {{ error }} <button (click)="dismissError()">&times;</button>
+  </div>
+
+  <!-- Header -->
+  <div class="dashboard-top">
+    <h1 class="dashboard-title">Painel da Funerária - {{ funeraria?.nome || '' }}</h1>
+    <button class="btn-novo-servico" (click)="openServicoForm()">+ Novo Serviço</button>
   </div>
 
   <!-- Tabs -->
-  <div class="tabs-navigation">
-    <button [class.active]="activeTab === 'overview'" (click)="switchTab('overview')">Visão Geral</button>
-    <button [class.active]="activeTab === 'info'" (click)="switchTab('info')">Informações</button>
+  <div class="tabs-nav">
     <button [class.active]="activeTab === 'servicos'" (click)="switchTab('servicos')">Serviços</button>
-    <button [class.active]="activeTab === 'reviews'" (click)="switchTab('reviews')">Avaliações</button>
+    <button [class.active]="activeTab === 'avaliacoes'" (click)="switchTab('avaliacoes')">Avaliações</button>
+    <button [class.active]="activeTab === 'perfil'" (click)="switchTab('perfil')">Perfil</button>
+    <button [class.active]="activeTab === 'relatorios'" (click)="switchTab('relatorios')">Relatórios</button>
   </div>
 
-  <!-- OVERVIEW -->
-  <div *ngIf="activeTab === 'overview'" class="tab-content">
+  <!-- SERVICOS TAB -->
+  <div *ngIf="activeTab === 'servicos'" class="tab-panel">
+    <!-- Inline form for new/edit service -->
+    <div *ngIf="showServicoForm" class="servico-form-card">
+      <h3>{{ editingServicoId ? 'Editar Serviço' : 'Novo Serviço' }}</h3>
+      <form (ngSubmit)="saveServico()">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Nome *</label>
+            <input [(ngModel)]="servicoForm.nome" name="nome" type="text" placeholder="Nome do serviço" required>
+          </div>
+          <div class="form-group">
+            <label>Preço (R$) *</label>
+            <input [(ngModel)]="servicoForm.preco" name="preco" type="number" step="0.01" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Descrição</label>
+          <textarea [(ngModel)]="servicoForm.descricao" name="descricao" placeholder="Descrição do serviço"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-dark">{{ editingServicoId ? 'Atualizar' : 'Adicionar' }}</button>
+          <button type="button" class="btn-outline" (click)="cancelServicoForm()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="section-card">
+      <h3 class="section-title">Gerenciar Serviços</h3>
+
+      <div *ngIf="servicos.length === 0" class="no-data">Nenhum serviço cadastrado.</div>
+
+      <div *ngFor="let s of servicos" class="list-row">
+        <div class="row-info">
+          <span class="row-name">{{ s.nome }}</span>
+          <span class="row-sub">R$ {{ s.preco | number: '1.0-0' }}</span>
+        </div>
+        <div class="row-actions">
+          <span class="badge" [class.badge-dark]="true">Ativo</span>
+          <button class="icon-btn" title="Editar" (click)="editServico(s)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="icon-btn" title="Excluir" (click)="deleteServico(s.id)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AVALIACOES TAB -->
+  <div *ngIf="activeTab === 'avaliacoes'" class="tab-panel">
+    <div class="section-card">
+      <h3 class="section-title">Avaliações Recebidas</h3>
+
+      <div *ngIf="reviews.length === 0" class="no-data">Nenhuma avaliação recebida ainda.</div>
+
+      <div *ngFor="let r of reviews" class="list-row review-row">
+        <div class="review-left">
+          <div class="avatar">{{ getInitial(r.usuarioNome) }}</div>
+          <span class="review-author">{{ getShortName(r.usuarioNome) }}</span>
+        </div>
+        <div class="review-stars">
+          <span *ngFor="let s of [1,2,3,4,5]" class="star" [class.filled]="s <= r.nota">&#9733;</span>
+        </div>
+      </div>
+      <div *ngFor="let r of reviews; let i = index" class="review-comment-row">
+        <p class="review-comment">{{ r.comentario }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERFIL TAB -->
+  <div *ngIf="activeTab === 'perfil'" class="tab-panel">
+    <div class="section-card">
+      <h3 class="section-title">Informações da Funerária</h3>
+
+      <form *ngIf="funeraria" (ngSubmit)="saveInfo()">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="label-blue">Nome da Funerária</label>
+            <input [(ngModel)]="infoForm.nome" name="nome" type="text">
+          </div>
+          <div class="form-group">
+            <label class="label-blue">Telefone</label>
+            <input [(ngModel)]="infoForm.telefone" name="telefone" type="text">
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="label-blue">Endereço</label>
+            <input [(ngModel)]="infoForm.endereco" name="endereco" type="text">
+          </div>
+          <div class="form-group">
+            <label class="label-blue">CNPJ</label>
+            <input [(ngModel)]="infoForm.cnpj" name="cnpj" type="text">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="label-blue">Descrição</label>
+          <input [(ngModel)]="infoForm.descricao" name="descricao" type="text">
+        </div>
+        <button type="submit" class="btn-dark" style="margin-top: 16px;">Salvar Alterações</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- RELATORIOS TAB -->
+  <div *ngIf="activeTab === 'relatorios'" class="tab-panel">
     <div class="stats-grid">
       <div class="stat-card">
-        <span class="stat-number">{{ servicos.length }}</span>
-        <span class="stat-label">Serviços Cadastrados</span>
+        <div class="stat-top">
+          <span class="stat-label">Visualizações</span>
+          <svg class="stat-icon stat-icon-blue" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <span class="stat-number">1,234</span>
       </div>
       <div class="stat-card">
+        <div class="stat-top">
+          <span class="stat-label">Avaliações</span>
+          <svg class="stat-icon stat-icon-yellow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
         <span class="stat-number">{{ reviews.length }}</span>
-        <span class="stat-label">Avaliações Recebidas</span>
       </div>
       <div class="stat-card">
+        <div class="stat-top">
+          <span class="stat-label">Nota Média</span>
+          <svg class="stat-icon stat-icon-green" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
         <span class="stat-number">{{ getAverageRating() }}</span>
-        <span class="stat-label">Nota Média</span>
       </div>
     </div>
-
-    <div *ngIf="funeraria" class="info-card">
-      <h3>{{ funeraria.nome }}</h3>
-      <div class="info-row"><span class="info-label">Cidade:</span><span class="info-value">{{ funeraria.cidade }} - {{ funeraria.estado }}</span></div>
-      <div class="info-row" *ngIf="funeraria.telefone"><span class="info-label">Telefone:</span><span class="info-value">{{ funeraria.telefone }}</span></div>
-      <div class="info-row" *ngIf="funeraria.endereco"><span class="info-label">Endereço:</span><span class="info-value">{{ funeraria.endereco }}</span></div>
-      <div class="info-row" *ngIf="funeraria.horario"><span class="info-label">Horário:</span><span class="info-value">{{ funeraria.horario }}</span></div>
-    </div>
-  </div>
-
-  <!-- INFO (EDIT) -->
-  <div *ngIf="activeTab === 'info'" class="tab-content">
-    <h2>Informações da Funerária</h2>
-
-    <ng-container *ngIf="!editingInfo && funeraria">
-      <div class="info-card">
-        <div class="info-row"><span class="info-label">Nome:</span><span class="info-value">{{ funeraria.nome }}</span></div>
-        <div class="info-row"><span class="info-label">Cidade:</span><span class="info-value">{{ funeraria.cidade }}</span></div>
-        <div class="info-row"><span class="info-label">Estado:</span><span class="info-value">{{ funeraria.estado || '-' }}</span></div>
-        <div class="info-row"><span class="info-label">Telefone:</span><span class="info-value">{{ funeraria.telefone || '-' }}</span></div>
-        <div class="info-row"><span class="info-label">Endereço:</span><span class="info-value">{{ funeraria.endereco || '-' }}</span></div>
-        <div class="info-row"><span class="info-label">Horário:</span><span class="info-value">{{ funeraria.horario || '-' }}</span></div>
-        <div class="info-row"><span class="info-label">Descrição:</span><span class="info-value">{{ funeraria.descricao || '-' }}</span></div>
-      </div>
-      <button class="btn-primary" style="margin-top: 16px;" (click)="startEditInfo()">Editar Informações</button>
-    </ng-container>
-
-    <div *ngIf="editingInfo" class="form-section">
-      <h3>Editar Informações</h3>
-      <form (ngSubmit)="saveInfo()">
-        <div class="form-row">
-          <div class="form-group"><label>Nome: *</label><input [(ngModel)]="infoForm.nome" name="nome" type="text" required></div>
-          <div class="form-group"><label>Cidade: *</label><input [(ngModel)]="infoForm.cidade" name="cidade" type="text" required></div>
-          <div class="form-group"><label>Estado:</label><input [(ngModel)]="infoForm.estado" name="estado" type="text"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Telefone:</label><input [(ngModel)]="infoForm.telefone" name="telefone" type="text"></div>
-          <div class="form-group"><label>Endereço:</label><input [(ngModel)]="infoForm.endereco" name="endereco" type="text"></div>
-          <div class="form-group"><label>Horário:</label><input [(ngModel)]="infoForm.horario" name="horario" type="text"></div>
-        </div>
-        <div class="form-group"><label>Descrição:</label><textarea [(ngModel)]="infoForm.descricao" name="descricao"></textarea></div>
-        <button type="submit" class="btn-primary">Salvar</button>
-        <button type="button" class="btn-secondary" (click)="cancelEditInfo()">Cancelar</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- SERVICOS -->
-  <div *ngIf="activeTab === 'servicos'" class="tab-content">
-    <h2>Meus Serviços</h2>
-
-    <div class="form-section">
-      <h3>{{ editingServicoId ? 'Editar Serviço' : 'Adicionar Serviço' }}</h3>
-      <form (ngSubmit)="saveServico()">
-        <div class="form-row">
-          <div class="form-group"><label>Nome: *</label><input [(ngModel)]="servicoForm.nome" name="nome" type="text" placeholder="Ex: Caixão Premium" required></div>
-          <div class="form-group"><label>Preço (R$): *</label><input [(ngModel)]="servicoForm.preco" name="preco" type="number" step="0.01" required></div>
-        </div>
-        <div class="form-group"><label>Descrição:</label><textarea [(ngModel)]="servicoForm.descricao" name="descricao" placeholder="Descrição do serviço"></textarea></div>
-        <button type="submit" class="btn-primary">{{ editingServicoId ? 'Atualizar' : 'Adicionar' }}</button>
-        <button *ngIf="editingServicoId" type="button" class="btn-secondary" (click)="resetServicoForm()">Cancelar</button>
-      </form>
-    </div>
-
-    <div class="table-section">
-      <table *ngIf="servicos.length > 0; else noServicos">
-        <thead>
-          <tr><th>Nome</th><th>Descrição</th><th>Preço</th><th>Ações</th></tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let s of servicos">
-            <td>{{ s.nome }}</td>
-            <td>{{ s.descricao || '-' }}</td>
-            <td>R$ {{ s.preco | number: '1.2-2' }}</td>
-            <td>
-              <button class="btn-edit" (click)="editServico(s)">Editar</button>
-              <button class="btn-delete" (click)="deleteServico(s.id)">Excluir</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <ng-template #noServicos><p class="no-data">Nenhum serviço cadastrado. Adicione seu primeiro serviço acima.</p></ng-template>
-    </div>
-  </div>
-
-  <!-- REVIEWS -->
-  <div *ngIf="activeTab === 'reviews'" class="tab-content">
-    <h2>Avaliações Recebidas</h2>
-    <p class="tab-description">Veja o que os usuários dizem sobre sua funerária.</p>
-
-    <div *ngIf="reviews.length > 0; else noReviews" class="reviews-list">
-      <div *ngFor="let r of reviews" class="review-card">
-        <div class="review-header-row">
-          <strong>{{ r.usuarioNome }}</strong>
-          <span class="review-rating">{{ r.nota }}/5</span>
-        </div>
-        <p class="review-comment">{{ r.comentario }}</p>
-        <span class="review-date">{{ r.dataAvaliacao | date: 'dd/MM/yyyy' }}</span>
-      </div>
-    </div>
-    <ng-template #noReviews><p class="no-data">Nenhuma avaliação recebida ainda.</p></ng-template>
   </div>
 </main>

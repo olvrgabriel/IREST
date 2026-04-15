@@ -1,34 +1,54 @@
 <app-header></app-header>
-<main class="chat-container">
-  <section class="chat-header">
-    <h1>Chat de Ajuda</h1>
-    <p>Conversa com nosso assistente automático</p>
-  </section>
+<main class="page-wrapper">
+  <div class="chat-card">
+    <div class="chat-header">
+      <svg class="chat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      </svg>
+      <h1>Central de Ajuda - Chat</h1>
+    </div>
 
-  <div class="chat-box">
-    <div class="messages">
-      <div class="message bot-message">
-        <p>Olá! Bem-vindo ao chat de ajuda IREST. Como posso ajudá-lo?</p>
-      </div>
-
-      <div class="message user-message">
-        <p>Quero buscar uma funerária</p>
-      </div>
-
-      <div class="message bot-message">
-        <p>Ótimo! Para buscar uma funerária, você pode:</p>
-        <ul>
-          <li>Clicar em "Buscar" no menu principal</li>
-          <li>Usar os filtros de localização, preço e serviço</li>
-          <li>Ver as avaliações de outras pessoas</li>
-        </ul>
-        <p>Gostaria de mais informações sobre algum desses tópicos?</p>
+    <div class="chat-area" #chatArea>
+      <div
+        *ngFor="let msg of messages"
+        class="message-row"
+        [class.user-row]="msg.sender === 'user'"
+      >
+        <div
+          class="message-bubble"
+          [class.user-bubble]="msg.sender === 'user'"
+        >
+          {{ msg.text }}
+        </div>
       </div>
     </div>
 
-    <div class="input-area">
-      <input type="text" placeholder="Digite sua mensagem..." class="chat-input">
-      <button class="send-button">Enviar</button>
+    <div class="suggestions-section">
+      <span class="suggestions-label">Sugestões rápidas:</span>
+      <div class="suggestions-container">
+        <button
+          *ngFor="let suggestion of suggestions"
+          class="suggestion-btn"
+          (click)="sendSuggestion(suggestion)"
+        >
+          {{ suggestion }}
+        </button>
+      </div>
+    </div>
+
+    <div class="input-row">
+      <input
+        type="text"
+        class="chat-input"
+        placeholder="Digite sua mensagem..."
+        [(ngModel)]="userInput"
+        (keydown.enter)="sendMessage()"
+      />
+      <button class="send-btn" (click)="sendMessage()">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+        </svg>
+      </button>
     </div>
   </div>
 </main>

@@ -1,145 +1,184 @@
 .review-container {
   padding: 40px 20px;
-  max-width: 800px;
+  max-width: 700px;
   margin: 0 auto;
 }
 
-.review-header {
-  text-align: center;
-  margin-bottom: 40px;
+/* Card */
+.review-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 40px;
 }
 
-.review-header h1 {
-  font-size: 2em;
-  margin-bottom: 10px;
-  color: #333;
+.review-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px 0;
 }
 
-.review-header p {
-  color: #666;
-  font-size: 1.05em;
+.review-subtitle {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin: 0 0 32px 0;
 }
 
-.review-form {
-  background-color: #f9f9f9;
-  padding: 30px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
+/* Form sections */
+.form-section {
+  margin-bottom: 28px;
 }
 
-.form-group {
-  margin-bottom: 25px;
-}
-
-.form-group label {
+.form-label {
   display: block;
-  margin-bottom: 10px;
-  font-weight: bold;
-  color: #333;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 12px;
 }
 
-.form-group input[type="text"],
-.form-group textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 1em;
-}
-
-.form-group textarea {
-  resize: vertical;
-}
-
-.form-group input[type="text"]:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
-}
-
-.rating-input {
+/* Stars */
+.stars-row {
   display: flex;
-  gap: 10px;
+  gap: 4px;
 }
 
-.rating-input input[type="radio"] {
-  display: none;
-}
-
-.rating-input label {
-  margin: 0;
-  font-size: 2em;
+.star {
+  font-size: 2rem;
+  color: #d1d5db;
   cursor: pointer;
-  opacity: 0.5;
-  transition: opacity 0.2s;
+  transition: color 0.15s;
+  line-height: 1;
 }
 
-.rating-input input[type="radio"]:checked ~ label,
-.rating-input label:hover {
-  opacity: 1;
+.star.filled {
+  color: #f59e0b;
 }
 
-.checkboxes {
-  display: grid;
-  gap: 12px;
+.star:hover {
+  color: #f59e0b;
 }
 
-.checkbox-label {
+.main-stars .star {
+  font-size: 2.2rem;
+}
+
+/* Aspect rows */
+.aspect-row {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  cursor: pointer;
-  font-weight: normal;
-  margin-bottom: 0;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
 }
 
-.checkbox-label input[type="checkbox"] {
-  margin-right: 12px;
-  cursor: pointer;
-  width: 18px;
-  height: 18px;
+.aspect-row:last-child {
+  border-bottom: none;
 }
 
-.checkbox-label span {
-  color: #555;
+.aspect-label {
+  font-size: 0.95rem;
+  color: #334155;
 }
 
+.aspect-star {
+  font-size: 1.3rem;
+}
+
+/* Textarea */
+.comment-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  resize: vertical;
+  color: #0f172a;
+  box-sizing: border-box;
+}
+
+.comment-textarea::placeholder {
+  color: #94a3b8;
+}
+
+.comment-textarea:focus {
+  outline: none;
+  border-color: #94a3b8;
+}
+
+/* Actions */
 .form-actions {
   display: flex;
-  gap: 15px;
-  justify-content: center;
-  margin-top: 30px;
-}
-
-.btn-submit,
-.btn-cancel {
-  padding: 12px 30px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-size: 1em;
-  font-weight: bold;
-  text-decoration: none;
-  text-align: center;
-  transition: all 0.3s ease;
+  gap: 12px;
+  margin-top: 32px;
 }
 
 .btn-submit {
-  background-color: #28a745;
-  color: white;
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
 }
 
 .btn-submit:hover {
-  background-color: #218838;
+  opacity: 0.9;
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .btn-cancel {
-  background-color: #6c757d;
-  color: white;
-  display: inline-block;
+  background: transparent;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: background-color 0.2s;
 }
 
 .btn-cancel:hover {
-  background-color: #5a6268;
+  background-color: #f8fafc;
+}
+
+/* Loading / Error / Success */
+.loading-message {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 1.05rem;
+  color: #64748b;
+}
+
+.error-message {
+  text-align: center;
+  padding: 16px 20px;
+  color: #dc2626;
+  background-color: #fef2f2;
+  border-radius: 8px;
+  border: 1px solid #fecaca;
+  margin-bottom: 16px;
+}
+
+.success-message {
+  text-align: center;
+  padding: 16px 20px;
+  color: #059669;
+  background-color: #ecfdf5;
+  border-radius: 8px;
+  border: 1px solid #a7f3d0;
+  margin-bottom: 16px;
 }

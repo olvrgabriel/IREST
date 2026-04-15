@@ -17,19 +17,17 @@ import { Review } from '../../models/review.model';
   styleUrl: './dashboard-provider.css',
 })
 export class DashboardProvider implements OnInit {
-  activeTab = 'overview';
+  activeTab = 'servicos';
 
   funeraria: Funeraria | null = null;
   servicos: Servico[] = [];
   reviews: Review[] = [];
 
-  // Edit funeraria info
-  infoForm: any = { nome: '', descricao: '', cidade: '', estado: '', telefone: '', endereco: '', horario: '', latitude: null, longitude: null };
-  editingInfo = false;
+  infoForm: any = { nome: '', descricao: '', cidade: '', estado: '', telefone: '', endereco: '', horario: '', cnpj: '' };
 
-  // Servico form
   servicoForm: any = { nome: '', descricao: '', preco: 0 };
   editingServicoId = 0;
+  showServicoForm = false;
 
   error = '';
   success = '';
@@ -53,52 +51,54 @@ export class DashboardProvider implements OnInit {
   switchTab(tab: string): void {
     this.activeTab = tab;
     this.clearMessages();
+    this.showServicoForm = false;
   }
 
   // ===== FUNERARIA INFO =====
   loadFuneraria(): void {
     this.minhaFunerariaService.getMyFuneraria().subscribe({
-      next: (data) => { this.funeraria = data; this.cdr.detectChanges(); },
+      next: (data) => {
+        this.funeraria = data;
+        this.populateInfoForm();
+        this.cdr.detectChanges();
+      },
       error: () => { this.funeraria = null; }
     });
   }
 
-  startEditInfo(): void {
+  populateInfoForm(): void {
     if (!this.funeraria) return;
     this.infoForm = {
-      nome: this.funeraria.nome, descricao: this.funeraria.descricao || '',
-      cidade: this.funeraria.cidade, estado: this.funeraria.estado || '',
-      telefone: this.funeraria.telefone || '', endereco: this.funeraria.endereco || '',
-      horario: this.funeraria.horario || '', latitude: this.funeraria.latitude, longitude: this.funeraria.longitude
+      nome: this.funeraria.nome || '',
+      descricao: this.funeraria.descricao || '',
+      cidade: this.funeraria.cidade || '',
+      estado: this.funeraria.estado || '',
+      telefone: this.funeraria.telefone || '',
+      endereco: this.funeraria.endereco || '',
+      horario: this.funeraria.horario || '',
+      cnpj: ''
     };
-    this.editingInfo = true;
-  }
-
-  cancelEditInfo(): void {
-    this.editingInfo = false;
-    this.clearMessages();
   }
 
   saveInfo(): void {
     this.clearMessages();
-    if (!this.infoForm.nome || !this.infoForm.cidade) {
-      this.error = 'Nome e cidade são obrigatórios';
+    if (!this.infoForm.nome) {
+      this.error = 'Nome é obrigatório';
       return;
     }
     this.minhaFunerariaService.updateMyFuneraria({
       nome: this.infoForm.nome,
       descricao: this.infoForm.descricao || null,
-      cidade: this.infoForm.cidade,
+      cidade: this.infoForm.cidade || this.funeraria?.cidade || '',
       estado: this.infoForm.estado || null,
       telefone: this.infoForm.telefone || null,
       endereco: this.infoForm.endereco || null,
       horario: this.infoForm.horario || null,
-      latitude: this.infoForm.latitude ? Number(this.infoForm.latitude) : null,
-      longitude: this.infoForm.longitude ? Number(this.infoForm.longitude) : null
+      latitude: this.funeraria?.latitude || null,
+      longitude: this.funeraria?.longitude || null
     }).subscribe({
       next: () => {
         this.success = 'Informações atualizadas!';
-        this.editingInfo = false;
         this.loadFuneraria();
         this.cdr.detectChanges();
       },
@@ -112,6 +112,17 @@ export class DashboardProvider implements OnInit {
       next: (data) => { this.servicos = data; this.cdr.detectChanges(); },
       error: () => { this.servicos = []; }
     });
+  }
+
+  openServicoForm(): void {
+    this.resetServicoForm();
+    this.showServicoForm = true;
+    this.activeTab = 'servicos';
+  }
+
+  cancelServicoForm(): void {
+    this.showServicoForm = false;
+    this.resetServicoForm();
   }
 
   saveServico(): void {
@@ -133,6 +144,7 @@ export class DashboardProvider implements OnInit {
     action.subscribe({
       next: () => {
         this.success = this.editingServicoId ? 'Serviço atualizado!' : 'Serviço criado!';
+        this.showServicoForm = false;
         this.resetServicoForm();
         this.loadServicos();
         this.cdr.detectChanges();
@@ -145,6 +157,7 @@ export class DashboardProvider implements OnInit {
     this.clearMessages();
     this.servicoForm = { nome: s.nome, descricao: s.descricao, preco: s.preco };
     this.editingServicoId = s.id;
+    this.showServicoForm = true;
   }
 
   deleteServico(id: number): void {
@@ -173,5 +186,18 @@ export class DashboardProvider implements OnInit {
     if (this.reviews.length === 0) return 0;
     const sum = this.reviews.reduce((acc, r) => acc + r.nota, 0);
     return Math.round((sum / this.reviews.length) * 10) / 10;
+  }
+
+  getInitial(name: string): string {
+    return name ? name.charAt(0).toUpperCase() : '?';
+  }
+
+  getShortName(name: string): string {
+    if (!name) return '';
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return parts[0] + ' ' + parts[1].charAt(0) + '.';
+    }
+    return parts[0];
   }
 }

@@ -1,233 +1,151 @@
 <app-header></app-header>
 <main class="dashboard-container">
-  <section class="dashboard-header">
-    <h1>Painel de Administração</h1>
-    <p>Bem-vindo, {{ authService.currentUser?.nome }}!</p>
-  </section>
-
   <!-- Messages -->
   <div *ngIf="success" class="alert alert-success">
-    {{ success }}
-    <button (click)="dismissSuccess()">X</button>
+    {{ success }} <button (click)="dismissSuccess()">&times;</button>
   </div>
   <div *ngIf="error" class="alert alert-error">
-    {{ error }}
-    <button (click)="dismissError()">X</button>
+    {{ error }} <button (click)="dismissError()">&times;</button>
+  </div>
+
+  <!-- Header -->
+  <div class="dashboard-top">
+    <h1 class="dashboard-title">Painel do Administrador</h1>
+    <a routerLink="/admin/crud" class="btn-config">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Configurações
+    </a>
   </div>
 
   <!-- Tabs -->
-  <div class="tabs-navigation">
-    <button [class.active]="activeTab === 'overview'" (click)="switchTab('overview')">Visão Geral</button>
+  <div class="tabs-nav">
+    <button [class.active]="activeTab === 'moderacao'" (click)="switchTab('moderacao')">Moderação de Avaliações</button>
     <button [class.active]="activeTab === 'funerarias'" (click)="switchTab('funerarias')">Funerárias</button>
+    <button [class.active]="activeTab === 'relatorios'" (click)="switchTab('relatorios')">Relatórios</button>
     <button [class.active]="activeTab === 'usuarios'" (click)="switchTab('usuarios')">Usuários</button>
-    <button [class.active]="activeTab === 'reviews'" (click)="switchTab('reviews')">Moderação</button>
   </div>
 
-  <!-- OVERVIEW TAB -->
-  <div *ngIf="activeTab === 'overview'" class="tab-content">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <span class="stat-number">{{ totalFunerarias }}</span>
-        <span class="stat-label">Funerárias</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-number">{{ totalUsuarios }}</span>
-        <span class="stat-label">Usuários</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-number">{{ totalReviews }}</span>
-        <span class="stat-label">Avaliações</span>
-      </div>
-    </div>
+  <!-- MODERACAO TAB -->
+  <div *ngIf="activeTab === 'moderacao'" class="tab-panel">
+    <div class="section-card">
+      <h3 class="section-title">Avaliações Pendentes de Moderação</h3>
 
-    <div class="quick-actions">
-      <h3>Ações Rápidas</h3>
-      <div class="actions-grid">
-        <button class="action-btn" (click)="switchTab('funerarias')">Gerenciar Funerárias</button>
-        <button class="action-btn" (click)="switchTab('usuarios')">Gerenciar Usuários</button>
-        <button class="action-btn" (click)="switchTab('reviews')">Moderar Avaliações</button>
-        <a routerLink="/admin/crud" class="action-btn">CRUD Completo</a>
+      <div *ngIf="reviews.length === 0" class="no-data">Nenhuma avaliação pendente.</div>
+
+      <div *ngFor="let r of reviews" class="list-row moderation-row">
+        <div class="mod-content">
+          <div class="mod-header">
+            <span class="mod-user">{{ r.usuarioNome }}</span>
+            <span class="mod-arrow">&rarr;</span>
+            <span class="mod-funeraria">{{ getFunerariaName(r.funerariaId) }}</span>
+          </div>
+          <p class="mod-comment">{{ r.comentario }}</p>
+          <div class="mod-actions">
+            <button class="action-btn action-approve" (click)="aprovarReview(r.id)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Aprovar
+            </button>
+            <button class="action-btn action-reject" (click)="rejeitarReview(r.id)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Rejeitar
+            </button>
+            <button class="action-btn action-edit">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Editar
+            </button>
+          </div>
+        </div>
+        <div class="mod-stars">
+          <span *ngFor="let s of [1,2,3,4,5]" class="star" [class.filled]="s <= r.nota">&#9733;</span>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- FUNERARIAS TAB -->
-  <div *ngIf="activeTab === 'funerarias'" class="tab-content">
-    <h2>Gerenciar Funerárias</h2>
+  <div *ngIf="activeTab === 'funerarias'" class="tab-panel">
+    <div class="section-card">
+      <h3 class="section-title">Gerenciar Funerárias</h3>
 
-    <div class="form-section">
-      <h3>{{ editingFunerariaId ? 'Editar Funerária' : 'Criar Nova Funerária' }}</h3>
-      <form (ngSubmit)="saveFuneraria()">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Nome:</label>
-            <input [(ngModel)]="funerariaForm.nome" name="nome" type="text" placeholder="Nome da funerária" required>
-          </div>
-          <div class="form-group">
-            <label>Cidade:</label>
-            <input [(ngModel)]="funerariaForm.cidade" name="cidade" type="text" placeholder="Cidade" required>
-          </div>
-          <div class="form-group">
-            <label>Estado:</label>
-            <input [(ngModel)]="funerariaForm.estado" name="estado" type="text" placeholder="UF">
-          </div>
+      <div *ngIf="funerarias.length === 0" class="no-data">Nenhuma funerária encontrada.</div>
+
+      <div *ngFor="let f of funerarias" class="list-row">
+        <div class="row-info">
+          <span class="row-name">{{ f.nome }}</span>
+          <span class="row-sub">{{ f.cidade }} &bull; {{ f.reviews?.length || 0 }} avaliações</span>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Telefone:</label>
-            <input [(ngModel)]="funerariaForm.telefone" name="telefone" type="text" placeholder="(00) 00000-0000">
-          </div>
-          <div class="form-group">
-            <label>Endereço:</label>
-            <input [(ngModel)]="funerariaForm.endereco" name="endereco" type="text" placeholder="Endereço completo">
-          </div>
-          <div class="form-group">
-            <label>Horário:</label>
-            <input [(ngModel)]="funerariaForm.horario" name="horario" type="text" placeholder="Ex: 08:00 - 18:00">
-          </div>
+        <div class="row-actions">
+          <span class="badge" [class.badge-dark]="true">Ativa</span>
+          <button class="icon-btn" title="Ver">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+          <button class="icon-btn" title="Editar" (click)="editFuneraria(f)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="icon-btn" title="Atualizar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          </button>
         </div>
-        <div class="form-group">
-          <label>Descrição:</label>
-          <textarea [(ngModel)]="funerariaForm.descricao" name="descricao" placeholder="Descrição da funerária"></textarea>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Latitude:</label>
-            <input [(ngModel)]="funerariaForm.latitude" name="latitude" type="number" step="0.0001">
-          </div>
-          <div class="form-group">
-            <label>Longitude:</label>
-            <input [(ngModel)]="funerariaForm.longitude" name="longitude" type="number" step="0.0001">
-          </div>
-        </div>
-        <button type="submit" class="btn-primary">{{ editingFunerariaId ? 'Atualizar' : 'Criar' }}</button>
-        <button *ngIf="editingFunerariaId" type="button" class="btn-secondary" (click)="resetFunerariaForm()">Cancelar</button>
-      </form>
+      </div>
     </div>
+  </div>
 
-    <div class="table-section">
-      <table *ngIf="funerarias.length > 0; else noFunerarias">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Cidade</th>
-            <th>Estado</th>
-            <th>Telefone</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let f of funerarias">
-            <td>{{ f.id }}</td>
-            <td>{{ f.nome }}</td>
-            <td>{{ f.cidade }}</td>
-            <td>{{ f.estado }}</td>
-            <td>{{ f.telefone || '-' }}</td>
-            <td>
-              <button class="btn-edit" (click)="editFuneraria(f)">Editar</button>
-              <button class="btn-delete" (click)="deleteFuneraria(f.id)">Deletar</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <ng-template #noFunerarias>
-        <p class="no-data">Nenhuma funerária encontrada</p>
-      </ng-template>
+  <!-- RELATORIOS TAB -->
+  <div *ngIf="activeTab === 'relatorios'" class="tab-panel">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-top">
+          <span class="stat-label">Funerárias Ativas</span>
+          <svg class="stat-icon stat-icon-blue" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <span class="stat-number">{{ totalFunerarias }}</span>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top">
+          <span class="stat-label">Avaliações Hoje</span>
+          <svg class="stat-icon stat-icon-yellow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <span class="stat-number">{{ totalReviews }}</span>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top">
+          <span class="stat-label">Usuários Ativos</span>
+          <svg class="stat-icon stat-icon-green" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <span class="stat-number">{{ totalUsuarios }}</span>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top">
+          <span class="stat-label">Moderações Pendentes</span>
+          <svg class="stat-icon stat-icon-red" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <span class="stat-number">{{ reviews.length }}</span>
+      </div>
     </div>
   </div>
 
   <!-- USUARIOS TAB -->
-  <div *ngIf="activeTab === 'usuarios'" class="tab-content">
-    <h2>Gerenciar Usuários</h2>
+  <div *ngIf="activeTab === 'usuarios'" class="tab-panel">
+    <div class="section-card">
+      <h3 class="section-title">Usuários da Plataforma</h3>
 
-    <div class="form-section">
-      <h3>{{ editingUsuarioId ? 'Editar Usuário' : 'Criar Novo Usuário' }}</h3>
-      <form (ngSubmit)="saveUsuario()">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Nome:</label>
-            <input [(ngModel)]="usuarioForm.nome" name="nome" type="text" placeholder="Nome completo" required>
-          </div>
-          <div class="form-group">
-            <label>Email:</label>
-            <input [(ngModel)]="usuarioForm.email" name="email" type="email" placeholder="email@exemplo.com" required>
-          </div>
-          <div class="form-group">
-            <label>Senha:</label>
-            <input [(ngModel)]="usuarioForm.senha" name="senha" type="password" placeholder="Senha">
-          </div>
+      <div *ngIf="usuarios.length === 0" class="no-data">Nenhum usuário encontrado.</div>
+
+      <div *ngFor="let u of usuarios" class="list-row">
+        <div class="row-info">
+          <span class="row-name">{{ u.nome }}</span>
+          <span class="row-sub">{{ u.email }} &bull; {{ u.reviews?.length || 0 }} avaliações</span>
         </div>
-        <button type="submit" class="btn-primary">{{ editingUsuarioId ? 'Atualizar' : 'Criar' }}</button>
-        <button *ngIf="editingUsuarioId" type="button" class="btn-secondary" (click)="resetUsuarioForm()">Cancelar</button>
-      </form>
-    </div>
-
-    <div class="table-section">
-      <table *ngIf="usuarios.length > 0; else noUsuarios">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Email</th>
-            <th>Data Cadastro</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let u of usuarios">
-            <td>{{ u.id }}</td>
-            <td>{{ u.nome }}</td>
-            <td>{{ u.email }}</td>
-            <td>{{ u.dataCadastro | date: 'dd/MM/yyyy' }}</td>
-            <td>
-              <button class="btn-edit" (click)="editUsuario(u)">Editar</button>
-              <button class="btn-delete" (click)="deleteUsuario(u.id)">Deletar</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <ng-template #noUsuarios>
-        <p class="no-data">Nenhum usuário encontrado</p>
-      </ng-template>
-    </div>
-  </div>
-
-  <!-- REVIEWS/MODERACAO TAB -->
-  <div *ngIf="activeTab === 'reviews'" class="tab-content">
-    <h2>Moderação de Avaliações</h2>
-    <p class="tab-description">Gerencie e modere as avaliações dos usuários.</p>
-
-    <div class="table-section">
-      <table *ngIf="reviews.length > 0; else noReviews">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Usuário</th>
-            <th>Funerária</th>
-            <th>Nota</th>
-            <th>Comentário</th>
-            <th>Data</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let r of reviews">
-            <td>{{ r.id }}</td>
-            <td>{{ r.usuarioNome }}</td>
-            <td>{{ r.funerariaId }}</td>
-            <td>{{ r.nota }}/5</td>
-            <td class="comment-cell">{{ r.comentario }}</td>
-            <td>{{ r.dataAvaliacao | date: 'dd/MM/yyyy' }}</td>
-            <td>
-              <button class="btn-delete" (click)="deleteReview(r.id)">Excluir</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <ng-template #noReviews>
-        <p class="no-data">Nenhuma avaliação encontrada</p>
-      </ng-template>
+        <div class="row-actions">
+          <span class="badge" [ngClass]="getUserRoleBadgeClass(u)">{{ getUserRole(u) }}</span>
+          <button class="icon-btn" title="Ver">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+          <button class="icon-btn" title="Editar" (click)="editUsuario(u)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </main>
