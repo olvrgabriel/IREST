@@ -142,12 +142,12 @@ export class AdminCrudComponent implements OnInit {
 
     action.subscribe({
       next: () => {
-        this.success = this.editingId ? 'Usuario atualizado!' : 'Usuario criado!';
+        this.success = this.editingId ? 'Usuário atualizado!' : 'Usuário criado!';
         this.resetUsuarioForm();
         this.loadUsuarios();
         this.cdr.detectChanges();
       },
-      error: () => { this.error = 'Erro ao salvar usuario'; this.cdr.detectChanges(); }
+      error: () => { this.error = 'Erro ao salvar usuário'; this.cdr.detectChanges(); }
     });
   }
 
@@ -161,8 +161,8 @@ export class AdminCrudComponent implements OnInit {
     if (!confirm('Tem certeza que deseja deletar?')) return;
     this.clearMessages();
     this.usuarioService.deleteUsuario(id).subscribe({
-      next: () => { this.success = 'Usuario deletado!'; this.loadUsuarios(); this.cdr.detectChanges(); },
-      error: () => { this.error = 'Erro ao deletar usuario'; this.cdr.detectChanges(); }
+      next: () => { this.success = 'Usuário deletado!'; this.loadUsuarios(); this.cdr.detectChanges(); },
+      error: () => { this.error = 'Erro ao deletar usuário'; this.cdr.detectChanges(); }
     });
   }
 
@@ -199,12 +199,12 @@ export class AdminCrudComponent implements OnInit {
 
     action.subscribe({
       next: () => {
-        this.success = this.editingId ? 'Funeraria atualizada!' : 'Funeraria criada!';
+        this.success = this.editingId ? 'Funerária atualizada!' : 'Funerária criada!';
         this.resetFunerariaForm();
         this.loadFunerarias();
         this.cdr.detectChanges();
       },
-      error: () => { this.error = 'Erro ao salvar funeraria'; this.cdr.detectChanges(); }
+      error: () => { this.error = 'Erro ao salvar funerária'; this.cdr.detectChanges(); }
     });
   }
 
@@ -222,8 +222,8 @@ export class AdminCrudComponent implements OnInit {
     if (!confirm('Tem certeza que deseja deletar?')) return;
     this.clearMessages();
     this.funerariaService.deleteFuneraria(id).subscribe({
-      next: () => { this.success = 'Funeraria deletada!'; this.loadFunerarias(); this.cdr.detectChanges(); },
-      error: () => { this.error = 'Erro ao deletar funeraria'; this.cdr.detectChanges(); }
+      next: () => { this.success = 'Funerária deletada!'; this.loadFunerarias(); this.cdr.detectChanges(); },
+      error: () => { this.error = 'Erro ao deletar funerária'; this.cdr.detectChanges(); }
     });
   }
 
@@ -243,7 +243,7 @@ export class AdminCrudComponent implements OnInit {
   saveReview() {
     this.clearMessages();
     if (!this.reviewForm.funerariaId || !this.reviewForm.usuarioId) {
-      this.error = 'Preencha usuario ID e funeraria ID';
+      this.error = 'Preencha usuário ID e funerária ID';
       return;
     }
     const payload = {
@@ -258,12 +258,12 @@ export class AdminCrudComponent implements OnInit {
 
     action.subscribe({
       next: () => {
-        this.success = this.editingId ? 'Avaliacao atualizada!' : 'Avaliacao criada!';
+        this.success = this.editingId ? 'Avaliação atualizada!' : 'Avaliação criada!';
         this.resetReviewForm();
         this.loadReviews();
         this.cdr.detectChanges();
       },
-      error: () => { this.error = 'Erro ao salvar avaliacao'; this.cdr.detectChanges(); }
+      error: () => { this.error = 'Erro ao salvar avaliação'; this.cdr.detectChanges(); }
     });
   }
 
@@ -280,8 +280,8 @@ export class AdminCrudComponent implements OnInit {
     if (!confirm('Tem certeza que deseja deletar?')) return;
     this.clearMessages();
     this.reviewService.deleteReview(id).subscribe({
-      next: () => { this.success = 'Avaliacao deletada!'; this.loadReviews(); this.cdr.detectChanges(); },
-      error: () => { this.error = 'Erro ao deletar avaliacao'; this.cdr.detectChanges(); }
+      next: () => { this.success = 'Avaliação deletada!'; this.loadReviews(); this.cdr.detectChanges(); },
+      error: () => { this.error = 'Erro ao deletar avaliação'; this.cdr.detectChanges(); }
     });
   }
 
@@ -301,7 +301,7 @@ export class AdminCrudComponent implements OnInit {
   saveServico() {
     this.clearMessages();
     if (!this.servicoForm.nome || !this.servicoForm.funerariaId) {
-      this.error = 'Preencha nome e funeraria ID';
+      this.error = 'Preencha nome e funerária ID';
       return;
     }
     const payload = {
@@ -316,12 +316,12 @@ export class AdminCrudComponent implements OnInit {
 
     action.subscribe({
       next: () => {
-        this.success = this.editingId ? 'Servico atualizado!' : 'Servico criado!';
+        this.success = this.editingId ? 'Serviço atualizado!' : 'Serviço criado!';
         this.resetServicoForm();
         this.loadServicos();
         this.cdr.detectChanges();
       },
-      error: () => { this.error = 'Erro ao salvar servico'; this.cdr.detectChanges(); }
+      error: () => { this.error = 'Erro ao salvar serviço'; this.cdr.detectChanges(); }
     });
   }
 
@@ -338,8 +338,8 @@ export class AdminCrudComponent implements OnInit {
     if (!confirm('Tem certeza que deseja deletar?')) return;
     this.clearMessages();
     this.servicoService.deleteServico(id).subscribe({
-      next: () => { this.success = 'Servico deletado!'; this.loadServicos(); this.cdr.detectChanges(); },
-      error: () => { this.error = 'Erro ao deletar servico'; this.cdr.detectChanges(); }
+      next: () => { this.success = 'Serviço deletado!'; this.loadServicos(); this.cdr.detectChanges(); },
+      error: () => { this.error = 'Erro ao deletar serviço'; this.cdr.detectChanges(); }
     });
   }
 
@@ -359,7 +359,7 @@ export class AdminCrudComponent implements OnInit {
   saveFavorito() {
     this.clearMessages();
     if (!this.favoritoForm.usuarioId || !this.favoritoForm.funerariaId) {
-      this.error = 'Preencha usuario ID e funeraria ID';
+      this.error = 'Preencha usuário ID e funerária ID';
       return;
     }
     const payload = {
@@ -413,8 +413,8 @@ export class AdminCrudComponent implements OnInit {
     if (!confirm('Tem certeza que deseja deletar?')) return;
     this.clearMessages();
     this.chatbotSessionService.deleteSession(id).subscribe({
-      next: () => { this.success = 'Sessao deletada!'; this.loadChatbotSessions(); this.cdr.detectChanges(); },
-      error: () => { this.error = 'Erro ao deletar sessao'; this.cdr.detectChanges(); }
+      next: () => { this.success = 'Sessão deletada!'; this.loadChatbotSessions(); this.cdr.detectChanges(); },
+      error: () => { this.error = 'Erro ao deletar sessão'; this.cdr.detectChanges(); }
     });
   }
 
