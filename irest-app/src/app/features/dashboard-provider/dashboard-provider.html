@@ -74,22 +74,45 @@
 
   <!-- AVALIACOES TAB -->
   <div *ngIf="activeTab === 'avaliacoes'" class="tab-panel">
+    <!-- Resumo geral -->
+    <div *ngIf="reviews.length > 0" class="reviews-summary">
+      <div class="summary-score">
+        <span class="score-big">{{ getAverageRating() }}</span>
+        <div class="score-stars">
+          <span *ngFor="let s of [1,2,3,4,5]" class="star" [class.filled]="s <= getAverageRating()">&#9733;</span>
+        </div>
+        <span class="score-count">{{ reviews.length }} {{ reviews.length === 1 ? 'avaliação' : 'avaliações' }}</span>
+      </div>
+      <div class="summary-bars">
+        <div *ngFor="let level of [5,4,3,2,1]" class="bar-row">
+          <span class="bar-label">{{ level }} &#9733;</span>
+          <div class="bar-track">
+            <div class="bar-fill" [style.width.%]="getPercentForRating(level)"></div>
+          </div>
+          <span class="bar-count">{{ getCountForRating(level) }}</span>
+        </div>
+      </div>
+    </div>
+
     <div class="section-card">
       <h3 class="section-title">Avaliações Recebidas</h3>
 
       <div *ngIf="reviews.length === 0" class="no-data">Nenhuma avaliação recebida ainda.</div>
 
-      <div *ngFor="let r of reviews" class="list-row review-row">
-        <div class="review-left">
-          <div class="avatar">{{ getInitial(r.usuarioNome) }}</div>
-          <span class="review-author">{{ getShortName(r.usuarioNome) }}</span>
+      <div *ngFor="let r of reviews" class="review-card">
+        <div class="review-header">
+          <div class="review-left">
+            <div class="avatar">{{ getInitial(r.usuarioNome) }}</div>
+            <div class="review-meta">
+              <span class="review-author">{{ getShortName(r.usuarioNome) }}</span>
+              <span class="review-date">{{ r.dataAvaliacao | date:'dd/MM/yyyy' }}</span>
+            </div>
+          </div>
+          <div class="review-stars">
+            <span *ngFor="let s of [1,2,3,4,5]" class="star" [class.filled]="s <= r.nota">&#9733;</span>
+          </div>
         </div>
-        <div class="review-stars">
-          <span *ngFor="let s of [1,2,3,4,5]" class="star" [class.filled]="s <= r.nota">&#9733;</span>
-        </div>
-      </div>
-      <div *ngFor="let r of reviews; let i = index" class="review-comment-row">
-        <p class="review-comment">{{ r.comentario }}</p>
+        <p *ngIf="r.comentario" class="review-comment">{{ r.comentario }}</p>
       </div>
     </div>
   </div>
@@ -134,14 +157,14 @@
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-top">
-          <span class="stat-label">Visualizações</span>
-          <svg class="stat-icon stat-icon-blue" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span class="stat-label">Serviços Cadastrados</span>
+          <svg class="stat-icon stat-icon-blue" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         </div>
-        <span class="stat-number">1,234</span>
+        <span class="stat-number">{{ servicos.length }}</span>
       </div>
       <div class="stat-card">
         <div class="stat-top">
-          <span class="stat-label">Avaliações</span>
+          <span class="stat-label">Avaliações Recebidas</span>
           <svg class="stat-icon stat-icon-yellow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         </div>
         <span class="stat-number">{{ reviews.length }}</span>
@@ -151,7 +174,42 @@
           <span class="stat-label">Nota Média</span>
           <svg class="stat-icon stat-icon-green" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
-        <span class="stat-number">{{ getAverageRating() }}</span>
+        <span class="stat-number">{{ getAverageRating() || '-' }}</span>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top">
+          <span class="stat-label">Favoritos</span>
+          <svg class="stat-icon stat-icon-red" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <span class="stat-number">{{ funeraria?.favoritos?.length || 0 }}</span>
+      </div>
+    </div>
+
+    <!-- Distribuição de notas -->
+    <div *ngIf="reviews.length > 0" class="section-card" style="margin-top: 20px;">
+      <h3 class="section-title">Distribuição de Notas</h3>
+      <div class="rating-distribution">
+        <div *ngFor="let level of [5,4,3,2,1]" class="bar-row">
+          <span class="bar-label">{{ level }} &#9733;</span>
+          <div class="bar-track">
+            <div class="bar-fill" [style.width.%]="getPercentForRating(level)"></div>
+          </div>
+          <span class="bar-count">{{ getCountForRating(level) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Avaliações recentes no relatório -->
+    <div *ngIf="reviews.length > 0" class="section-card" style="margin-top: 20px;">
+      <h3 class="section-title">Avaliações Recentes</h3>
+      <div *ngFor="let r of reviews.slice(0, 5)" class="report-review-row">
+        <div class="report-review-info">
+          <span class="review-author">{{ getShortName(r.usuarioNome) }}</span>
+          <span class="review-date">{{ r.dataAvaliacao | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="review-stars">
+          <span *ngFor="let s of [1,2,3,4,5]" class="star" [class.filled]="s <= r.nota">&#9733;</span>
+        </div>
       </div>
     </div>
   </div>
