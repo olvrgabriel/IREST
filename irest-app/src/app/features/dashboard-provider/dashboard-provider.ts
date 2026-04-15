@@ -200,4 +200,13 @@ export class DashboardProvider implements OnInit {
     }
     return parts[0];
   }
+
+  getCountForRating(nota: number): number {
+    return this.reviews.filter(r => Math.round(r.nota) === nota).length;
+  }
+
+  getPercentForRating(nota: number): number {
+    if (this.reviews.length === 0) return 0;
+    return (this.getCountForRating(nota) / this.reviews.length) * 100;
+  }
 }

@@ -161,12 +161,74 @@
   color: #0f172a;
 }
 
-/* Review rows */
-.review-row {
-  padding: 16px 20px 8px 20px;
-  margin-bottom: 0;
-  border-bottom: none;
-  border-radius: 8px 8px 0 0;
+/* Reviews summary */
+.reviews-summary {
+  display: flex;
+  gap: 40px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 28px 32px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.summary-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 120px;
+}
+
+.score-big {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.score-stars {
+  display: flex;
+  gap: 2px;
+  margin: 8px 0 4px 0;
+}
+
+.score-stars .star {
+  font-size: 1.2rem;
+  color: #d1d5db;
+}
+
+.score-stars .star.filled {
+  color: #f59e0b;
+}
+
+.score-count {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.summary-bars {
+  flex: 1;
+}
+
+/* Review cards */
+.review-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 12px;
+  background: #fff;
+  transition: box-shadow 0.2s;
+}
+
+.review-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .review-left {
@@ -176,8 +238,8 @@
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   background: #e5e7eb;
   border-radius: 50%;
   display: flex;
@@ -186,12 +248,24 @@
   color: #64748b;
   font-weight: 600;
   font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.review-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .review-author {
   font-weight: 600;
   color: #0f172a;
   font-size: 0.95rem;
+}
+
+.review-date {
+  font-size: 0.8rem;
+  color: #94a3b8;
 }
 
 .review-stars {
@@ -208,20 +282,76 @@
   color: #f59e0b;
 }
 
-.review-comment-row {
-  padding: 0 20px 16px 72px;
-  border: 1px solid #e2e8f0;
-  border-top: none;
-  border-radius: 0 0 8px 8px;
-  margin-bottom: 12px;
-  background: #fff;
-}
-
 .review-comment {
   font-size: 0.9rem;
+  color: #475569;
+  margin: 12px 0 0 54px;
+  line-height: 1.6;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* Rating distribution bars */
+.rating-distribution {
+  max-width: 500px;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.bar-label {
+  font-size: 0.85rem;
   color: #64748b;
-  margin: 0;
-  line-height: 1.5;
+  min-width: 36px;
+  text-align: right;
+  font-weight: 500;
+}
+
+.bar-track {
+  flex: 1;
+  height: 10px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: #f59e0b;
+  border-radius: 6px;
+  transition: width 0.4s ease;
+  min-width: 2px;
+}
+
+.bar-count {
+  font-size: 0.85rem;
+  color: #64748b;
+  min-width: 24px;
+  text-align: right;
+  font-weight: 500;
+}
+
+/* Report review rows */
+.report-review-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.report-review-row:last-child {
+  border-bottom: none;
+}
+
+.report-review-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 /* Profile form */
@@ -329,7 +459,7 @@
 /* Stats */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
 }
 
@@ -363,6 +493,7 @@
 .stat-icon-blue { color: #2563eb; }
 .stat-icon-yellow { color: #f59e0b; }
 .stat-icon-green { color: #16a34a; }
+.stat-icon-red { color: #ef4444; }
 
 .no-data {
   text-align: center;
@@ -375,5 +506,12 @@
   .dashboard-top { flex-direction: column; gap: 12px; align-items: flex-start; }
   .tabs-nav { flex-wrap: wrap; }
   .form-row-2 { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .reviews-summary { flex-direction: column; gap: 20px; }
+  .review-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .review-comment { margin-left: 0; }
+}
+
+@media (max-width: 480px) {
   .stats-grid { grid-template-columns: 1fr; }
 }
