@@ -24,10 +24,17 @@ export class ReviewForm implements OnInit {
   success: string | null = null;
 
   review = {
-    nota: 5,
-    comentario: '',
-    titulo: ''
+    nota: 0,
+    comentario: ''
   };
+
+  aspects = [
+    { label: 'Atendimento da equipe', rating: 0 },
+    { label: 'Qualidade dos serviços', rating: 0 },
+    { label: 'Pontualidade', rating: 0 },
+    { label: 'Instalações', rating: 0 },
+    { label: 'Custo-benefício', rating: 0 },
+  ];
 
   constructor(
     private reviewService: ReviewService,
@@ -51,18 +58,20 @@ export class ReviewForm implements OnInit {
       next: (data) => {
         this.funeraria = data;
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Erro ao carregar funeraria:', err);
+        console.error('Erro ao carregar funerária:', err);
         this.error = err.message || 'Erro ao carregar dados';
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
 
   submitReview(): void {
-    if (!this.review.comentario) {
-      this.error = 'Preencha o comentario';
+    if (this.review.nota === 0) {
+      this.error = 'Selecione uma nota';
       return;
     }
 
@@ -78,16 +87,18 @@ export class ReviewForm implements OnInit {
 
     this.reviewService.create(payload).subscribe({
       next: () => {
-        this.success = 'Avaliacao enviada com sucesso!';
+        this.success = 'Avaliação enviada com sucesso!';
         this.submitting = false;
+        this.cdr.detectChanges();
         setTimeout(() => {
           this.router.navigate(['/detalhes', this.funerariaId]);
         }, 1500);
       },
       error: (err) => {
-        console.error('Erro ao enviar avaliacao:', err);
-        this.error = err.message || 'Erro ao enviar avaliacao';
+        console.error('Erro ao enviar avaliação:', err);
+        this.error = err.message || 'Erro ao enviar avaliação';
         this.submitting = false;
+        this.cdr.detectChanges();
       }
     });
   }

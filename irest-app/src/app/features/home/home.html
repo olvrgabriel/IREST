@@ -2,42 +2,77 @@
 <main class="home-container">
   <section class="hero-section">
     <h1>Encontre serviços funerários com calma e transparência</h1>
-    <p>Compare opções, preços e avaliações - tudo em um só lugar.</p>
+    <p class="subtitle">Compare opções, preços e avaliações — tudo em um só lugar, com visual sereno nas cores azul e branco.</p>
 
-    <div class="search-bar">
-      <input type="text" class="search-input" placeholder="Pesquisar (nome/cidade)" [(ngModel)]="searchText">
-      <input type="number" class="search-input price" placeholder="Preço mín (R$)" [(ngModel)]="precoMin">
-      <input type="number" class="search-input price" placeholder="Preço máx (R$)" [(ngModel)]="precoMax">
-      <button class="search-button" (click)="buscar()">Buscar</button>
+    <div class="filters-row">
+      <select class="filter-input" [(ngModel)]="cidadeSelecionada" (ngModelChange)="aplicarFiltros()">
+        <option value="">Todas as cidades</option>
+        <option *ngFor="let cidade of cidades" [value]="cidade">{{ cidade }}</option>
+      </select>
+
+      <select class="filter-input" [(ngModel)]="tipoServicoSelecionado" (ngModelChange)="aplicarFiltros()">
+        <option value="">Tipo de serviço</option>
+        <option *ngFor="let tipo of tiposServico" [value]="tipo">{{ tipo }}</option>
+      </select>
+
+      <input
+        type="text"
+        class="filter-input"
+        placeholder="Pesquisar (nome/bairro)"
+        [(ngModel)]="searchText"
+        (ngModelChange)="aplicarFiltros()"
+      />
+
+      <input
+        type="number"
+        class="filter-input filter-price"
+        placeholder="Preço min (R$)"
+        [(ngModel)]="precoMin"
+        (ngModelChange)="aplicarFiltros()"
+      />
+
+      <input
+        type="number"
+        class="filter-input filter-price"
+        placeholder="Preço máx (R$)"
+        [(ngModel)]="precoMax"
+        (ngModelChange)="aplicarFiltros()"
+      />
     </div>
   </section>
 
-  <section class="highlights">
+  <section class="cards-section">
     <div *ngIf="error" class="error-message">
       {{ error }}
       <br>
-      <button (click)="loadFunerarias()" class="btn-outline" style="margin-top:10px">Tentar novamente</button>
+      <button (click)="loadFunerarias()" class="btn-details" style="margin-top: 10px">Tentar novamente</button>
     </div>
 
     <div *ngIf="!error && funerarias.length === 0" class="no-data-message">
-      Nenhuma funerária encontrada. Cadastre funerárias no painel admin.
+      Nenhuma funerária encontrada.
     </div>
 
-    <div *ngFor="let funeraria of funerarias" class="card highlight-card">
-      <div class="card-header">
-        <div>
-          <h3>{{ funeraria.nome }}</h3>
-          <p class="location">{{ funeraria.cidade }} {{ funeraria.estado ? '- ' + funeraria.estado : '' }}</p>
+    <div class="cards-grid" *ngIf="!error && funerarias.length > 0">
+      <div *ngFor="let funeraria of funerarias" class="card">
+        <div class="card-top">
+          <div class="card-info">
+            <a [routerLink]="['/detalhes', funeraria.id]" class="card-name">{{ funeraria.nome }}</a>
+            <span class="card-location">{{ getLocationLabel(funeraria) }}</span>
+          </div>
+          <div class="card-rating" *ngIf="getAverageRating(funeraria) > 0">
+            <span class="star">&#9733;</span>
+            <span class="rating-value">{{ getAverageRating(funeraria) }}</span>
+          </div>
         </div>
-        <div class="rating" *ngIf="getAverageRating(funeraria) > 0">{{ getAverageRating(funeraria) }}/5</div>
-      </div>
-      <p class="description" *ngIf="funeraria.descricao">{{ funeraria.descricao }}</p>
-      <div class="tags" *ngIf="funeraria.servicos && funeraria.servicos.length > 0">
-        <span *ngFor="let servico of funeraria.servicos.slice(0, 3)" class="tag">{{ servico.nome }}</span>
-      </div>
-      <div class="card-footer">
-        <span class="price" *ngIf="getMinPrice(funeraria) > 0">A partir de R$ {{ getMinPrice(funeraria) }}</span>
-        <a [routerLink]="['/detalhes', funeraria.id]" class="btn-outline">Ver detalhes</a>
+
+        <div class="card-tags" *ngIf="funeraria.servicos && funeraria.servicos.length > 0">
+          <span *ngFor="let servico of funeraria.servicos.slice(0, 4)" class="tag">{{ servico.nome }}</span>
+        </div>
+
+        <div class="card-bottom">
+          <span class="card-price" *ngIf="getMinPrice(funeraria) > 0">A partir de R$ {{ getMinPrice(funeraria) }}</span>
+          <a [routerLink]="['/detalhes', funeraria.id]" class="btn-details">Ver detalhes</a>
+        </div>
       </div>
     </div>
   </section>

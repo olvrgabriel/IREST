@@ -22,6 +22,12 @@ export class HomeComponent implements OnInit {
   searchText = '';
   precoMin: number | null = null;
   precoMax: number | null = null;
+  cidadeSelecionada = '';
+  tipoServicoSelecionado = '';
+
+  // Opções dinâmicas
+  cidades: string[] = [];
+  tiposServico: string[] = [];
 
   constructor(
     private funerariaService: FunerariaService,
@@ -37,25 +43,59 @@ export class HomeComponent implements OnInit {
     this.funerariaService.getAll().subscribe({
       next: (data) => {
         this.allFunerarias = data;
-        this.funerarias = data.slice(0, 6);
+        this.buildFilterOptions();
+        this.aplicarFiltros();
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Erro ao carregar funerarias:', err);
-        this.error = 'Erro ao carregar funerarias. Verifique se o backend esta rodando.';
+        console.error('Erro ao carregar funerárias:', err);
+        this.error = 'Erro ao carregar funerárias. Verifique se o backend está rodando.';
         this.cdr.detectChanges();
       }
     });
   }
 
-  buscar(): void {
+  buildFilterOptions(): void {
+    const cidadesSet = new Set<string>();
+    const tiposSet = new Set<string>();
+
+    for (const f of this.allFunerarias) {
+      if (f.cidade) {
+        cidadesSet.add(f.cidade);
+      }
+      if (f.servicos) {
+        for (const s of f.servicos) {
+          if (s.nome) {
+            tiposSet.add(s.nome.toLowerCase());
+          }
+        }
+      }
+    }
+
+    this.cidades = Array.from(cidadesSet).sort();
+    this.tiposServico = Array.from(tiposSet).sort();
+  }
+
+  aplicarFiltros(): void {
     let resultado = [...this.allFunerarias];
+
+    if (this.cidadeSelecionada) {
+      resultado = resultado.filter(f => f.cidade === this.cidadeSelecionada);
+    }
+
+    if (this.tipoServicoSelecionado) {
+      resultado = resultado.filter(f =>
+        f.servicos && f.servicos.some((s: any) =>
+          s.nome && s.nome.toLowerCase() === this.tipoServicoSelecionado
+        )
+      );
+    }
 
     if (this.searchText && this.searchText.trim()) {
       const termo = this.searchText.trim().toLowerCase();
       resultado = resultado.filter(f =>
         f.nome.toLowerCase().includes(termo) ||
-        (f.cidade && f.cidade.toLowerCase().includes(termo)) ||
+        (f.endereco && f.endereco.toLowerCase().includes(termo)) ||
         (f.descricao && f.descricao.toLowerCase().includes(termo))
       );
     }
@@ -74,7 +114,7 @@ export class HomeComponent implements OnInit {
       });
     }
 
-    this.funerarias = resultado.slice(0, 6);
+    this.funerarias = resultado.slice(0, 2);
   }
 
   getAverageRating(funeraria: Funeraria): number {
@@ -86,5 +126,13 @@ export class HomeComponent implements OnInit {
   getMinPrice(funeraria: Funeraria): number {
     if (!funeraria.servicos || funeraria.servicos.length === 0) return 0;
     return Math.min(...funeraria.servicos.map((s: any) => s.preco));
+  }
+
+  getLocationLabel(funeraria: Funeraria): string {
+    const parts: string[] = [];
+    if (funeraria.cidade) parts.push(funeraria.cidade);
+    if (funeraria.endereco) parts.push(funeraria.endereco);
+    else if (funeraria.estado) parts.push(funeraria.estado);
+    return parts.join(' \u2022 ');
   }
 }

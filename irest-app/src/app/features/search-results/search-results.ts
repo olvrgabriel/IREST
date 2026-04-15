@@ -19,10 +19,15 @@ export class SearchResults implements OnInit {
   error: string | null = null;
 
   // Filtros
-  searchText = '';
+  cidadeSelecionada = '';
   precoMin: number | null = null;
   precoMax: number | null = null;
-  minRating: number = 0;
+  ratingFilters: { [key: number]: boolean } = { 5: false, 4: false, 3: false, 2: false, 1: false };
+  servicoFilters: { [key: string]: boolean } = {};
+
+  // Dados dinâmicos
+  cidades: string[] = [];
+  servicosDisponiveis: string[] = [];
 
   constructor(
     private funerariaService: FunerariaService,
@@ -38,13 +43,40 @@ export class SearchResults implements OnInit {
     this.funerariaService.getAll().subscribe({
       next: (data) => {
         this.allFunerarias = data;
-        this.funerarias = data;
+        this.extrairCidades();
+        this.extrairServicos();
+        this.aplicarFiltros();
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Erro ao carregar funerarias:', err);
-        this.error = 'Erro ao carregar funerarias. Verifique se o backend esta rodando.';
+        console.error('Erro ao carregar funerárias:', err);
+        this.error = 'Erro ao carregar funerárias. Verifique se o backend está rodando.';
         this.cdr.detectChanges();
+      }
+    });
+  }
+
+  extrairCidades(): void {
+    const cidadesSet = new Set<string>();
+    this.allFunerarias.forEach(f => {
+      if (f.cidade) cidadesSet.add(f.cidade);
+    });
+    this.cidades = Array.from(cidadesSet).sort();
+  }
+
+  extrairServicos(): void {
+    const servicosSet = new Set<string>();
+    this.allFunerarias.forEach(f => {
+      if (f.servicos) {
+        f.servicos.forEach((s: any) => {
+          if (s.nome) servicosSet.add(s.nome);
+        });
+      }
+    });
+    this.servicosDisponiveis = Array.from(servicosSet).sort();
+    this.servicosDisponiveis.forEach(s => {
+      if (!(s in this.servicoFilters)) {
+        this.servicoFilters[s] = false;
       }
     });
   }
@@ -52,15 +84,12 @@ export class SearchResults implements OnInit {
   aplicarFiltros(): void {
     let resultado = [...this.allFunerarias];
 
-    if (this.searchText && this.searchText.trim()) {
-      const termo = this.searchText.trim().toLowerCase();
-      resultado = resultado.filter(f =>
-        f.nome.toLowerCase().includes(termo) ||
-        (f.cidade && f.cidade.toLowerCase().includes(termo)) ||
-        (f.descricao && f.descricao.toLowerCase().includes(termo))
-      );
+    // Filtro por cidade
+    if (this.cidadeSelecionada) {
+      resultado = resultado.filter(f => f.cidade === this.cidadeSelecionada);
     }
 
+    // Filtro por preço mínimo
     if (this.precoMin != null && this.precoMin > 0) {
       resultado = resultado.filter(f => {
         const min = this.getMinPrice(f);
@@ -68,6 +97,7 @@ export class SearchResults implements OnInit {
       });
     }
 
+    // Filtro por preço máximo
     if (this.precoMax != null && this.precoMax > 0) {
       resultado = resultado.filter(f => {
         const min = this.getMinPrice(f);
@@ -75,16 +105,30 @@ export class SearchResults implements OnInit {
       });
     }
 
-    if (this.minRating > 0) {
-      resultado = resultado.filter(f => this.getAverageRating(f) >= this.minRating);
+    // Filtro por avaliação (checkboxes - usa o menor valor marcado)
+    const ratingsAtivos = Object.entries(this.ratingFilters)
+      .filter(([_, checked]) => checked)
+      .map(([rating, _]) => Number(rating));
+
+    if (ratingsAtivos.length > 0) {
+      const minRating = Math.min(...ratingsAtivos);
+      resultado = resultado.filter(f => this.getAverageRating(f) >= minRating);
+    }
+
+    // Filtro por serviços
+    const servicosAtivos = Object.entries(this.servicoFilters)
+      .filter(([_, checked]) => checked)
+      .map(([nome, _]) => nome.toLowerCase());
+
+    if (servicosAtivos.length > 0) {
+      resultado = resultado.filter(f => {
+        if (!f.servicos) return false;
+        const servicosFuneraria = f.servicos.map((s: any) => s.nome?.toLowerCase());
+        return servicosAtivos.every(sa => servicosFuneraria.includes(sa));
+      });
     }
 
     this.funerarias = resultado;
-  }
-
-  setMinRating(rating: number): void {
-    this.minRating = this.minRating === rating ? 0 : rating;
-    this.aplicarFiltros();
   }
 
   getAverageRating(funeraria: Funeraria): number {
@@ -96,5 +140,9 @@ export class SearchResults implements OnInit {
   getMinPrice(funeraria: Funeraria): number {
     if (!funeraria.servicos || funeraria.servicos.length === 0) return 0;
     return Math.min(...funeraria.servicos.map((s: any) => s.preco));
+  }
+
+  getStars(count: number): string {
+    return '\u2605'.repeat(count);
   }
 }
