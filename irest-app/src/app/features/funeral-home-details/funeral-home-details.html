@@ -9,12 +9,12 @@
 
   <ng-container *ngIf="!loading && funeraria">
     <section class="funeral-home-header">
-      <h1>{{ funeraria.nome }}</h1>
-      <div class="rating-section">
-        <span class="rating">{{ getAverageRating() }}/5</span>
-        <span class="reviews-count">({{ reviews.length }} avaliações)</span>
-      </div>
-      <p class="location">{{ funeraria.cidade }}<span *ngIf="funeraria.estado"> - {{ funeraria.estado }}</span></p>
+      <h1 class="funeral-name">{{ funeraria.nome }}</h1>
+      <p class="funeral-meta">
+        {{ funeraria.cidade }}
+        <span *ngIf="funeraria.endereco"> &bull; {{ funeraria.endereco }}</span>
+        <span *ngIf="reviews.length > 0"> &bull; <span class="star-inline">&#9733;</span> {{ getAverageRating() }}</span>
+      </p>
 
       <div *ngIf="authService.isLoggedIn && authService.isUsuario" class="favorite-section">
         <button class="btn-favorite" [class.favorited]="isFavorited" (click)="toggleFavorite()">
@@ -24,50 +24,61 @@
       </div>
     </section>
 
-    <section class="details-grid">
-      <div class="detail-card">
-        <h3>Informações de Contato</h3>
-        <p *ngIf="funeraria.telefone"><strong>Telefone:</strong> <a [href]="'tel:' + funeraria.telefone">{{ funeraria.telefone }}</a></p>
-        <p *ngIf="funeraria.endereco"><strong>Endereço:</strong> {{ funeraria.endereco }}</p>
-        <p *ngIf="funeraria.horario"><strong>Horário:</strong> {{ funeraria.horario }}</p>
-        <p *ngIf="!funeraria.telefone && !funeraria.endereco && !funeraria.horario">Informações de contato não disponíveis</p>
+    <section class="two-col">
+      <div class="card">
+        <h3 class="card-title">Sobre</h3>
+        <p class="card-description" *ngIf="funeraria.descricao">{{ funeraria.descricao }}</p>
+        <p class="card-description" *ngIf="!funeraria.descricao">Atendimento 24h, traslado e arranjos florais.</p>
+
+        <hr class="card-divider" />
+
+        <h3 class="card-title">Serviços</h3>
+        <div class="tags-row" *ngIf="servicos.length > 0">
+          <span class="tag" *ngFor="let servico of servicos">{{ servico.nome }}</span>
+        </div>
+        <p *ngIf="servicos.length === 0" class="card-description">Nenhum serviço cadastrado</p>
+
+        <p class="card-info">
+          <span *ngIf="servicos.length > 0">A partir de R$ {{ servicos[0].preco }}</span>
+          <span *ngIf="funeraria.telefone">
+            <span *ngIf="servicos.length > 0"> &bull; </span>Tel: {{ funeraria.telefone }}
+          </span>
+        </p>
       </div>
 
-      <div class="detail-card" *ngIf="funeraria.descricao">
-        <h3>Sobre</h3>
-        <p>{{ funeraria.descricao }}</p>
-      </div>
-
-      <div class="detail-card">
-        <h3>Serviços Oferecidos</h3>
-        <table class="price-table" *ngIf="servicos.length > 0">
-          <tr *ngFor="let servico of servicos">
-            <td>{{ servico.nome }}</td>
-            <td>R$ {{ servico.preco }}</td>
-          </tr>
-        </table>
-        <p *ngIf="servicos.length === 0">Nenhum serviço cadastrado</p>
+      <div class="card">
+        <h3 class="card-title">Localização</h3>
+        <div id="leaflet-map" class="leaflet-map"></div>
+        <p class="map-address" *ngIf="funeraria.endereco">
+          📍 {{ funeraria.endereco }}, {{ funeraria.cidade }} - {{ funeraria.estado }}
+        </p>
       </div>
     </section>
 
-    <section class="reviews-section">
-      <h2>Avaliações</h2>
+    <section class="card reviews-card">
+      <h3 class="card-title">Avaliações</h3>
+
       <div *ngIf="reviews.length > 0" class="reviews-list">
         <div *ngFor="let review of reviews" class="review-item">
-          <div class="review-header">
-            <strong>{{ review.usuarioNome || 'Usuário' }}</strong>
-            <span class="review-rating">{{ review.nota }}/5</span>
+          <div class="review-top">
+            <span class="review-stars">
+              <span *ngFor="let s of [1,2,3,4,5]" class="star" [class.filled]="s <= review.nota">&#9733;</span>
+            </span>
+            <strong class="review-label">{{ review.nota >= 4 ? 'Muito Bom' : review.nota >= 3 ? 'Bom' : 'Regular' }}</strong>
           </div>
           <p class="review-comment">{{ review.comentario }}</p>
-          <span class="review-date" *ngIf="review.dataAvaliacao">{{ review.dataAvaliacao | date:'dd/MM/yyyy' }}</span>
+          <span class="review-author" *ngIf="review.usuarioNome">{{ review.usuarioNome }}</span>
         </div>
       </div>
       <p *ngIf="reviews.length === 0" class="no-reviews">Nenhuma avaliação ainda. Seja o primeiro a avaliar!</p>
     </section>
 
     <section class="action-section">
-      <ng-container *ngIf="authService.isLoggedIn">
+      <ng-container *ngIf="authService.isLoggedIn && authService.isUsuario">
         <a [routerLink]="['/avaliar', funeraria.id]" class="btn-primary">Avaliar Funerária</a>
+      </ng-container>
+      <ng-container *ngIf="authService.isLoggedIn && !authService.isUsuario">
+        <span class="info-text">Apenas usuários podem avaliar funerárias</span>
       </ng-container>
       <ng-container *ngIf="!authService.isLoggedIn">
         <a routerLink="/login" class="btn-primary">Entrar para Avaliar</a>
