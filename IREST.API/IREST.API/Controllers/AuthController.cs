@@ -7,6 +7,7 @@ using System.Text;
 using IREST.API.Data;
 using IREST.API.DTOs;
 using IREST.API.Models;
+using IREST.API.Services;
 
 namespace IREST.API.Controllers
 {
@@ -16,11 +17,13 @@ namespace IREST.API.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
+        private readonly GeocodingService _geocoding;
 
-        public AuthController(AppDbContext context, IConfiguration configuration)
+        public AuthController(AppDbContext context, IConfiguration configuration, GeocodingService geocoding)
         {
             _context = context;
             _configuration = configuration;
+            _geocoding = geocoding;
         }
 
         // POST: api/Auth/register - Cadastro de usuario comum
@@ -91,6 +94,14 @@ namespace IREST.API.Controllers
                 Endereco = request.Endereco
             };
 
+            // Geocodifica endereço automaticamente
+            var coords = await _geocoding.GeocodeAsync(request.Endereco, request.Cidade, request.Estado);
+            if (coords != null)
+            {
+                funeraria.Latitude = coords.Latitude;
+                funeraria.Longitude = coords.Longitude;
+            }
+
             _context.Funerarias.Add(funeraria);
             await _context.SaveChangesAsync();
 
@@ -140,13 +151,13 @@ namespace IREST.API.Controllers
             if (funeraria != null && !string.IsNullOrEmpty(funeraria.Senha) &&
                 BCrypt.Net.BCrypt.Verify(request.Senha, funeraria.Senha))
             {
-                var token = GenerateToken(funeraria.Id, funeraria.Nome, funeraria.Email, "funeraria");
+                var token = GenerateToken(funeraria.Id, funeraria.Nome, funeraria.Email!, "funeraria");
                 return Ok(new AuthResponse
                 {
                     Token = token,
                     Id = funeraria.Id,
                     Nome = funeraria.Nome,
-                    Email = funeraria.Email,
+                    Email = funeraria.Email!,
                     Role = "funeraria"
                 });
             }

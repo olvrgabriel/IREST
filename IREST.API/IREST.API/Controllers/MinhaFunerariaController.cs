@@ -6,6 +6,7 @@ using IREST.API.Data;
 using IREST.API.DTOs;
 using IREST.API.Models;
 using IREST.API.Extensions;
+using IREST.API.Services;
 
 namespace IREST.API.Controllers
 {
@@ -15,10 +16,12 @@ namespace IREST.API.Controllers
     public class MinhaFunerariaController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly GeocodingService _geocoding;
 
-        public MinhaFunerariaController(AppDbContext context)
+        public MinhaFunerariaController(AppDbContext context, GeocodingService geocoding)
         {
             _context = context;
+            _geocoding = geocoding;
         }
 
         private int GetFunerariaId()
@@ -32,13 +35,13 @@ namespace IREST.API.Controllers
         {
             var id = GetFunerariaId();
             var funeraria = await _context.Funerarias
-                .Include(f => f.Reviews).ThenInclude(r => r.Usuario)
-                .Include(f => f.Servicos)
-                .Include(f => f.Favoritos)
+                .Include(f => f.Reviews!).ThenInclude(r => r.Usuario)
+                .Include(f => f.Servicos!)
+                .Include(f => f.Favoritos!)
                 .FirstOrDefaultAsync(f => f.Id == id);
 
             if (funeraria == null) return NotFound();
-            return funeraria.ToDto();
+            return funeraria.ToDto()!;
         }
 
         // PUT: api/MinhaFuneraria - Atualiza dados da funeraria logada
@@ -53,11 +56,25 @@ namespace IREST.API.Controllers
             existing.Descricao = data.Descricao;
             existing.Cidade = data.Cidade;
             existing.Estado = data.Estado;
-            existing.Latitude = data.Latitude;
-            existing.Longitude = data.Longitude;
             existing.Telefone = data.Telefone;
             existing.Endereco = data.Endereco;
             existing.Horario = data.Horario;
+
+            // Se lat/lng foram informados, usa direto; senão geocodifica
+            if (data.Latitude.HasValue && data.Longitude.HasValue)
+            {
+                existing.Latitude = data.Latitude;
+                existing.Longitude = data.Longitude;
+            }
+            else
+            {
+                var coords = await _geocoding.GeocodeAsync(data.Endereco, data.Cidade, data.Estado);
+                if (coords != null)
+                {
+                    existing.Latitude = coords.Latitude;
+                    existing.Longitude = coords.Longitude;
+                }
+            }
 
             await _context.SaveChangesAsync();
             return NoContent();
@@ -73,7 +90,7 @@ namespace IREST.API.Controllers
                 .Where(s => s.FunerariaId == id)
                 .ToListAsync();
 
-            return servicos.Select(s => s.ToDto()).ToList();
+            return servicos.Select(s => s.ToDto()!).ToList();
         }
 
         // POST: api/MinhaFuneraria/servicos - Cria servico para a funeraria logada
@@ -90,7 +107,7 @@ namespace IREST.API.Controllers
                 .Include(s => s.Funeraria)
                 .FirstOrDefaultAsync(s => s.Id == servico.Id);
 
-            return CreatedAtAction(nameof(GetMyServicos), created!.ToDto());
+            return CreatedAtAction(nameof(GetMyServicos), created!.ToDto()!);
         }
 
         // PUT: api/MinhaFuneraria/servicos/5 - Atualiza servico da funeraria logada
@@ -139,7 +156,7 @@ namespace IREST.API.Controllers
                 .OrderByDescending(r => r.DataAvaliacao)
                 .ToListAsync();
 
-            return reviews.Select(r => r.ToDto()).ToList();
+            return reviews.Select(r => r.ToDto()!).ToList();
         }
     }
 }
