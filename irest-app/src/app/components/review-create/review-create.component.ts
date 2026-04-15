@@ -47,7 +47,7 @@ import { Review } from '../../models/review.model';
         </div>
 
         <div class="form-group">
-          <label>Classificação (Estrelas) *</label>
+          <label>Classificação (⭐) *</label>
           <div class="star-rating">
             <input 
               type="radio" 
