@@ -15,7 +15,7 @@ namespace IREST.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "usuario")]
+    [Authorize(Roles = "usuario,admin")]
     public class FavoritosController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -25,19 +25,26 @@ namespace IREST.API.Controllers
             _context = context;
         }
 
-        // GET: api/Favoritos
+        // GET: api/Favoritos - usuario ve so os seus; admin ve tudo
         [HttpGet]
         public async Task<ActionResult<IEnumerable<FavoritoDto>>> GetFavoritos()
         {
-            var favoritos = await _context.Favoritos
+            IQueryable<Favorito> query = _context.Favoritos
                 .Include(f => f.Usuario)
-                .Include(f => f.Funeraria)
-                .ToListAsync();
+                .Include(f => f.Funeraria);
 
+            if (!User.IsAdmin())
+            {
+                var uid = User.GetUserId();
+                if (uid == null) return Forbid();
+                query = query.Where(f => f.UsuarioId == uid.Value);
+            }
+
+            var favoritos = await query.ToListAsync();
             return favoritos.Select(f => f.ToDto()!).ToList();
         }
 
-        // GET: api/Favoritos/5
+        // GET: api/Favoritos/5 - dono ou admin
         [HttpGet("{id}")]
         public async Task<ActionResult<FavoritoDto>> GetFavorito(int id)
         {
@@ -51,10 +58,15 @@ namespace IREST.API.Controllers
                 return NotFound();
             }
 
+            if (!User.IsAdmin() && favorito.UsuarioId != User.GetUserId())
+            {
+                return Forbid();
+            }
+
             return favorito.ToDto()!;
         }
 
-        // PUT: api/Favoritos/5
+        // PUT: api/Favoritos/5 - dono ou admin, nao permite trocar dono
         [HttpPut("{id}")]
         public async Task<IActionResult> PutFavorito(int id, Favorito favorito)
         {
@@ -64,7 +76,16 @@ namespace IREST.API.Controllers
                 return NotFound();
             }
 
-            existing.UsuarioId = favorito.UsuarioId;
+            if (!User.IsAdmin() && existing.UsuarioId != User.GetUserId())
+            {
+                return Forbid();
+            }
+
+            // Apenas admin pode reatribuir dono
+            if (User.IsAdmin())
+            {
+                existing.UsuarioId = favorito.UsuarioId;
+            }
             existing.FunerariaId = favorito.FunerariaId;
 
             try
@@ -86,10 +107,24 @@ namespace IREST.API.Controllers
             return NoContent();
         }
 
-        // POST: api/Favoritos
+        // POST: api/Favoritos - sempre cria para o usuario logado
         [HttpPost]
         public async Task<ActionResult<FavoritoDto>> PostFavorito(Favorito favorito)
         {
+            var uid = User.GetUserId();
+            if (uid == null) return Forbid();
+
+            // Sobrescreve UsuarioId vindo do cliente (nao confiavel)
+            favorito.UsuarioId = User.IsAdmin() && favorito.UsuarioId > 0 ? favorito.UsuarioId : uid.Value;
+
+            // Evita duplicidade (mesma funeraria/usuario)
+            var jaExiste = await _context.Favoritos.AnyAsync(f =>
+                f.UsuarioId == favorito.UsuarioId && f.FunerariaId == favorito.FunerariaId);
+            if (jaExiste)
+            {
+                return Conflict(new { message = "Funeraria ja esta nos favoritos" });
+            }
+
             _context.Favoritos.Add(favorito);
             await _context.SaveChangesAsync();
 
@@ -101,7 +136,7 @@ namespace IREST.API.Controllers
             return CreatedAtAction("GetFavorito", new { id = favorito.Id }, created!.ToDto()!);
         }
 
-        // DELETE: api/Favoritos/5
+        // DELETE: api/Favoritos/5 - dono ou admin
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFavorito(int id)
         {
@@ -109,6 +144,11 @@ namespace IREST.API.Controllers
             if (favorito == null)
             {
                 return NotFound();
+            }
+
+            if (!User.IsAdmin() && favorito.UsuarioId != User.GetUserId())
+            {
+                return Forbid();
             }
 
             _context.Favoritos.Remove(favorito);

@@ -23,12 +23,18 @@ namespace IREST.API.Controllers
             _context = context;
         }
 
-        // GET: api/Usuarios - Somente admin
+        // GET: api/Usuarios - Somente admin, paginado
         [HttpGet]
         [Authorize(Roles = "admin")]
-        public async Task<ActionResult<IEnumerable<UsuarioDto>>> GetUsuarios()
+        public async Task<ActionResult<IEnumerable<UsuarioDto>>> GetUsuarios(int page = 1, int pageSize = 50)
         {
+            page = page < 1 ? 1 : page;
+            pageSize = pageSize is < 1 or > 200 ? 50 : pageSize;
+
             var usuarios = await _context.Usuarios
+                .OrderBy(u => u.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Include(u => u.Reviews)
                 .Include(u => u.Favoritos)
                 .Include(u => u.Sessoes)
@@ -37,11 +43,16 @@ namespace IREST.API.Controllers
             return usuarios.Select(u => u.ToDto()!).ToList();
         }
 
-        // GET: api/Usuarios/5 - Autenticado
+        // GET: api/Usuarios/5 - admin ou o proprio usuario
         [HttpGet("{id}")]
         [Authorize]
         public async Task<ActionResult<UsuarioDto>> GetUsuario(int id)
         {
+            if (!User.IsAdmin() && User.GetUserId() != id)
+            {
+                return Forbid();
+            }
+
             var usuario = await _context.Usuarios
                 .Include(u => u.Reviews)
                 .Include(u => u.Favoritos)
@@ -56,11 +67,16 @@ namespace IREST.API.Controllers
             return usuario.ToDto()!;
         }
 
-        // PUT: api/Usuarios/5 - Somente admin
+        // PUT: api/Usuarios/5 - admin ou o proprio usuario
         [HttpPut("{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize]
         public async Task<IActionResult> PutUsuario(int id, Usuario usuario)
         {
+            if (!User.IsAdmin() && User.GetUserId() != id)
+            {
+                return Forbid();
+            }
+
             var existing = await _context.Usuarios.FindAsync(id);
             if (existing == null)
             {
@@ -68,7 +84,13 @@ namespace IREST.API.Controllers
             }
 
             existing.Nome = usuario.Nome;
-            existing.Email = usuario.Email;
+
+            // Somente admin pode trocar o email (mudanca e-mail = risco de takeover)
+            if (User.IsAdmin() && !string.IsNullOrWhiteSpace(usuario.Email))
+            {
+                existing.Email = usuario.Email;
+            }
+
             if (!string.IsNullOrEmpty(usuario.Senha))
                 existing.Senha = BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
 
@@ -91,8 +113,9 @@ namespace IREST.API.Controllers
             return NoContent();
         }
 
-        // POST: api/Usuarios - Publico (registro via API)
+        // POST: api/Usuarios - Desabilitado: use /api/Auth/register
         [HttpPost]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult<UsuarioDto>> PostUsuario(Usuario usuario)
         {
             if (!string.IsNullOrEmpty(usuario.Senha))

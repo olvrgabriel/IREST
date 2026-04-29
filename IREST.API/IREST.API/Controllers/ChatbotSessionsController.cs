@@ -25,19 +25,34 @@ namespace IREST.API.Controllers
             _context = context;
         }
 
-        // GET: api/ChatbotSessions
+        // GET: api/ChatbotSessions - admin ve tudo; usuario ve so o que e dele
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ChatbotSessionDto>>> GetChatbotSessions()
+        public async Task<ActionResult<IEnumerable<ChatbotSessionDto>>> GetChatbotSessions(int page = 1, int pageSize = 50)
         {
-            var sessions = await _context.ChatbotSessions
+            page = page < 1 ? 1 : page;
+            pageSize = pageSize is < 1 or > 200 ? 50 : pageSize;
+
+            IQueryable<ChatbotSession> query = _context.ChatbotSessions
                 .Include(s => s.Usuario)
-                .Include(s => s.Mensagens)
+                .Include(s => s.Mensagens);
+
+            if (!User.IsAdmin())
+            {
+                var uid = User.GetUserId();
+                if (uid == null) return Forbid();
+                query = query.Where(s => s.UsuarioId == uid.Value);
+            }
+
+            var sessions = await query
+                .OrderByDescending(s => s.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
             return sessions.Select(s => s.ToDto()!).ToList();
         }
 
-        // GET: api/ChatbotSessions/5
+        // GET: api/ChatbotSessions/5 - dono ou admin
         [HttpGet("{id}")]
         public async Task<ActionResult<ChatbotSessionDto>> GetChatbotSession(int id)
         {
@@ -51,11 +66,17 @@ namespace IREST.API.Controllers
                 return NotFound();
             }
 
+            if (!User.IsAdmin() && session.UsuarioId != User.GetUserId())
+            {
+                return Forbid();
+            }
+
             return session.ToDto()!;
         }
 
-        // PUT: api/ChatbotSessions/5
+        // PUT: api/ChatbotSessions/5 - somente admin
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> PutChatbotSession(int id, ChatbotSession session)
         {
             var existing = await _context.ChatbotSessions.FindAsync(id);
@@ -85,10 +106,16 @@ namespace IREST.API.Controllers
             return NoContent();
         }
 
-        // POST: api/ChatbotSessions
+        // POST: api/ChatbotSessions - cria sempre no contexto do usuario logado
         [HttpPost]
         public async Task<ActionResult<ChatbotSessionDto>> PostChatbotSession(ChatbotSession session)
         {
+            var uid = User.GetUserId();
+            if (uid == null) return Forbid();
+
+            // Ignora UsuarioId vindo do cliente: forca o do token
+            session.UsuarioId = User.IsAdmin() && session.UsuarioId > 0 ? session.UsuarioId : uid.Value;
+
             _context.ChatbotSessions.Add(session);
             await _context.SaveChangesAsync();
 
@@ -100,7 +127,7 @@ namespace IREST.API.Controllers
             return CreatedAtAction("GetChatbotSession", new { id = session.Id }, created!.ToDto()!);
         }
 
-        // DELETE: api/ChatbotSessions/5
+        // DELETE: api/ChatbotSessions/5 - dono ou admin
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteChatbotSession(int id)
         {
@@ -108,6 +135,11 @@ namespace IREST.API.Controllers
             if (session == null)
             {
                 return NotFound();
+            }
+
+            if (!User.IsAdmin() && session.UsuarioId != User.GetUserId())
+            {
+                return Forbid();
             }
 
             _context.ChatbotSessions.Remove(session);

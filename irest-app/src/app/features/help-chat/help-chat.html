@@ -6,6 +6,7 @@
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
       </svg>
       <h1>Central de Ajuda - Chat</h1>
+      <span class="ai-badge">IA</span>
     </div>
 
     <div class="chat-area" #chatArea>
@@ -21,6 +22,15 @@
           {{ msg.text }}
         </div>
       </div>
+
+      <!-- Typing indicator -->
+      <div class="message-row" *ngIf="isLoading">
+        <div class="message-bubble typing-bubble">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+      </div>
     </div>
 
     <div class="suggestions-section">
@@ -30,6 +40,7 @@
           *ngFor="let suggestion of suggestions"
           class="suggestion-btn"
           (click)="sendSuggestion(suggestion)"
+          [disabled]="isLoading"
         >
           {{ suggestion }}
         </button>
@@ -43,8 +54,9 @@
         placeholder="Digite sua mensagem..."
         [(ngModel)]="userInput"
         (keydown.enter)="sendMessage()"
+        [disabled]="isLoading"
       />
-      <button class="send-btn" (click)="sendMessage()">
+      <button class="send-btn" (click)="sendMessage()" [disabled]="isLoading">
         <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
           <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
         </svg>
