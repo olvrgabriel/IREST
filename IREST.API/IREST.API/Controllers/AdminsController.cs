@@ -11,6 +11,7 @@ using IREST.API.Models;
 using IREST.API.DTOs;
 using IREST.API.Extensions;
 using BCrypt.Net;
+using System.Security.Claims;
 
 namespace IREST.API.Controllers
 {
@@ -88,8 +89,16 @@ namespace IREST.API.Controllers
         [HttpPost]
         public async Task<ActionResult<AdminDto>> PostAdmin(Admin admin)
         {
-            if (!string.IsNullOrEmpty(admin.Senha))
-                admin.Senha = BCrypt.Net.BCrypt.HashPassword(admin.Senha);
+            if (string.IsNullOrWhiteSpace(admin.Senha) || admin.Senha.Length < 8)
+            {
+                return BadRequest(new { message = "Senha obrigatoria, minimo 8 caracteres" });
+            }
+            if (string.IsNullOrWhiteSpace(admin.Email))
+            {
+                return BadRequest(new { message = "Email obrigatorio" });
+            }
+
+            admin.Senha = BCrypt.Net.BCrypt.HashPassword(admin.Senha);
 
             _context.Admins.Add(admin);
             await _context.SaveChangesAsync();
@@ -101,6 +110,19 @@ namespace IREST.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAdmin(int id)
         {
+            // Impede que admin se auto-delete
+            if (User.GetUserId() == id)
+            {
+                return BadRequest(new { message = "Admin nao pode remover a propria conta" });
+            }
+
+            // Impede remover o ultimo admin (lockout)
+            var totalAdmins = await _context.Admins.CountAsync();
+            if (totalAdmins <= 1)
+            {
+                return BadRequest(new { message = "Nao e possivel remover o ultimo admin" });
+            }
+
             var admin = await _context.Admins.FindAsync(id);
             if (admin == null)
             {

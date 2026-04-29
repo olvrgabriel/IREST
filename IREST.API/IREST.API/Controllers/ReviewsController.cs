@@ -24,14 +24,25 @@ namespace IREST.API.Controllers
             _context = context;
         }
 
-        // GET: api/Reviews - Publico
+        // GET: api/Reviews - Publico (com paginacao)
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ReviewDto>>> GetReviews()
+        public async Task<ActionResult<IEnumerable<ReviewDto>>> GetReviews(int page = 1, int pageSize = 50, int? funerariaId = null)
         {
-            var reviews = await _context.Reviews
+            page = page < 1 ? 1 : page;
+            pageSize = pageSize is < 1 or > 200 ? 50 : pageSize;
+
+            IQueryable<Review> query = _context.Reviews
                 .Include(r => r.Usuario)
                 .Include(r => r.Funeraria)
-                .Include(r => r.Admin)
+                .Include(r => r.Admin);
+
+            if (funerariaId.HasValue)
+                query = query.Where(r => r.FunerariaId == funerariaId.Value);
+
+            var reviews = await query
+                .OrderByDescending(r => r.DataAvaliacao)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
             return reviews.Select(r => r.ToDto()!).ToList();
@@ -55,9 +66,9 @@ namespace IREST.API.Controllers
             return review.ToDto()!;
         }
 
-        // PUT: api/Reviews/5 - Somente admin (moderacao)
+        // PUT: api/Reviews/5 - Admin (moderacao) ou autor da review
         [HttpPut("{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize]
         public async Task<IActionResult> PutReview(int id, Review review)
         {
             var existing = await _context.Reviews.FindAsync(id);
@@ -66,11 +77,27 @@ namespace IREST.API.Controllers
                 return NotFound();
             }
 
+            var isAdmin = User.IsAdmin();
+            if (!isAdmin && existing.UsuarioId != User.GetUserId())
+            {
+                return Forbid();
+            }
+
+            if (review.Nota < 1 || review.Nota > 5)
+            {
+                return BadRequest(new { message = "Nota deve ser entre 1 e 5" });
+            }
+
             existing.Nota = review.Nota;
             existing.Comentario = review.Comentario;
-            existing.UsuarioId = review.UsuarioId;
-            existing.FunerariaId = review.FunerariaId;
-            existing.AdminId = review.AdminId;
+
+            // Somente admin pode reatribuir dono ou adicionar flag de admin
+            if (isAdmin)
+            {
+                existing.UsuarioId = review.UsuarioId;
+                existing.FunerariaId = review.FunerariaId;
+                existing.AdminId = review.AdminId;
+            }
 
             try
             {
@@ -96,6 +123,25 @@ namespace IREST.API.Controllers
         [Authorize(Roles = "usuario")]
         public async Task<ActionResult<ReviewDto>> PostReview(Review review)
         {
+            var uid = User.GetUserId();
+            if (uid == null) return Forbid();
+
+            if (review.Nota < 1 || review.Nota > 5)
+            {
+                return BadRequest(new { message = "Nota deve ser entre 1 e 5" });
+            }
+
+            if (review.FunerariaId <= 0 ||
+                !await _context.Funerarias.AnyAsync(f => f.Id == review.FunerariaId))
+            {
+                return BadRequest(new { message = "Funeraria invalida" });
+            }
+
+            // Ignora quaisquer ids vindos do cliente
+            review.UsuarioId = uid.Value;
+            review.AdminId = null;
+            review.DataAvaliacao = DateTime.Now;
+
             _context.Reviews.Add(review);
             await _context.SaveChangesAsync();
 
@@ -108,7 +154,7 @@ namespace IREST.API.Controllers
             return CreatedAtAction("GetReview", new { id = review.Id }, created!.ToDto());
         }
 
-        // DELETE: api/Reviews/5 - Admin ou usuario
+        // DELETE: api/Reviews/5 - Admin ou autor da review
         [HttpDelete("{id}")]
         [Authorize(Roles = "admin,usuario")]
         public async Task<IActionResult> DeleteReview(int id)
@@ -117,6 +163,11 @@ namespace IREST.API.Controllers
             if (review == null)
             {
                 return NotFound();
+            }
+
+            if (!User.IsAdmin() && review.UsuarioId != User.GetUserId())
+            {
+                return Forbid();
             }
 
             _context.Reviews.Remove(review);

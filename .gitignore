@@ -14,3 +14,9 @@ dist/
 
 # Logs
 *.log
+
+# Secrets / env-specific configs
+appsettings.Development.json
+appsettings.Local.json
+.env
+.env.local
