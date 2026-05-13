@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { HeaderComponent } from '../../core/components/header/header';
 import { AuthService } from '../../services/auth.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -18,7 +19,7 @@ export class LoginComponent {
   error = '';
   loading = false;
 
-  constructor(private authService: AuthService, private router: Router) {
+  constructor(private authService: AuthService, private router: Router, private cdr: ChangeDetectorRef) {
     if (this.authService.isLoggedIn) {
       this.router.navigate(['/']);
     }
@@ -33,9 +34,10 @@ export class LoginComponent {
     this.loading = true;
     this.error = '';
 
-    this.authService.login({ email: this.email, senha: this.senha }).subscribe({
+    this.authService.login({ email: this.email, senha: this.senha }).pipe(
+      finalize(() => { this.loading = false; this.cdr.detectChanges(); })
+    ).subscribe({
       next: (user) => {
-        this.loading = false;
         if (user.role === 'admin') {
           this.router.navigate(['/painel-admin']);
         } else {
@@ -43,14 +45,14 @@ export class LoginComponent {
         }
       },
       error: (err) => {
-        this.loading = false;
-        if (err.error?.message) {
+        if (err.status === 401) {
+          this.error = 'Email ou senha invalidos';
+        } else if (err.error?.message) {
           this.error = err.error.message;
-        } else if (typeof err.error === 'string') {
-          this.error = err.error;
         } else {
-          this.error = 'Email ou senha inválidos';
+          this.error = 'Erro ao fazer login. Tente novamente.';
         }
+        this.cdr.detectChanges();
       }
     });
   }
