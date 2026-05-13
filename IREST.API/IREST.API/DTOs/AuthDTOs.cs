@@ -32,4 +32,15 @@ namespace IREST.API.DTOs
         public string Email { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
     }
+
+    public class ForgotPasswordRequest
+    {
+        public string Email { get; set; } = string.Empty;
+    }
+
+    public class ResetPasswordRequest
+    {
+        public string Token { get; set; } = string.Empty;
+        public string NovaSenha { get; set; } = string.Empty;
+    }
 }
