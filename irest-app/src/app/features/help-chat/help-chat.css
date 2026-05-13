@@ -205,3 +205,56 @@
   0%, 60%, 100% { transform: translateY(0); }
   30% { transform: translateY(-5px); }
 }
+
+@media (max-width: 768px) {
+  .page-wrapper {
+    padding: 16px 8px;
+  }
+
+  .chat-area {
+    min-height: 300px;
+    max-height: 50vh;
+    padding: 12px;
+  }
+
+  .message-bubble {
+    max-width: 85%;
+    font-size: 0.9rem;
+  }
+
+  .chat-header {
+    padding: 12px 16px;
+  }
+
+  .chat-header h1 {
+    font-size: 1rem;
+  }
+
+  .suggestions-section {
+    padding: 8px 12px 4px;
+  }
+
+  .suggestions-container {
+    gap: 6px;
+  }
+
+  .suggestion-btn {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+
+  .input-row {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .chat-input {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+
+  .send-btn {
+    width: 40px;
+    height: 40px;
+  }
+}

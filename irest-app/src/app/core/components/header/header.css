@@ -5,44 +5,78 @@
   padding: 16px 48px;
   background-color: var(--white);
   border-bottom: 1px solid var(--border-color);
+  position: relative;
+}
 
-  .logo-container {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
 
-    .logo-box {
-      width: 24px;
-      height: 24px;
-      background-color: var(--primary-blue);
-      border-radius: 4px;
-    }
+.logo-box {
+  width: 24px;
+  height: 24px;
+  background-color: var(--primary-blue);
+  border-radius: 4px;
+}
 
-    .logo-text {
-      color: var(--primary-blue);
-      font-weight: 600;
-      font-size: 1.2rem;
-      letter-spacing: 0.5px;
-    }
-  }
+.logo-text {
+  color: var(--primary-blue);
+  font-weight: 600;
+  font-size: 1.2rem;
+  letter-spacing: 0.5px;
+}
 
-  .main-nav {
-    display: flex;
-    gap: 24px;
-    align-items: center;
+.main-nav {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
 
-    a {
-      text-decoration: none;
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      transition: color 0.2s;
+.main-nav a {
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
 
-      &:hover, &.active {
-        color: var(--primary-blue);
-        font-weight: 500;
-      }
-    }
-  }
+.main-nav a:hover,
+.main-nav a.active {
+  color: var(--primary-blue);
+  font-weight: 500;
+}
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  z-index: 1001;
+}
+
+.hamburger span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--text-main);
+  transition: all 0.3s;
+}
+
+.hamburger.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
 }
 
 .btn-header-login {
@@ -52,11 +86,11 @@
   color: var(--primary-blue) !important;
   font-weight: 500 !important;
   transition: all 0.2s;
+}
 
-  &:hover {
-    background-color: var(--primary-blue);
-    color: white !important;
-  }
+.btn-header-login:hover {
+  background-color: var(--primary-blue);
+  color: white !important;
 }
 
 .btn-header-register {
@@ -66,10 +100,10 @@
   color: white !important;
   font-weight: 500 !important;
   transition: background-color 0.2s;
+}
 
-  &:hover {
-    background-color: #1d4ed8;
-  }
+.btn-header-register:hover {
+  background-color: #1d4ed8;
 }
 
 .user-menu-container {
@@ -86,10 +120,10 @@
   padding: 6px 12px;
   cursor: pointer;
   transition: border-color 0.2s;
+}
 
-  &:hover {
-    border-color: var(--primary-blue);
-  }
+.user-menu-btn:hover {
+  border-color: var(--primary-blue);
 }
 
 .user-avatar {
@@ -126,20 +160,20 @@
   min-width: 180px;
   z-index: 1000;
   overflow: hidden;
+}
 
-  a {
-    display: block;
-    padding: 10px 16px;
-    color: var(--text-main) !important;
-    font-size: 0.9rem;
-    transition: background-color 0.2s;
-    text-decoration: none;
+.user-dropdown a {
+  display: block;
+  padding: 10px 16px;
+  color: var(--text-main) !important;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+  text-decoration: none;
+}
 
-    &:hover {
-      background-color: #f1f5f9;
-      color: var(--primary-blue) !important;
-    }
-  }
+.user-dropdown a:hover {
+  background-color: #f1f5f9;
+  color: var(--primary-blue) !important;
 }
 
 .logout-btn {
@@ -154,8 +188,66 @@
   cursor: pointer;
   text-align: left;
   transition: background-color 0.2s;
+}
 
-  &:hover {
-    background-color: #fef2f2;
+.logout-btn:hover {
+  background-color: #fef2f2;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .main-header {
+    padding: 12px 16px;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .main-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    flex-direction: column;
+    padding: 16px;
+    gap: 12px;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+
+  .main-nav.mobile-open {
+    display: flex;
+  }
+
+  .main-nav a {
+    padding: 10px 0;
+    font-size: 1rem;
+  }
+
+  .btn-header-login,
+  .btn-header-register {
+    text-align: center;
+    display: block;
+    width: 100%;
+  }
+
+  .user-menu-container {
+    width: 100%;
+  }
+
+  .user-menu-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .user-dropdown {
+    position: static;
+    box-shadow: none;
+    border: 1px solid var(--border-color);
+    margin-top: 8px;
   }
 }
