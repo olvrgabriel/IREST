@@ -3,5 +3,5 @@
  */
 export const environment = {
   production: true,
-  apiUrl: 'http://olvrgabriel-001-site1.ktempurl.com/api'
+  apiUrl: 'https://olvrgabriel-001-site1.ktempurl.com/api'
 };
