@@ -22,7 +22,7 @@
       <div class="form-group">
         <label for="senha">Senha</label>
         <input type="password" id="senha" [(ngModel)]="senha" name="senha"
-               placeholder="Mínimo 6 caracteres" required>
+               placeholder="Minimo 6 caracteres" required>
       </div>
 
       <div class="form-group">
@@ -31,16 +31,30 @@
                placeholder="Repita a senha" required>
       </div>
 
+      <div class="form-group">
+        <label for="perguntaSeguranca">Pergunta de Seguranca</label>
+        <select id="perguntaSeguranca" [(ngModel)]="perguntaSeguranca" name="perguntaSeguranca" required>
+          <option value="" disabled>Selecione uma pergunta</option>
+          <option *ngFor="let p of perguntas" [value]="p">{{ p }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="respostaSeguranca">Resposta de Seguranca</label>
+        <input type="text" id="respostaSeguranca" [(ngModel)]="respostaSeguranca" name="respostaSeguranca"
+               placeholder="Sua resposta" required>
+      </div>
+
       <button type="submit" class="btn-auth" [disabled]="loading">
         {{ loading ? 'Criando conta...' : 'Criar Conta' }}
       </button>
     </form>
 
     <p class="auth-link">
-      Já tem conta? <a routerLink="/login">Entrar</a>
+      Ja tem conta? <a routerLink="/login">Entrar</a>
     </p>
     <p class="auth-link">
-      É uma funerária? <a routerLink="/cadastro-funeraria">Cadastre sua funerária</a>
+      E uma funeraria? <a routerLink="/cadastro-funeraria">Cadastre sua funeraria</a>
     </p>
   </div>
 </main>

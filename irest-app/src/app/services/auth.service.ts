@@ -20,6 +20,8 @@ export interface RegisterRequest {
   nome: string;
   email: string;
   senha: string;
+  perguntaSeguranca: string;
+  respostaSeguranca: string;
 }
 
 export interface RegisterFunerariaRequest {
@@ -30,6 +32,8 @@ export interface RegisterFunerariaRequest {
   estado?: string;
   telefone?: string;
   endereco?: string;
+  perguntaSeguranca: string;
+  respostaSeguranca: string;
 }
 
 @Injectable({
@@ -99,12 +103,12 @@ export class AuthService {
     );
   }
 
-  forgotPassword(email: string): Observable<{ message: string; token?: string; emailSent?: boolean }> {
-    return this.http.post<{ message: string; token?: string; emailSent?: boolean }>(`${this.baseUrl}/Auth/forgot-password`, { email });
+  forgotPassword(email: string): Observable<{ pergunta: string }> {
+    return this.http.post<{ pergunta: string }>(`${this.baseUrl}/Auth/forgot-password`, { email });
   }
 
-  resetPassword(token: string, novaSenha: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.baseUrl}/Auth/reset-password`, { token, novaSenha });
+  resetPassword(email: string, respostaSeguranca: string, novaSenha: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.baseUrl}/Auth/reset-password`, { email, respostaSeguranca, novaSenha });
   }
 
   logout(): void {

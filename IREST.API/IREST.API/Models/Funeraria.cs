@@ -16,6 +16,8 @@ namespace IREST.API.Models
         // Credenciais de login da funeraria
         public string? Email { get; set; }
         public string? Senha { get; set; }
+        public string? PerguntaSeguranca { get; set; }
+        public string? RespostaSeguranca { get; set; }
 
         public ICollection<Review>? Reviews { get; set; }
         public ICollection<Servico>? Servicos { get; set; }
