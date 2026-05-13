@@ -18,12 +18,14 @@ namespace IREST.API.Controllers
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly GeocodingService _geocoding;
+        private readonly EmailService _emailService;
 
-        public AuthController(AppDbContext context, IConfiguration configuration, GeocodingService geocoding)
+        public AuthController(AppDbContext context, IConfiguration configuration, GeocodingService geocoding, EmailService emailService)
         {
             _context = context;
             _configuration = configuration;
             _geocoding = geocoding;
+            _emailService = emailService;
         }
 
         // POST: api/Auth/register - Cadastro de usuario comum
@@ -204,10 +206,14 @@ namespace IREST.API.Controllers
             });
             await _context.SaveChangesAsync();
 
-            var logger = HttpContext.RequestServices.GetRequiredService<ILogger<AuthController>>();
-            logger.LogInformation("Codigo de recuperacao para {Email}: {Token}", request.Email, token);
+            var emailSent = await _emailService.SendPasswordResetEmail(request.Email, token);
 
-            return Ok(new { message = "Codigo de recuperacao gerado com sucesso.", token });
+            if (emailSent)
+            {
+                return Ok(new { message = "Codigo de recuperacao enviado para o seu email.", emailSent = true });
+            }
+
+            return Ok(new { message = "Codigo de recuperacao gerado com sucesso.", token, emailSent = false });
         }
 
         // POST: api/Auth/reset-password

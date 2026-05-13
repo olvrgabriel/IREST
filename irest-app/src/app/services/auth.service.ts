@@ -99,8 +99,8 @@ export class AuthService {
     );
   }
 
-  forgotPassword(email: string): Observable<{ message: string; token?: string }> {
-    return this.http.post<{ message: string; token?: string }>(`${this.baseUrl}/Auth/forgot-password`, { email });
+  forgotPassword(email: string): Observable<{ message: string; token?: string; emailSent?: boolean }> {
+    return this.http.post<{ message: string; token?: string; emailSent?: boolean }>(`${this.baseUrl}/Auth/forgot-password`, { email });
   }
 
   resetPassword(token: string, novaSenha: string): Observable<{ message: string }> {

@@ -18,6 +18,7 @@ export class ForgotPasswordComponent {
   error = '';
   success = '';
   token = '';
+  emailSent = false;
   loading = false;
 
   constructor(private authService: AuthService, private cdr: ChangeDetectorRef) {}
@@ -39,7 +40,10 @@ export class ForgotPasswordComponent {
       })
     ).subscribe({
       next: (res: any) => {
-        if (res && res.token) {
+        if (res && res.emailSent) {
+          this.success = 'Codigo de recuperacao enviado para o seu email!';
+          this.emailSent = true;
+        } else if (res && res.token) {
           this.success = 'Codigo de recuperacao gerado com sucesso!';
           this.token = res.token;
         } else {
