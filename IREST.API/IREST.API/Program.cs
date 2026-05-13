@@ -159,34 +159,28 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
-    if (!db.Admins.Any())
-    {
-        var seedEmail = app.Configuration["AdminSeed:Email"];
-        var seedPassword = app.Configuration["AdminSeed:Password"];
+    var seedEmail = app.Configuration["AdminSeed:Email"];
+    var seedPassword = app.Configuration["AdminSeed:Password"];
 
-        if (!string.IsNullOrWhiteSpace(seedEmail) && !string.IsNullOrWhiteSpace(seedPassword))
+    if (!string.IsNullOrWhiteSpace(seedEmail) && !string.IsNullOrWhiteSpace(seedPassword)
+        && !db.Admins.Any(a => a.Email == seedEmail))
+    {
+        if (seedPassword.Length < 8)
         {
-            if (seedPassword.Length < 8)
-            {
-                logger.LogWarning("AdminSeed:Password muito curta. Seed do admin ignorado.");
-            }
-            else
-            {
-                db.Admins.Add(new IREST.API.Models.Admin
-                {
-                    Nome = "Administrador",
-                    Email = seedEmail,
-                    Senha = BCrypt.Net.BCrypt.HashPassword(seedPassword)
-                });
-                db.SaveChanges();
-                logger.LogInformation("Admin padrao criado a partir de AdminSeed.");
-            }
+            logger.LogWarning("AdminSeed:Password muito curta. Seed do admin ignorado.");
         }
         else
         {
-            logger.LogWarning(
-                "Nenhum admin cadastrado e AdminSeed nao configurado. " +
-                "Defina AdminSeed:Email / AdminSeed:Password em appsettings.Local.json ou variaveis de ambiente.");
+            db.Admins.Add(new IREST.API.Models.Admin
+            {
+                Nome = "Administrador",
+                Email = seedEmail,
+                Senha = BCrypt.Net.BCrypt.HashPassword(seedPassword),
+                PerguntaSeguranca = "Qual o nome do seu primeiro pet?",
+                RespostaSeguranca = "irest"
+            });
+            db.SaveChanges();
+            logger.LogInformation("Admin padrao criado a partir de AdminSeed.");
         }
     }
 }
