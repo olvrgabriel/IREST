@@ -34,14 +34,20 @@ export class ForgotPasswordComponent {
     this.authService.forgotPassword(this.email).subscribe({
       next: (res) => {
         this.loading = false;
-        this.success = 'Codigo de recuperacao gerado com sucesso!';
         if (res.token) {
+          this.success = 'Codigo de recuperacao gerado com sucesso!';
           this.token = res.token;
+        } else {
+          this.success = res.message || 'Se o email estiver cadastrado, um codigo foi gerado.';
         }
       },
       error: (err) => {
         this.loading = false;
-        this.error = err.error?.message || 'Erro ao solicitar recuperacao';
+        if (err.status === 0) {
+          this.error = 'Nao foi possivel conectar ao servidor. Verifique se a API esta rodando.';
+        } else {
+          this.error = err.error?.message || 'Erro ao solicitar recuperacao';
+        }
       }
     });
   }
