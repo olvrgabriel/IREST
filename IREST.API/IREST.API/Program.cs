@@ -135,7 +135,6 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
 
-builder.Services.AddSingleton<EmailService>();
 builder.Services.AddHttpClient<GeocodingService>();
 builder.Services.AddHttpClient<GeminiService>(client =>
 {

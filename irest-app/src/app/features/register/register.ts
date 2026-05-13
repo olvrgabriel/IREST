@@ -17,8 +17,18 @@ export class RegisterComponent {
   email = '';
   senha = '';
   confirmarSenha = '';
+  perguntaSeguranca = '';
+  respostaSeguranca = '';
   error = '';
   loading = false;
+
+  perguntas = [
+    'Qual o nome do seu primeiro pet?',
+    'Qual o nome da sua mae?',
+    'Qual a cidade onde voce nasceu?',
+    'Qual o nome da sua escola primaria?',
+    'Qual o seu prato favorito?'
+  ];
 
   constructor(private authService: AuthService, private router: Router) {
     if (this.authService.isLoggedIn) {
@@ -27,7 +37,7 @@ export class RegisterComponent {
   }
 
   register(): void {
-    if (!this.nome || !this.email || !this.senha) {
+    if (!this.nome || !this.email || !this.senha || !this.perguntaSeguranca || !this.respostaSeguranca) {
       this.error = 'Preencha todos os campos';
       return;
     }
@@ -45,7 +55,13 @@ export class RegisterComponent {
     this.loading = true;
     this.error = '';
 
-    this.authService.register({ nome: this.nome, email: this.email, senha: this.senha }).subscribe({
+    this.authService.register({
+      nome: this.nome,
+      email: this.email,
+      senha: this.senha,
+      perguntaSeguranca: this.perguntaSeguranca,
+      respostaSeguranca: this.respostaSeguranca
+    }).subscribe({
       next: () => {
         this.loading = false;
         this.router.navigate(['/']);

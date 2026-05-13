@@ -21,8 +21,18 @@ export class RegisterFunerariaComponent {
   estado = '';
   telefone = '';
   endereco = '';
+  perguntaSeguranca = '';
+  respostaSeguranca = '';
   error = '';
   loading = false;
+
+  perguntas = [
+    'Qual o nome do seu primeiro pet?',
+    'Qual o nome da sua mae?',
+    'Qual a cidade onde voce nasceu?',
+    'Qual o nome da sua escola primaria?',
+    'Qual o seu prato favorito?'
+  ];
 
   constructor(private authService: AuthService, private router: Router) {
     if (this.authService.isLoggedIn) {
@@ -31,13 +41,13 @@ export class RegisterFunerariaComponent {
   }
 
   register(): void {
-    if (!this.nome || !this.email || !this.senha || !this.cidade) {
-      this.error = 'Preencha todos os campos obrigatórios';
+    if (!this.nome || !this.email || !this.senha || !this.cidade || !this.perguntaSeguranca || !this.respostaSeguranca) {
+      this.error = 'Preencha todos os campos obrigatorios';
       return;
     }
 
     if (this.senha !== this.confirmarSenha) {
-      this.error = 'As senhas não coincidem';
+      this.error = 'As senhas nao coincidem';
       return;
     }
 
@@ -56,7 +66,9 @@ export class RegisterFunerariaComponent {
       cidade: this.cidade,
       estado: this.estado || undefined,
       telefone: this.telefone || undefined,
-      endereco: this.endereco || undefined
+      endereco: this.endereco || undefined,
+      perguntaSeguranca: this.perguntaSeguranca,
+      respostaSeguranca: this.respostaSeguranca
     }).subscribe({
       next: () => {
         this.loading = false;
@@ -69,7 +81,7 @@ export class RegisterFunerariaComponent {
         } else if (typeof err.error === 'string') {
           this.error = err.error;
         } else {
-          this.error = 'Erro ao cadastrar funerária. Verifique os dados.';
+          this.error = 'Erro ao cadastrar funeraria. Verifique os dados.';
         }
       }
     });

@@ -18,14 +18,12 @@ namespace IREST.API.Controllers
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly GeocodingService _geocoding;
-        private readonly EmailService _emailService;
 
-        public AuthController(AppDbContext context, IConfiguration configuration, GeocodingService geocoding, EmailService emailService)
+        public AuthController(AppDbContext context, IConfiguration configuration, GeocodingService geocoding)
         {
             _context = context;
             _configuration = configuration;
             _geocoding = geocoding;
-            _emailService = emailService;
         }
 
         // POST: api/Auth/register - Cadastro de usuario comum
@@ -34,12 +32,13 @@ namespace IREST.API.Controllers
         {
             if (string.IsNullOrWhiteSpace(request.Nome) ||
                 string.IsNullOrWhiteSpace(request.Email) ||
-                string.IsNullOrWhiteSpace(request.Senha))
+                string.IsNullOrWhiteSpace(request.Senha) ||
+                string.IsNullOrWhiteSpace(request.PerguntaSeguranca) ||
+                string.IsNullOrWhiteSpace(request.RespostaSeguranca))
             {
                 return BadRequest(new { message = "Preencha todos os campos" });
             }
 
-            // Verifica se email ja existe em qualquer tabela
             if (await EmailExists(request.Email))
             {
                 return BadRequest(new { message = "Email ja cadastrado" });
@@ -50,6 +49,8 @@ namespace IREST.API.Controllers
                 Nome = request.Nome,
                 Email = request.Email,
                 Senha = BCrypt.Net.BCrypt.HashPassword(request.Senha),
+                PerguntaSeguranca = request.PerguntaSeguranca,
+                RespostaSeguranca = request.RespostaSeguranca.Trim().ToLower(),
                 DataCadastro = DateTime.Now
             };
 
@@ -75,7 +76,9 @@ namespace IREST.API.Controllers
             if (string.IsNullOrWhiteSpace(request.Nome) ||
                 string.IsNullOrWhiteSpace(request.Email) ||
                 string.IsNullOrWhiteSpace(request.Senha) ||
-                string.IsNullOrWhiteSpace(request.Cidade))
+                string.IsNullOrWhiteSpace(request.Cidade) ||
+                string.IsNullOrWhiteSpace(request.PerguntaSeguranca) ||
+                string.IsNullOrWhiteSpace(request.RespostaSeguranca))
             {
                 return BadRequest(new { message = "Preencha todos os campos obrigatorios" });
             }
@@ -93,10 +96,11 @@ namespace IREST.API.Controllers
                 Cidade = request.Cidade,
                 Estado = request.Estado,
                 Telefone = request.Telefone,
-                Endereco = request.Endereco
+                Endereco = request.Endereco,
+                PerguntaSeguranca = request.PerguntaSeguranca,
+                RespostaSeguranca = request.RespostaSeguranca.Trim().ToLower()
             };
 
-            // Geocodifica endereço automaticamente
             var coords = await _geocoding.GeocodeAsync(request.Endereco, request.Cidade, request.Estado);
             if (coords != null)
             {
@@ -128,7 +132,6 @@ namespace IREST.API.Controllers
                 return BadRequest(new { message = "Preencha email e senha" });
             }
 
-            // 1. Tenta como admin
             var admin = await _context.Admins
                 .FirstOrDefaultAsync(a => a.Email == request.Email);
 
@@ -146,7 +149,6 @@ namespace IREST.API.Controllers
                 });
             }
 
-            // 2. Tenta como funeraria
             var funeraria = await _context.Funerarias
                 .FirstOrDefaultAsync(f => f.Email == request.Email);
 
@@ -164,7 +166,6 @@ namespace IREST.API.Controllers
                 });
             }
 
-            // 3. Tenta como usuario
             var usuario = await _context.Usuarios
                 .FirstOrDefaultAsync(u => u.Email == request.Email);
 
@@ -185,70 +186,68 @@ namespace IREST.API.Controllers
             return Unauthorized(new { message = "Email ou senha invalidos" });
         }
 
-        // POST: api/Auth/forgot-password
+        // POST: api/Auth/forgot-password - Retorna a pergunta de seguranca do email
         [HttpPost("forgot-password")]
         public async Task<ActionResult> ForgotPassword(ForgotPasswordRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Email))
                 return BadRequest(new { message = "Informe o email" });
 
-            var emailExists = await EmailExists(request.Email);
-            if (!emailExists)
-                return Ok(new { message = "Se o email estiver cadastrado, um codigo de recuperacao sera gerado." });
+            var admin = await _context.Admins.FirstOrDefaultAsync(a => a.Email == request.Email);
+            if (admin != null && !string.IsNullOrEmpty(admin.PerguntaSeguranca))
+                return Ok(new { pergunta = admin.PerguntaSeguranca });
 
-            var token = Guid.NewGuid().ToString("N")[..8].ToUpper();
+            var funeraria = await _context.Funerarias.FirstOrDefaultAsync(f => f.Email == request.Email);
+            if (funeraria != null && !string.IsNullOrEmpty(funeraria.PerguntaSeguranca))
+                return Ok(new { pergunta = funeraria.PerguntaSeguranca });
 
-            _context.PasswordResetTokens.Add(new PasswordResetToken
-            {
-                Email = request.Email,
-                Token = token,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(30)
-            });
-            await _context.SaveChangesAsync();
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == request.Email);
+            if (usuario != null && !string.IsNullOrEmpty(usuario.PerguntaSeguranca))
+                return Ok(new { pergunta = usuario.PerguntaSeguranca });
 
-            var emailSent = await _emailService.SendPasswordResetEmail(request.Email, token);
-
-            if (emailSent)
-            {
-                return Ok(new { message = "Codigo de recuperacao enviado para o seu email.", emailSent = true });
-            }
-
-            return Ok(new { message = "Codigo de recuperacao gerado com sucesso.", token, emailSent = false });
+            return BadRequest(new { message = "Email nao encontrado ou sem pergunta de seguranca cadastrada" });
         }
 
-        // POST: api/Auth/reset-password
+        // POST: api/Auth/reset-password - Verifica resposta e redefine senha
         [HttpPost("reset-password")]
-        public async Task<ActionResult> ResetPassword(ResetPasswordRequest request)
+        public async Task<ActionResult> ResetPassword(ForgotPasswordVerifyRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.Token) || string.IsNullOrWhiteSpace(request.NovaSenha))
-                return BadRequest(new { message = "Token e nova senha sao obrigatorios" });
+            if (string.IsNullOrWhiteSpace(request.Email) ||
+                string.IsNullOrWhiteSpace(request.RespostaSeguranca) ||
+                string.IsNullOrWhiteSpace(request.NovaSenha))
+                return BadRequest(new { message = "Preencha todos os campos" });
 
             if (request.NovaSenha.Length < 6)
                 return BadRequest(new { message = "A senha deve ter no minimo 6 caracteres" });
 
-            var resetToken = await _context.PasswordResetTokens
-                .Where(t => t.Token == request.Token && !t.Used && t.ExpiresAt > DateTime.UtcNow)
-                .OrderByDescending(t => t.Id)
-                .FirstOrDefaultAsync();
-
-            if (resetToken == null)
-                return BadRequest(new { message = "Token invalido ou expirado" });
-
+            var resposta = request.RespostaSeguranca.Trim().ToLower();
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.NovaSenha);
 
-            var admin = await _context.Admins.FirstOrDefaultAsync(a => a.Email == resetToken.Email);
-            if (admin != null) { admin.Senha = hashedPassword; }
+            var admin = await _context.Admins.FirstOrDefaultAsync(a => a.Email == request.Email);
+            if (admin != null && admin.RespostaSeguranca == resposta)
+            {
+                admin.Senha = hashedPassword;
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Senha alterada com sucesso" });
+            }
 
-            var funeraria = await _context.Funerarias.FirstOrDefaultAsync(f => f.Email == resetToken.Email);
-            if (funeraria != null) { funeraria.Senha = hashedPassword; }
+            var funeraria = await _context.Funerarias.FirstOrDefaultAsync(f => f.Email == request.Email);
+            if (funeraria != null && funeraria.RespostaSeguranca == resposta)
+            {
+                funeraria.Senha = hashedPassword;
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Senha alterada com sucesso" });
+            }
 
-            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == resetToken.Email);
-            if (usuario != null) { usuario.Senha = hashedPassword; }
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == request.Email);
+            if (usuario != null && usuario.RespostaSeguranca == resposta)
+            {
+                usuario.Senha = hashedPassword;
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Senha alterada com sucesso" });
+            }
 
-            resetToken.Used = true;
-            await _context.SaveChangesAsync();
-
-            return Ok(new { message = "Senha alterada com sucesso" });
+            return BadRequest(new { message = "Resposta de seguranca incorreta" });
         }
 
         private async Task<bool> EmailExists(string email)

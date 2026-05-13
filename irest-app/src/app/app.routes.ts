@@ -16,7 +16,6 @@ import { LoginComponent } from './features/login/login';
 import { RegisterComponent } from './features/register/register';
 import { RegisterFunerariaComponent } from './features/register-funeraria/register-funeraria';
 import { ForgotPasswordComponent } from './features/forgot-password/forgot-password';
-import { ResetPasswordComponent } from './features/reset-password/reset-password';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -28,7 +27,6 @@ export const routes: Routes = [
   { path: 'cadastro', component: RegisterComponent },
   { path: 'cadastro-funeraria', component: RegisterFunerariaComponent },
   { path: 'esqueci-senha', component: ForgotPasswordComponent },
-  { path: 'redefinir-senha', component: ResetPasswordComponent },
 
   // Protected routes (logged in)
   { path: 'avaliar/:id', component: ReviewForm, canActivate: [usuarioGuard] },
