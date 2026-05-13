@@ -99,6 +99,14 @@ export class AuthService {
     );
   }
 
+  forgotPassword(email: string): Observable<{ message: string; token?: string }> {
+    return this.http.post<{ message: string; token?: string }>(`${this.baseUrl}/Auth/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, novaSenha: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.baseUrl}/Auth/reset-password`, { token, novaSenha });
+  }
+
   logout(): void {
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentUser');
