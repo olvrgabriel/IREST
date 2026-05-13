@@ -13,7 +13,7 @@ namespace IREST.API.Services
     {
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
-        private const string BaseUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemma-3-27b-it:generateContent";
+        private const string BaseUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
         private const string SystemPrompt =
             "Você é o assistente virtual oficial da plataforma IREST. Responda SEMPRE em português brasileiro. Seja empático, respeitoso e objetivo — os usuários podem estar passando por um momento de luto.\n\n" +
