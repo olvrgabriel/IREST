@@ -183,6 +183,68 @@ namespace IREST.API.Controllers
             return Unauthorized(new { message = "Email ou senha invalidos" });
         }
 
+        // POST: api/Auth/forgot-password
+        [HttpPost("forgot-password")]
+        public async Task<ActionResult> ForgotPassword(ForgotPasswordRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Email))
+                return BadRequest(new { message = "Informe o email" });
+
+            var emailExists = await EmailExists(request.Email);
+            if (!emailExists)
+                return Ok(new { message = "Se o email estiver cadastrado, um codigo de recuperacao sera gerado." });
+
+            var token = Guid.NewGuid().ToString("N")[..8].ToUpper();
+
+            _context.PasswordResetTokens.Add(new PasswordResetToken
+            {
+                Email = request.Email,
+                Token = token,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(30)
+            });
+            await _context.SaveChangesAsync();
+
+            var logger = HttpContext.RequestServices.GetRequiredService<ILogger<AuthController>>();
+            logger.LogInformation("Codigo de recuperacao para {Email}: {Token}", request.Email, token);
+
+            return Ok(new { message = "Codigo de recuperacao gerado com sucesso.", token });
+        }
+
+        // POST: api/Auth/reset-password
+        [HttpPost("reset-password")]
+        public async Task<ActionResult> ResetPassword(ResetPasswordRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Token) || string.IsNullOrWhiteSpace(request.NovaSenha))
+                return BadRequest(new { message = "Token e nova senha sao obrigatorios" });
+
+            if (request.NovaSenha.Length < 6)
+                return BadRequest(new { message = "A senha deve ter no minimo 6 caracteres" });
+
+            var resetToken = await _context.PasswordResetTokens
+                .Where(t => t.Token == request.Token && !t.Used && t.ExpiresAt > DateTime.UtcNow)
+                .OrderByDescending(t => t.Id)
+                .FirstOrDefaultAsync();
+
+            if (resetToken == null)
+                return BadRequest(new { message = "Token invalido ou expirado" });
+
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.NovaSenha);
+
+            var admin = await _context.Admins.FirstOrDefaultAsync(a => a.Email == resetToken.Email);
+            if (admin != null) { admin.Senha = hashedPassword; }
+
+            var funeraria = await _context.Funerarias.FirstOrDefaultAsync(f => f.Email == resetToken.Email);
+            if (funeraria != null) { funeraria.Senha = hashedPassword; }
+
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == resetToken.Email);
+            if (usuario != null) { usuario.Senha = hashedPassword; }
+
+            resetToken.Used = true;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Senha alterada com sucesso" });
+        }
+
         private async Task<bool> EmailExists(string email)
         {
             var existsUsuario = await _context.Usuarios.AnyAsync(u => u.Email == email);

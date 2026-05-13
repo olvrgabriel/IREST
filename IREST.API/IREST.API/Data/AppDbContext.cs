@@ -16,5 +16,6 @@ namespace IREST.API.Data
         public DbSet<Favorito> Favoritos { get; set; }
         public DbSet<ChatbotSession> ChatbotSessions { get; set; }
         public DbSet<ChatbotMessage> ChatbotMessages { get; set; }
+        public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
     }
 }
