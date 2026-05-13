@@ -85,9 +85,16 @@ export class HelpChat {
         error: (err) => {
           console.error('[Chat] Erro:', err);
           this.zone.run(() => {
-            const msg = err?.name === 'TimeoutError'
-              ? 'A resposta demorou demais. Tente novamente em alguns instantes.'
-              : 'Desculpe, não consegui processar sua mensagem. Tente novamente.';
+            let msg: string;
+            if (err?.name === 'TimeoutError') {
+              msg = 'A resposta demorou demais. Tente novamente em alguns instantes.';
+            } else if (err?.error?.resposta && err.error.resposta.includes('não está configurado')) {
+              msg = 'O assistente de IA está temporariamente indisponivel. Por favor, tente novamente mais tarde.';
+            } else if (err?.status === 401) {
+              msg = 'Voce precisa estar logado para usar o chat.';
+            } else {
+              msg = 'Desculpe, o assistente de IA esta temporariamente indisponivel. Tente novamente mais tarde.';
+            }
             this.messages = [...this.messages, { text: msg, sender: 'bot' }];
             this.isLoading = false;
             this.cdr.detectChanges();

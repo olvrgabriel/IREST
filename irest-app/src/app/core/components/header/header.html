@@ -3,11 +3,18 @@
     <div class="logo-box"></div>
     <span class="logo-text">IREST</span>
   </a>
-  <nav class="main-nav">
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Início</a>
-    <a routerLink="/busca" routerLinkActive="active">Buscar</a>
-    <a routerLink="/como-funciona" routerLinkActive="active">Como funciona</a>
-    <a routerLink="/ajuda" routerLinkActive="active">Ajuda</a>
+
+  <button class="hamburger" (click)="toggleMobileMenu()" [class.active]="mobileMenuOpen">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <nav class="main-nav" [class.mobile-open]="mobileMenuOpen">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="mobileMenuOpen = false">Inicio</a>
+    <a routerLink="/busca" routerLinkActive="active" (click)="mobileMenuOpen = false">Buscar</a>
+    <a routerLink="/como-funciona" routerLinkActive="active" (click)="mobileMenuOpen = false">Como funciona</a>
+    <a routerLink="/ajuda" routerLinkActive="active" (click)="mobileMenuOpen = false">Ajuda</a>
 
     <ng-container *ngIf="isLoggedIn; else loginLinks">
       <div class="user-menu-container">
@@ -16,18 +23,18 @@
           <span class="user-name">{{ currentUser?.nome }}</span>
         </button>
         <div class="user-dropdown" *ngIf="menuOpen">
-          <a routerLink="/painel-admin" *ngIf="isAdmin" (click)="menuOpen = false">Painel Admin</a>
-          <a routerLink="/admin/crud" *ngIf="isAdmin" (click)="menuOpen = false">Gerenciar Dados</a>
-          <a routerLink="/painel-funeraria" *ngIf="isFuneraria" (click)="menuOpen = false">Painel Funerária</a>
-          <a routerLink="/meu-painel" *ngIf="isUsuario" (click)="menuOpen = false">Meu Painel</a>
-          <a routerLink="/chat" (click)="menuOpen = false">Chat</a>
+          <a routerLink="/painel-admin" *ngIf="isAdmin" (click)="menuOpen = false; mobileMenuOpen = false">Painel Admin</a>
+          <a routerLink="/admin/crud" *ngIf="isAdmin" (click)="menuOpen = false; mobileMenuOpen = false">Gerenciar Dados</a>
+          <a routerLink="/painel-funeraria" *ngIf="isFuneraria" (click)="menuOpen = false; mobileMenuOpen = false">Painel Funeraria</a>
+          <a routerLink="/meu-painel" *ngIf="isUsuario" (click)="menuOpen = false; mobileMenuOpen = false">Meu Painel</a>
+          <a routerLink="/chat" (click)="menuOpen = false; mobileMenuOpen = false">Chat</a>
           <button class="logout-btn" (click)="logout()">Sair</button>
         </div>
       </div>
     </ng-container>
     <ng-template #loginLinks>
-      <a routerLink="/login" class="btn-header-login">Entrar</a>
-      <a routerLink="/cadastro" class="btn-header-register">Cadastrar</a>
+      <a routerLink="/login" class="btn-header-login" (click)="mobileMenuOpen = false">Entrar</a>
+      <a routerLink="/cadastro" class="btn-header-register" (click)="mobileMenuOpen = false">Cadastrar</a>
     </ng-template>
   </nav>
 </header>

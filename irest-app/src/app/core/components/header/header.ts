@@ -12,6 +12,7 @@ import { AuthService, AuthUser } from '../../../services/auth.service';
 })
 export class HeaderComponent {
   menuOpen = false;
+  mobileMenuOpen = false;
 
   constructor(public authService: AuthService, private router: Router) {}
 
@@ -37,6 +38,10 @@ export class HeaderComponent {
 
   toggleMenu(): void {
     this.menuOpen = !this.menuOpen;
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
   }
 
   logout(): void {

@@ -119,3 +119,18 @@
 .auth-form select:focus {
   border-color: var(--primary-blue);
 }
+
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 20px 12px;
+    min-height: calc(100vh - 60px);
+  }
+
+  .auth-card {
+    padding: 24px 20px;
+  }
+
+  .auth-card h1 {
+    font-size: 1.5rem;
+  }
+}
