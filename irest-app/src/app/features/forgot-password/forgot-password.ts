@@ -1,7 +1,7 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { HeaderComponent } from '../../core/components/header/header';
 import { AuthService } from '../../services/auth.service';
 import { finalize } from 'rxjs';
@@ -15,15 +15,22 @@ import { finalize } from 'rxjs';
 })
 export class ForgotPasswordComponent {
   email = '';
+  pergunta = '';
+  resposta = '';
+  novaSenha = '';
+  confirmarSenha = '';
   error = '';
   success = '';
-  token = '';
-  emailSent = false;
   loading = false;
+  step: 'email' | 'resposta' | 'done' = 'email';
 
-  constructor(private authService: AuthService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
-  submit(): void {
+  buscarPergunta(): void {
     if (!this.email) {
       this.error = 'Informe seu email';
       return;
@@ -31,32 +38,52 @@ export class ForgotPasswordComponent {
 
     this.loading = true;
     this.error = '';
-    this.success = '';
 
     this.authService.forgotPassword(this.email).pipe(
-      finalize(() => {
-        this.loading = false;
-        this.cdr.detectChanges();
-      })
+      finalize(() => { this.loading = false; this.cdr.detectChanges(); })
     ).subscribe({
       next: (res: any) => {
-        if (res && res.emailSent) {
-          this.success = 'Codigo de recuperacao enviado para o seu email!';
-          this.emailSent = true;
-        } else if (res && res.token) {
-          this.success = 'Codigo de recuperacao gerado com sucesso!';
-          this.token = res.token;
-        } else {
-          this.success = (res && res.message) || 'Se o email estiver cadastrado, um codigo foi gerado.';
-        }
+        this.pergunta = res.pergunta;
+        this.step = 'resposta';
         this.cdr.detectChanges();
       },
       error: (err: any) => {
-        if (err.status === 0) {
-          this.error = 'Nao foi possivel conectar ao servidor. Verifique se a API esta rodando.';
-        } else {
-          this.error = err.error?.message || 'Erro ao solicitar recuperacao';
-        }
+        this.error = err.error?.message || 'Email nao encontrado';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  redefinirSenha(): void {
+    if (!this.resposta || !this.novaSenha || !this.confirmarSenha) {
+      this.error = 'Preencha todos os campos';
+      return;
+    }
+
+    if (this.novaSenha.length < 6) {
+      this.error = 'A senha deve ter no minimo 6 caracteres';
+      return;
+    }
+
+    if (this.novaSenha !== this.confirmarSenha) {
+      this.error = 'As senhas nao conferem';
+      return;
+    }
+
+    this.loading = true;
+    this.error = '';
+
+    this.authService.resetPassword(this.email, this.resposta, this.novaSenha).pipe(
+      finalize(() => { this.loading = false; this.cdr.detectChanges(); })
+    ).subscribe({
+      next: () => {
+        this.success = 'Senha alterada com sucesso! Redirecionando...';
+        this.step = 'done';
+        this.cdr.detectChanges();
+        setTimeout(() => this.router.navigate(['/login']), 2000);
+      },
+      error: (err: any) => {
+        this.error = err.error?.message || 'Resposta incorreta';
         this.cdr.detectChanges();
       }
     });

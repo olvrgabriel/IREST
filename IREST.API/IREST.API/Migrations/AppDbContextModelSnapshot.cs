@@ -38,6 +38,12 @@ namespace IREST.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PerguntaSeguranca")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RespostaSeguranca")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Senha")
                         .HasColumnType("nvarchar(max)");
 
@@ -154,6 +160,12 @@ namespace IREST.API.Migrations
 
                     b.Property<string>("Nome")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PerguntaSeguranca")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RespostaSeguranca")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Senha")
@@ -276,6 +288,12 @@ namespace IREST.API.Migrations
 
                     b.Property<string>("Nome")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PerguntaSeguranca")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RespostaSeguranca")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Senha")

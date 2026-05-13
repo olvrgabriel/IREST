@@ -11,6 +11,8 @@ namespace IREST.API.DTOs
         public string Nome { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Senha { get; set; } = string.Empty;
+        public string PerguntaSeguranca { get; set; } = string.Empty;
+        public string RespostaSeguranca { get; set; } = string.Empty;
     }
 
     public class RegisterFunerariaRequest
@@ -22,6 +24,8 @@ namespace IREST.API.DTOs
         public string? Estado { get; set; }
         public string? Telefone { get; set; }
         public string? Endereco { get; set; }
+        public string PerguntaSeguranca { get; set; } = string.Empty;
+        public string RespostaSeguranca { get; set; } = string.Empty;
     }
 
     public class AuthResponse
@@ -38,9 +42,10 @@ namespace IREST.API.DTOs
         public string Email { get; set; } = string.Empty;
     }
 
-    public class ResetPasswordRequest
+    public class ForgotPasswordVerifyRequest
     {
-        public string Token { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string RespostaSeguranca { get; set; } = string.Empty;
         public string NovaSenha { get; set; } = string.Empty;
     }
 }
