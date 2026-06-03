@@ -20,3 +20,7 @@ appsettings.Development.json
 appsettings.Local.json
 .env
 .env.local
+
+# Publish / deploy artifacts
+publish/
+publisher/
