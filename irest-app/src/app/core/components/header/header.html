@@ -24,7 +24,6 @@
         </button>
         <div class="user-dropdown" *ngIf="menuOpen">
           <a routerLink="/painel-admin" *ngIf="isAdmin" (click)="menuOpen = false; mobileMenuOpen = false">Painel Admin</a>
-          <a routerLink="/admin/crud" *ngIf="isAdmin" (click)="menuOpen = false; mobileMenuOpen = false">Gerenciar Dados</a>
           <a routerLink="/painel-funeraria" *ngIf="isFuneraria" (click)="menuOpen = false; mobileMenuOpen = false">Painel Funeraria</a>
           <a routerLink="/meu-painel" *ngIf="isUsuario" (click)="menuOpen = false; mobileMenuOpen = false">Meu Painel</a>
           <a routerLink="/chat" (click)="menuOpen = false; mobileMenuOpen = false">Chat</a>

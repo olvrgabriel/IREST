@@ -114,7 +114,7 @@ export class HomeComponent implements OnInit {
       });
     }
 
-    this.funerarias = resultado.slice(0, 2);
+    this.funerarias = resultado;
   }
 
   getAverageRating(funeraria: Funeraria): number {
