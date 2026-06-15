@@ -19,7 +19,12 @@
           class="message-bubble"
           [class.user-bubble]="msg.sender === 'user'"
         >
-          {{ msg.text }}
+          <div
+            *ngIf="msg.sender === 'bot'; else userText"
+            class="bubble-content"
+            [innerHTML]="formatMessage(msg.text)"
+          ></div>
+          <ng-template #userText>{{ msg.text }}</ng-template>
         </div>
       </div>
 

@@ -104,6 +104,57 @@ export class HelpChat {
       });
   }
 
+  /**
+   * Converte um subconjunto seguro de Markdown (negrito, listas, parágrafos)
+   * para HTML. O HTML é escapado antes, e o binding [innerHTML] do Angular
+   * sanitiza o resultado — então não há risco de injeção.
+   */
+  formatMessage(text: string): string {
+    if (!text) return '';
+
+    // 1) Escapa HTML para evitar injeção de tags vindas do modelo
+    let safe = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // 2) Negrito **texto**
+    safe = safe.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+    // 3) Monta blocos linha a linha (parágrafos, listas com - / *, listas numeradas)
+    const lines = safe.split('\n');
+    let html = '';
+    let listType: 'ul' | 'ol' | null = null;
+    const closeList = () => {
+      if (listType) { html += `</${listType}>`; listType = null; }
+    };
+
+    for (const raw of lines) {
+      const line = raw.trim();
+      if (!line) { closeList(); continue; }
+
+      const heading = /^#{1,6}\s+(.*)$/.exec(line);
+      const bullet = /^[-*]\s+(.*)$/.exec(line);
+      const numbered = /^\d+\.\s+(.*)$/.exec(line);
+
+      if (heading) {
+        closeList();
+        html += `<p><strong>${heading[1]}</strong></p>`;
+      } else if (bullet) {
+        if (listType !== 'ul') { closeList(); html += '<ul>'; listType = 'ul'; }
+        html += `<li>${bullet[1]}</li>`;
+      } else if (numbered) {
+        if (listType !== 'ol') { closeList(); html += '<ol>'; listType = 'ol'; }
+        html += `<li>${numbered[1]}</li>`;
+      } else {
+        closeList();
+        html += `<p>${line}</p>`;
+      }
+    }
+    closeList();
+    return html;
+  }
+
   private scrollToBottom(): void {
     setTimeout(() => {
       if (this.chatArea) {
