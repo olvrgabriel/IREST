@@ -1,0 +1,178 @@
+==============================================================
+ IREST - Plataforma de Busca por Servicos Funerarios
+ LEIA-ME (Guia de Instalacao e Execucao Local)
+==============================================================
+
+O sistema e dividido em dois modulos:
+
+  IREST.API   -> Backend  (.NET 8 + Entity Framework Core + SQL Server)
+  irest-app   -> Frontend (Angular 21)
+
+Para o sistema funcionar, os DOIS modulos precisam estar rodando
+ao mesmo tempo (back-end e front-end).
+
+--------------------------------------------------------------
+ 1. PRE-REQUISITOS (instalar antes de tudo)
+--------------------------------------------------------------
+
+  - .NET SDK 8.0
+    Download: https://dotnet.microsoft.com/download/dotnet/8.0
+    Verifique no terminal:  dotnet --version
+
+  - Node.js 20 ou superior (inclui o npm)
+    Download: https://nodejs.org
+    Verifique no terminal:  node --version
+
+  - Angular CLI 21 (instala globalmente via npm)
+    Instale com:  npm install -g @angular/cli
+    Verifique:    ng version
+
+  - SQL Server (Express, Developer ou LocalDB)
+    Download: https://www.microsoft.com/sql-server/sql-server-downloads
+    Opcional: SQL Server Management Studio (SSMS) para visualizar o banco.
+
+  - Ferramenta do Entity Framework Core (para criar/atualizar o banco)
+    Instale com:  dotnet tool install --global dotnet-ef
+    Verifique:    dotnet ef --version
+
+--------------------------------------------------------------
+ 2. CONFIGURACAO (arquivo de segredos)
+--------------------------------------------------------------
+
+O backend le suas configuracoes sensiveis do arquivo:
+
+  IREST.API/IREST.API/appsettings.Local.json
+
+Este pacote ja acompanha esse arquivo preenchido. Voce SO precisa
+ajustar a string de conexao do banco para o seu SQL Server local.
+
+Abra o arquivo e edite o campo "Server" da conexao:
+
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=SEU_SERVIDOR;Database=IREST;Trusted_Connection=True;TrustServerCertificate=True;"
+  }
+
+  - Troque SEU_SERVIDOR pelo nome da sua instancia do SQL Server.
+    Exemplos comuns:
+      localhost
+      .\SQLEXPRESS
+      (localdb)\MSSQLLocalDB
+      NOME-DO-PC
+
+Os demais campos ja vem preenchidos:
+  - Jwt.Key      -> chave usada para gerar os tokens de login
+  - Gemini.ApiKey-> chave da API do Google Gemini (chatbot de ajuda)
+  - AdminSeed    -> usuario administrador criado automaticamente
+                    na primeira execucao:
+                      Email: admin@irest.com
+                      Senha: admin123
+
+OBS: A chave do Gemini ja incluida e pessoal. Se precisar de outra,
+gere gratuitamente em: https://aistudio.google.com/app/apikey
+
+--------------------------------------------------------------
+ 3. EXECUTAR O BACKEND (IREST.API)
+--------------------------------------------------------------
+
+Abra um terminal na pasta do projeto da API:
+
+  cd IREST.API/IREST.API
+
+Restaure as dependencias:
+
+  dotnet restore
+
+Crie/atualize o banco de dados (aplica as migrations):
+
+  dotnet ef database update
+
+Inicie a API:
+
+  dotnet run
+
+A API ficara disponivel em:
+
+  http://localhost:5019
+  Documentacao (Swagger): http://localhost:5019/swagger
+
+Deixe este terminal aberto enquanto usa o sistema.
+
+--------------------------------------------------------------
+ 4. EXECUTAR O FRONTEND (irest-app)
+--------------------------------------------------------------
+
+Abra um SEGUNDO terminal na pasta do front-end:
+
+  cd irest-app
+
+Instale as dependencias (cria a pasta node_modules):
+
+  npm install
+
+Inicie a aplicacao:
+
+  ng serve
+
+A aplicacao ficara disponivel em:
+
+  http://localhost:4200
+
+Abra esse endereco no navegador para usar o IREST.
+
+--------------------------------------------------------------
+ 5. RESUMO RAPIDO (apos configurar o passo 2)
+--------------------------------------------------------------
+
+  Terminal 1 (backend):
+    cd IREST.API/IREST.API
+    dotnet ef database update
+    dotnet run
+
+  Terminal 2 (frontend):
+    cd irest-app
+    npm install
+    ng serve
+
+  Acesse: http://localhost:4200
+
+--------------------------------------------------------------
+ 6. PROBLEMAS COMUNS
+--------------------------------------------------------------
+
+  - "Cannot connect to SQL Server" / erro de conexao:
+      Verifique o nome do servidor em appsettings.Local.json e se o
+      servico do SQL Server esta em execucao.
+
+  - Frontend nao carrega dados / erros de CORS:
+      Confirme que o backend esta rodando em http://localhost:5019
+      ANTES de abrir o front-end.
+
+  - "ng nao e reconhecido":
+      Instale o Angular CLI:  npm install -g @angular/cli
+
+  - "dotnet ef nao e reconhecido":
+      Instale a ferramenta:  dotnet tool install --global dotnet-ef
+
+  - Porta 4200 ou 5019 ocupada:
+      Encerre o processo que esta usando a porta ou rode em outra:
+        ng serve --port 4300
+      (se mudar a porta da API, ajuste tambem
+       irest-app/src/environments/environment.ts)
+
+--------------------------------------------------------------
+ 7. OBSERVACOES
+--------------------------------------------------------------
+
+  - Este pacote NAO inclui as pastas geradas automaticamente
+    (node_modules, bin, obj, dist, .angular). Elas sao recriadas
+    pelos comandos "npm install", "dotnet restore" e "dotnet run".
+
+  - Login de administrador padrao:
+      Email: admin@irest.com
+      Senha: admin123
+
+  - Desenvolvedores:
+      Gabriel Andrade Dutra de Oliveira
+      Matheus Rodrigues de Paula
+      Projeto de Inovacao Tecnologica II - Ciencia da Computacao - 2026
+==============================================================
