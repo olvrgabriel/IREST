@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace IREST.API.Services
 {
@@ -40,10 +41,16 @@ namespace IREST.API.Services
 
                 if (results == null || results.Count == 0) return null;
 
+                if (!decimal.TryParse(results[0].Lat, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var lat) ||
+                    !decimal.TryParse(results[0].Lon, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var lon))
+                {
+                    return null;
+                }
+
                 return new GeocodingResult
                 {
-                    Latitude = decimal.Parse(results[0].Lat, System.Globalization.CultureInfo.InvariantCulture),
-                    Longitude = decimal.Parse(results[0].Lon, System.Globalization.CultureInfo.InvariantCulture)
+                    Latitude = lat,
+                    Longitude = lon
                 };
             }
             catch (Exception ex)
@@ -55,7 +62,10 @@ namespace IREST.API.Services
 
         private class NominatimResult
         {
+            [JsonPropertyName("lat")]
             public string Lat { get; set; } = string.Empty;
+
+            [JsonPropertyName("lon")]
             public string Lon { get; set; } = string.Empty;
         }
     }
