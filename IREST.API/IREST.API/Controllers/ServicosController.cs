@@ -31,8 +31,10 @@ namespace IREST.API.Controllers
             page = page < 1 ? 1 : page;
             pageSize = pageSize is < 1 or > 500 ? 100 : pageSize;
 
-            IQueryable<Servico> query = _context.Servicos.Include(s => s.Funeraria);
-            if (funerariaId.HasValue) query = query.Where(s => s.FunerariaId == funerariaId.Value);
+            IQueryable<Servico> query = _context.Servicos
+                .Include(s => s.FunerariaServicos!).ThenInclude(fs => fs.Funeraria);
+            if (funerariaId.HasValue)
+                query = query.Where(s => s.FunerariaServicos!.Any(fs => fs.FunerariaId == funerariaId.Value));
 
             var servicos = await query
                 .OrderBy(s => s.Id)
@@ -48,7 +50,7 @@ namespace IREST.API.Controllers
         public async Task<ActionResult<ServicoDto>> GetServico(int id)
         {
             var servico = await _context.Servicos
-                .Include(s => s.Funeraria)
+                .Include(s => s.FunerariaServicos!).ThenInclude(fs => fs.Funeraria)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (servico == null)
@@ -62,74 +64,69 @@ namespace IREST.API.Controllers
         // PUT: api/Servicos/5 - Admin ou funeraria dona do servico
         [HttpPut("{id}")]
         [Authorize(Roles = "admin,funeraria")]
-        public async Task<IActionResult> PutServico(int id, Servico servico)
+        public async Task<IActionResult> PutServico(int id, ServicoRequest req)
         {
-            var existing = await _context.Servicos.FindAsync(id);
+            var existing = await _context.Servicos
+                .Include(s => s.FunerariaServicos!)
+                .FirstOrDefaultAsync(s => s.Id == id);
             if (existing == null)
             {
                 return NotFound();
             }
 
             var isAdmin = User.IsAdmin();
-            if (!isAdmin && existing.FunerariaId != User.GetUserId())
+            if (!isAdmin && !existing.FunerariaServicos!.Any(fs => fs.FunerariaId == User.GetUserId()))
             {
                 return Forbid();
             }
 
-            existing.Nome = servico.Nome;
-            existing.Descricao = servico.Descricao;
-            existing.Preco = servico.Preco;
+            existing.Nome = req.Nome;
+            existing.Descricao = req.Descricao;
+            existing.Preco = req.Preco;
 
             // Somente admin pode transferir o servico para outra funeraria
-            if (isAdmin && servico.FunerariaId > 0)
+            if (isAdmin && req.FunerariaId > 0 &&
+                await _context.Funerarias.AnyAsync(f => f.Id == req.FunerariaId))
             {
-                existing.FunerariaId = servico.FunerariaId;
+                _context.FunerariaServicos.RemoveRange(existing.FunerariaServicos!);
+                _context.FunerariaServicos.Add(new FunerariaServico { FunerariaId = req.FunerariaId, ServicoId = existing.Id });
             }
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ServicoExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
         // POST: api/Servicos - Admin ou funeraria (ela mesma)
         [HttpPost]
         [Authorize(Roles = "admin,funeraria")]
-        public async Task<ActionResult<ServicoDto>> PostServico(Servico servico)
+        public async Task<ActionResult<ServicoDto>> PostServico(ServicoRequest req)
         {
+            int funerariaId;
             if (!User.IsAdmin())
             {
                 var uid = User.GetUserId();
                 if (uid == null) return Forbid();
-                servico.FunerariaId = uid.Value; // funeraria so cria em si mesma
+                funerariaId = uid.Value; // funeraria so cria em si mesma
             }
-            else if (servico.FunerariaId <= 0 ||
-                     !await _context.Funerarias.AnyAsync(f => f.Id == servico.FunerariaId))
+            else if (req.FunerariaId <= 0 ||
+                     !await _context.Funerarias.AnyAsync(f => f.Id == req.FunerariaId))
             {
                 return BadRequest(new { message = "FunerariaId invalido" });
             }
+            else
+            {
+                funerariaId = req.FunerariaId;
+            }
 
+            var servico = new Servico { Nome = req.Nome, Descricao = req.Descricao, Preco = req.Preco };
             _context.Servicos.Add(servico);
             await _context.SaveChangesAsync();
 
-            var created = await _context.Servicos
-                .Include(s => s.Funeraria)
-                .FirstOrDefaultAsync(s => s.Id == servico.Id);
+            _context.FunerariaServicos.Add(new FunerariaServico { FunerariaId = funerariaId, ServicoId = servico.Id });
+            await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetServico", new { id = servico.Id }, created!.ToDto());
+            var funeraria = await _context.Funerarias.FindAsync(funerariaId);
+            return CreatedAtAction("GetServico", new { id = servico.Id }, servico.ToDto(funerariaId, funeraria?.Nome));
         }
 
         // DELETE: api/Servicos/5 - Admin ou funeraria dona
@@ -137,17 +134,21 @@ namespace IREST.API.Controllers
         [Authorize(Roles = "admin,funeraria")]
         public async Task<IActionResult> DeleteServico(int id)
         {
-            var servico = await _context.Servicos.FindAsync(id);
+            var servico = await _context.Servicos
+                .Include(s => s.FunerariaServicos!)
+                .FirstOrDefaultAsync(s => s.Id == id);
             if (servico == null)
             {
                 return NotFound();
             }
 
-            if (!User.IsAdmin() && servico.FunerariaId != User.GetUserId())
+            if (!User.IsAdmin() && !servico.FunerariaServicos!.Any(fs => fs.FunerariaId == User.GetUserId()))
             {
                 return Forbid();
             }
 
+            // Remove os vinculos e o servico do catalogo.
+            _context.FunerariaServicos.RemoveRange(servico.FunerariaServicos!);
             _context.Servicos.Remove(servico);
             await _context.SaveChangesAsync();
 

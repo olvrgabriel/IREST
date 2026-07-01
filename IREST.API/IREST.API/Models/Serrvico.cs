@@ -1,4 +1,4 @@
-﻿namespace IREST.API.Models
+namespace IREST.API.Models
 {
     public class Servico
     {
@@ -7,7 +7,7 @@
         public string? Descricao { get; set; }
         public decimal Preco { get; set; }
 
-        public int FunerariaId { get; set; }
-        public Funeraria? Funeraria { get; set; }
+        // Relacionamento N:N com Funeraria (via tabela associativa FunerariaServico)
+        public ICollection<FunerariaServico>? FunerariaServicos { get; set; }
     }
 }

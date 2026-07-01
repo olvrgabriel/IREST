@@ -36,7 +36,7 @@ namespace IREST.API.Controllers
             var id = GetFunerariaId();
             var funeraria = await _context.Funerarias
                 .Include(f => f.Reviews!).ThenInclude(r => r.Usuario)
-                .Include(f => f.Servicos!)
+                .Include(f => f.FunerariaServicos!).ThenInclude(fs => fs.Servico)
                 .Include(f => f.Favoritos!)
                 .FirstOrDefaultAsync(f => f.Id == id);
 
@@ -85,40 +85,46 @@ namespace IREST.API.Controllers
         public async Task<ActionResult<IEnumerable<ServicoDto>>> GetMyServicos()
         {
             var id = GetFunerariaId();
-            var servicos = await _context.Servicos
-                .Include(s => s.Funeraria)
-                .Where(s => s.FunerariaId == id)
+            var funeraria = await _context.Funerarias.FindAsync(id);
+
+            var servicos = await _context.FunerariaServicos
+                .Where(fs => fs.FunerariaId == id)
+                .Include(fs => fs.Servico)
+                .Select(fs => fs.Servico!)
                 .ToListAsync();
 
-            return servicos.Select(s => s.ToDto()!).ToList();
+            return servicos.Select(s => s.ToDto(id, funeraria?.Nome)).ToList();
         }
 
         // POST: api/MinhaFuneraria/servicos - Cria servico para a funeraria logada
         [HttpPost("servicos")]
-        public async Task<ActionResult<ServicoDto>> CreateServico(Servico servico)
+        public async Task<ActionResult<ServicoDto>> CreateServico(ServicoRequest data)
         {
             var id = GetFunerariaId();
-            servico.FunerariaId = id;
+            var funeraria = await _context.Funerarias.FindAsync(id);
+            if (funeraria == null) return NotFound();
 
+            var servico = new Servico { Nome = data.Nome, Descricao = data.Descricao, Preco = data.Preco };
             _context.Servicos.Add(servico);
             await _context.SaveChangesAsync();
 
-            var created = await _context.Servicos
-                .Include(s => s.Funeraria)
-                .FirstOrDefaultAsync(s => s.Id == servico.Id);
+            _context.FunerariaServicos.Add(new FunerariaServico { FunerariaId = id, ServicoId = servico.Id });
+            await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetMyServicos), created!.ToDto()!);
+            return CreatedAtAction(nameof(GetMyServicos), servico.ToDto(id, funeraria.Nome));
         }
 
         // PUT: api/MinhaFuneraria/servicos/5 - Atualiza servico da funeraria logada
         [HttpPut("servicos/{servicoId}")]
-        public async Task<IActionResult> UpdateServico(int servicoId, Servico data)
+        public async Task<IActionResult> UpdateServico(int servicoId, ServicoRequest data)
         {
             var funerariaId = GetFunerariaId();
-            var existing = await _context.Servicos.FindAsync(servicoId);
+            var vinculado = await _context.FunerariaServicos
+                .AnyAsync(fs => fs.ServicoId == servicoId && fs.FunerariaId == funerariaId);
+            if (!vinculado) return Forbid();
 
+            var existing = await _context.Servicos.FindAsync(servicoId);
             if (existing == null) return NotFound();
-            if (existing.FunerariaId != funerariaId) return Forbid();
 
             existing.Nome = data.Nome;
             existing.Descricao = data.Descricao;
@@ -133,13 +139,25 @@ namespace IREST.API.Controllers
         public async Task<IActionResult> DeleteServico(int servicoId)
         {
             var funerariaId = GetFunerariaId();
-            var servico = await _context.Servicos.FindAsync(servicoId);
+            var vinculo = await _context.FunerariaServicos
+                .FirstOrDefaultAsync(fs => fs.ServicoId == servicoId && fs.FunerariaId == funerariaId);
+            if (vinculo == null) return NotFound();
 
-            if (servico == null) return NotFound();
-            if (servico.FunerariaId != funerariaId) return Forbid();
-
-            _context.Servicos.Remove(servico);
+            _context.FunerariaServicos.Remove(vinculo);
             await _context.SaveChangesAsync();
+
+            // Remove o servico do catalogo se nenhuma outra funeraria o oferece.
+            var aindaOferecido = await _context.FunerariaServicos.AnyAsync(fs => fs.ServicoId == servicoId);
+            if (!aindaOferecido)
+            {
+                var servico = await _context.Servicos.FindAsync(servicoId);
+                if (servico != null)
+                {
+                    _context.Servicos.Remove(servico);
+                    await _context.SaveChangesAsync();
+                }
+            }
+
             return NoContent();
         }
 

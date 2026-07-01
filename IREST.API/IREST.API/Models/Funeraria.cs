@@ -20,7 +20,8 @@ namespace IREST.API.Models
         public string? RespostaSeguranca { get; set; }
 
         public ICollection<Review>? Reviews { get; set; }
-        public ICollection<Servico>? Servicos { get; set; }
+        // Relacionamento N:N com Servico (via tabela associativa FunerariaServico)
+        public ICollection<FunerariaServico>? FunerariaServicos { get; set; }
         public ICollection<Favorito>? Favoritos { get; set; }
     }
 }

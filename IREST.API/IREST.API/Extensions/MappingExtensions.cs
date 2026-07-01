@@ -40,7 +40,9 @@ namespace IREST.API.Extensions
                 Endereco = f.Endereco,
                 Horario = f.Horario,
                 Reviews = f.Reviews?.Select(r => r.ToDto()!).ToList(),
-                Servicos = f.Servicos?.Select(s => s.ToDto()!).ToList(),
+                Servicos = f.FunerariaServicos?
+                    .Where(fs => fs.Servico != null)
+                    .Select(fs => fs.Servico!.ToDto(f.Id, f.Nome)).ToList(),
                 Favoritos = f.Favoritos?.Select(fr => fr.ToDto()!).ToList()
             };
 
@@ -58,16 +60,33 @@ namespace IREST.API.Extensions
                 AdminNome = r.Admin?.Nome
             };
 
-        public static ServicoDto? ToDto(this Servico? s)
-            => s == null ? null : new ServicoDto
+        // Mapeamento no contexto de uma funeraria conhecida (N:N).
+        public static ServicoDto ToDto(this Servico s, int funerariaId, string? funerariaNome)
+            => new ServicoDto
             {
                 Id = s.Id,
                 Nome = s.Nome,
                 Descricao = s.Descricao,
                 Preco = s.Preco,
-                FunerariaId = s.FunerariaId,
-                FunerariaNome = s.Funeraria?.Nome
+                FunerariaId = funerariaId,
+                FunerariaNome = funerariaNome
             };
+
+        // Mapeamento generico: deriva a funeraria do primeiro vinculo carregado.
+        public static ServicoDto? ToDto(this Servico? s)
+        {
+            if (s == null) return null;
+            var vinculo = s.FunerariaServicos?.FirstOrDefault();
+            return new ServicoDto
+            {
+                Id = s.Id,
+                Nome = s.Nome,
+                Descricao = s.Descricao,
+                Preco = s.Preco,
+                FunerariaId = vinculo?.FunerariaId ?? 0,
+                FunerariaNome = vinculo?.Funeraria?.Nome
+            };
+        }
 
         public static FavoritoDto? ToDto(this Favorito? f)
             => f == null ? null : new FavoritoDto

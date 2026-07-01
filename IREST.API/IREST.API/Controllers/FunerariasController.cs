@@ -33,7 +33,7 @@ namespace IREST.API.Controllers
         {
             var funerarias = await _context.Funerarias
                 .Include(f => f.Reviews!).ThenInclude(r => r.Usuario)
-                .Include(f => f.Servicos!)
+                .Include(f => f.FunerariaServicos!).ThenInclude(fs => fs.Servico)
                 .Include(f => f.Favoritos!)
                 .ToListAsync();
 
@@ -46,7 +46,7 @@ namespace IREST.API.Controllers
         {
             var funeraria = await _context.Funerarias
                 .Include(f => f.Reviews!).ThenInclude(r => r.Usuario)
-                .Include(f => f.Servicos!)
+                .Include(f => f.FunerariaServicos!).ThenInclude(fs => fs.Servico)
                 .Include(f => f.Favoritos!)
                 .FirstOrDefaultAsync(f => f.Id == id);
 
@@ -133,7 +133,7 @@ namespace IREST.API.Controllers
 
             var created = await _context.Funerarias
                 .Include(f => f.Reviews!)
-                .Include(f => f.Servicos!)
+                .Include(f => f.FunerariaServicos!).ThenInclude(fs => fs.Servico)
                 .Include(f => f.Favoritos!)
                 .FirstOrDefaultAsync(f => f.Id == funeraria.Id);
 
@@ -151,8 +151,24 @@ namespace IREST.API.Controllers
                 return NotFound();
             }
 
-            _context.Funerarias.Remove(funeraria);
+            // Ids dos servicos oferecidos por esta funeraria (antes de remover os vinculos).
+            var servicoIds = await _context.FunerariaServicos
+                .Where(fs => fs.FunerariaId == id)
+                .Select(fs => fs.ServicoId)
+                .ToListAsync();
+
+            _context.Funerarias.Remove(funeraria); // cascade remove os vinculos desta funeraria
             await _context.SaveChangesAsync();
+
+            // Remove do catalogo os servicos que ficaram sem nenhuma funeraria.
+            var orfaos = await _context.Servicos
+                .Where(s => servicoIds.Contains(s.Id) && !s.FunerariaServicos!.Any())
+                .ToListAsync();
+            if (orfaos.Count > 0)
+            {
+                _context.Servicos.RemoveRange(orfaos);
+                await _context.SaveChangesAsync();
+            }
 
             return NoContent();
         }

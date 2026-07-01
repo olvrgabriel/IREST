@@ -12,6 +12,7 @@ namespace IREST.API.Data
         public DbSet<Admin> Admins { get; set; }
         public DbSet<Funeraria> Funerarias { get; set; }
         public DbSet<Servico> Servicos { get; set; }
+        public DbSet<FunerariaServico> FunerariaServicos { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Favorito> Favoritos { get; set; }
         public DbSet<ChatbotSession> ChatbotSessions { get; set; }
@@ -30,6 +31,20 @@ namespace IREST.API.Data
 
             // Preco monetario: precisao explicita para evitar truncamento silencioso.
             modelBuilder.Entity<Servico>().Property(s => s.Preco).HasPrecision(18, 2);
+
+            // N:N entre Funeraria e Servico via tabela associativa FunerariaServico.
+            modelBuilder.Entity<FunerariaServico>()
+                .HasKey(fs => new { fs.FunerariaId, fs.ServicoId });
+            modelBuilder.Entity<FunerariaServico>()
+                .HasOne(fs => fs.Funeraria)
+                .WithMany(f => f.FunerariaServicos)
+                .HasForeignKey(fs => fs.FunerariaId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<FunerariaServico>()
+                .HasOne(fs => fs.Servico)
+                .WithMany(s => s.FunerariaServicos)
+                .HasForeignKey(fs => fs.ServicoId)
+                .OnDelete(DeleteBehavior.Restrict); // evita multiplos caminhos de cascade (SQL Server)
         }
     }
 }
