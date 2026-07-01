@@ -58,10 +58,10 @@ O banco foi modelado com base em um DER contendo as seguintes entidades:
 
 Relacionamentos incluem:
 
-* Usuário → Reviews
-* Funerária → Serviços
-* Usuário → Favoritos
-* Usuário → Sessões de Chatbot
+* Usuário 1:N Reviews
+* Funerária N:N Serviços (via tabela associativa Funerária-Serviço)
+* Usuário N:N Favoritos (funerárias favoritas)
+* Usuário 1:N Sessões de Chatbot
 
 ---
 

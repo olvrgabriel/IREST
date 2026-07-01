@@ -61,14 +61,16 @@ O `AppDbContext` define 8 entidades:
 | `Usuario` | Usuário comum (nome, email, senha hash) |
 | `Admin` | Administrador do sistema |
 | `Funeraria` | Funerária com localização, serviços e credenciais |
-| `Servico` | Serviço oferecido por uma funerária (nome, preço) |
+| `Servico` | Serviço funerário (nome, preço), oferecido por uma ou mais funerárias |
 | `Review` | Avaliação de 1-5 estrelas com comentário |
 | `Favorito` | Relação N:N entre usuário e funerária |
+| `FunerariaServico` | Tabela associativa da relação N:N entre `Funeraria` e `Servico` |
 | `ChatbotSession` | Sessão de conversa do chatbot |
 | `ChatbotMessage` | Mensagem individual dentro de uma sessão |
 
 Relacionamentos principais:
-- `Funeraria` 1:N `Review`, 1:N `Servico`, 1:N `Favorito`
+- `Funeraria` **N:N** `Servico` — uma funerária oferece vários serviços e um mesmo serviço pode ser oferecido por várias funerárias (via tabela associativa `FunerariaServico`)
+- `Funeraria` 1:N `Review`, 1:N `Favorito`
 - `Usuario` 1:N `Review`, 1:N `Favorito`, 1:N `ChatbotSession`
 - `Review` N:1 `Usuario`, N:1 `Funeraria`, N:1 `Admin` (moderação)
 
